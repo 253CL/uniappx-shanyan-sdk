@@ -1,0 +1,44 @@
+// 引入闪验SDK相关类
+import OneKeyLoginManager from 'com.chuanglan.shanyan_sdk.OneKeyLoginManager'
+import InitListener from 'com.chuanglan.shanyan_sdk.listener.InitListener'
+/**
+ * 闪验SDK初始化方法
+ * 
+ * @description 使用从闪验平台申请的APP_ID进行SDK初始化
+ * @param {string} appId - 闪验平台创建应用分配的APP_ID
+ * @param {function} callback - 初始化结果回调函数，参数为包含以下属性的对象:
+ *   @property {number} code - 初始化状态码
+ *   @property {string} result - 初始化结果描述
+ * @example
+ * initWithAppId('your_app_id', ({code, result}) => {
+ *   console.log(`初始化状态: ${code}, 结果: ${result}`);
+ * });
+ */
+
+export function initWithAppId(
+	appId : string,
+	callback : InitCallback) {
+	//Android端原生SDK初始化结果监听
+	const initListener = (code : number, result : string) => {
+		//初始化结果回调函数
+		const response : InitResponse = { code, result };
+		callback(response);
+	};
+	//调用Android原生SDK方法
+	OneKeyLoginManager.getInstance().init(
+		UTSAndroid.getAppContext(),
+		appId,
+		initListener
+	);
+}
+// 初始化结果对象
+type InitResponse = {
+	/** 状态码 */
+	code : number;
+	/** 结果信息 */
+	result : string;
+}
+/**
+ * 一键登录初始化回调函数类型
+ */
+type InitCallback = (response : InitResponse) => void;

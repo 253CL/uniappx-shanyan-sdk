@@ -1,38 +1,124 @@
 <template>
-	<view>
-		<image class="logo" src="/static/logo.png"></image>
-		<view class="text-area">
-			<text class="title">{{title}}</text>
-		</view>
+	<view class="container">
+		<scroll-view class="log-box" scroll-y :scroll-top="scrollTop" scroll-with-animation>
+			<text class="log-text">{{logText}}</text>
+		</scroll-view>
+		<button class="button" @click="onInitClick">初始化</button>
+		<button class="button" @click="onPreGetNumberClick">预取号</button>
+		<button class="button" @click="onFullScreenClick">全屏模式</button>
+		<button class="button" @click="onDialogClick">弹窗模式</button>
+		<button class="button" @click="onAuthExperienceClick">号码认证体验</button>
 	</view>
 </template>
 
-<script>
+<script lang="ts">
+	import { initWithAppId } from "../../uni_modules/cl-shanyan"
+
 	export default {
 		data() {
 			return {
-				title: 'Hello'
+				logText: "日志输出:\n" as string,
+				scrollTop: 0 as number
 			}
 		},
-		onLoad() {
-
-		},
 		methods: {
+			addLog(message : string) : void {
+				this.logText = message;
+				console.log(this.logText);
+			},
 
+			onInitClick() : void {
+				let platform = uni.getDeviceInfo().platform;
+				let appId : string;
+				console.log('当前运行的终端平台类型是：' + platform);
+				if (platform === 'android') {
+					// android端信息-->appId：loXN4jDs，appkey：anOiEQaQ，包名：chuanglan.com.shanyantest，包签名：72a946b6fe3a6be27872cca7c820dbe3
+					appId = 'loXN4jDs';
+				} else if (platform === 'ios') {
+					// ios端信息-->appId：jbZTAzrm，appkey：3QknmACj，bundleId：com.zto.connect.fat
+					appId = 'jbZTAzrm';
+				} else if (platform === 'harmonyos') {
+					// harmonyos端信息-->appId：FyiH0sFV，appkey：FrUrFv6V，包名：com.harmony.shanyantest，包签名：7265454aa66fb198041e78deed7e68d93ff73dc6c5fa11274612635e05caee85,应用唯一标识:6918664681503718031
+					appId = 'FyiH0sFV';
+				} else {
+					this.addLog('不支持的平台: ' + platform);
+					// 非 android/ios/harmonyos平台 直接返回
+					return;
+				}
+				// 执行闪验初始化方法
+				initWithAppId(
+					appId,
+					(response) => {
+						try {
+							// 初始化结果回调函数，参数为包含以下属性的对象:code - 初始化状态码,result - 初始化结果描述
+							let shanyan_code = response.code;
+							let shanyan_result = response.result;
+							const logMessage = `初始化结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
+							this.addLog(logMessage);
+							this.scrollToBottom();
+						} catch (error) {
+							console.error('初始化处理失败:', error);
+						}
+					}
+				);
+			},
+			onPreGetNumberClick() : void {
+				this.addLog("预取号按钮被点击");
+				this.scrollToBottom();
+			},
+			onFullScreenClick() : void {
+				this.addLog("全屏模式按钮被点击");
+				this.scrollToBottom();
+			},
+			onDialogClick() : void {
+				this.addLog("弹窗模式按钮被点击");
+				this.scrollToBottom();
+			},
+			onAuthExperienceClick() : void {
+				this.addLog("号码认证体验按钮被点击");
+				this.scrollToBottom();
+			},
+			scrollToBottom() : void {
+				this.$nextTick(() => {
+					this.scrollTop = 999999;
+				});
+			}
 		}
 	}
 </script>
 
 <style>
-	.logo {
-		height: 100px;
-		width: 100px;
-		margin: 100px auto 25px auto;
+	.container {
+		display: flex;
+		flex-direction: column;
+		padding: 20px;
 	}
 
-	.title {
-		font-size: 18px;
-		color: #8f8f94;
-    text-align: center;
+	.button {
+		padding: 10px 15px;
+		background-color: #007AFF;
+		color: white;
+		border-radius: 5px;
+		border: none;
+		font-size: 14px;
+		margin-top: 10px;
+		margin-bottom: 10px;
+	}
+
+	.log-box {
+		background-color: #363b5f;
+		padding: 10px;
+		border-radius: 5px;
+		height: 200px;
+		margin-bottom: 15px;
+		border: 1px solid red;
+	}
+
+	.log-text {
+		color: white;
+		display: flex;
+		width: 100%;
+		font-family: monospace;
+		white-space: normal;
 	}
 </style>
