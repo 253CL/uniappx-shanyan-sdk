@@ -1,0 +1,26 @@
+export type CLResultOptions = {
+	complete: (response: CLResultResponse) => void,
+	fail: (response: CLResultResponse) => void,
+};
+
+/**
+ * 定位返回结果封装
+ */
+export type CLResult = {
+	code: number |null,
+	message: string | null,
+	innerCode: number | null,
+	innerDesc: string | null,
+	data: UTSJSONObject | null
+};
+
+/**
+ * 定位返回结果封装
+ */
+export type CLResultResponse = {
+	code: number |null,
+	message: string | null,
+	innerCode: number | null,
+	innerDesc: string | null,
+	data: UTSJSONObject | null
+};

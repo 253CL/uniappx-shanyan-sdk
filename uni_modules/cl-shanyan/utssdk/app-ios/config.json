@@ -1,3 +1,6 @@
 {
-  "deploymentTarget": "12"
+  "deploymentTarget": "12",
+  "frameworks": [
+  	"libc++.1.tbd"
+  ]
 }

@@ -1,0 +1,158 @@
+import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate,CLUIConfigure} from 'CL_ShanYanSDK'
+import { CLResultOptions, CLResultResponse } from "../interface.uts"
+import { Int, Hashable } from 'Swift';
+import { UIView , UIViewController } from 'UIKit';
+import { Code } from 'ARKit';
+	
+
+// export function 
+// export function initWithAppId(
+// 	appId : string,
+// 	callback : ShanYanCallback | null) {
+// 	//Android端原生SDK初始化结果监听
+// 	const initListener = (code : number, result : string) => {
+// 		//初始化结果回调函数
+// 		const response : ShanYanResponse = { code, result };
+// 		callback(response);
+// 	};
+// 	//调用Android原生SDK初始化方法
+// 	CLShanYanSDKManager.initWithAppId(appId, complete = (result:CLCompleteResult) =>{
+// 		if (result != null){
+// 			console.log(result.data)
+// 			let response: CLResultResponse = {
+// 				code: result.code,
+// 				message: result.message,
+// 				innerCode: result.innerCode,
+// 				innerDesc: result.innerDesc,
+// 				data: result.data
+// 			}
+// 			console.log(response)			
+// 			options.complete(response)
+// 		}else{
+// 			options.complete({
+// 				code: -1,
+// 				message: "初始化失败",
+// 				innerCode: -1,
+// 				innerDesc: "初始化失败",
+// 				data: null
+// 			})
+// 		}
+// 	}) 
+// }
+
+
+
+export class CLShanModules implements CLShanYanSDKManagerDelegate{
+	
+	uiConfigure:UTSJSONObject = {}
+	
+	shanYanInit(appId: string ,options: CLResultOptions){
+		CLShanYanSDKManager.printConsoleEnable(true)
+		CLShanYanSDKManager.initWithAppId(appId, complete = (result:CLCompleteResult) =>{	
+			if (result != null){
+				console.log(result.data)
+				let response: CLResultResponse = {
+					code: result.code,
+					message: result.message,
+					innerCode: result.innerCode,
+					innerDesc: result.innerDesc,
+					data: result.data
+				}
+				console.log(response)
+				options.complete(response)
+			}else{
+				options.complete({
+					code: -1,
+					message: "初始化失败",
+					innerCode: -1,
+					innerDesc: "初始化失败",
+					data: null
+				})
+			}
+		}) 
+	}
+	
+	shanYanPreGetPhonenumber(options: CLResultOptions){
+		CLShanYanSDKManager.preGetPhonenumber((result: CLCompleteResult)=>{
+			if (result != null){
+				let response: CLResultResponse = {
+					code: result.code,
+					message: result.message,
+					innerCode: result.innerCode,
+					innerDesc: result.innerDesc,
+					data: ({
+						protocolName: result.data?.["protocolName"],
+						protocolUrl: result.data?.["protocolUrl"],
+						telecom: result.data?.["telecom"],
+						number:result.data?.["number"],
+						clTokenFromType: result.data?.["clTokenFromType"],
+						slogan: result.data?.["slogan"],
+					})
+				}
+				console.log(response)
+				options.complete(response)
+			}else{
+				options.complete({
+					code: -1,
+					message: "预取号失败",
+					innerCode: -1,
+					innerDesc: "预取号失败",
+					data: null
+				})
+			}
+		})
+	}
+	
+	
+	setShanYanDelegate(){
+		CLShanYanSDKManager.setCLShanYanSDKManagerDelegate(this)
+	}
+	
+	
+	setUIConfigure(configure:UTSJSONObject){
+		this.uiConfigure = configure
+		console.log(configure.getString('clBackgroundImg'))
+		console.log("hahhahahahahh")
+	}
+	
+	quickLoginWithConfigure(){
+		let config = CLUIConfigure.clDefault()
+		config.viewController = UTSiOS.getCurrentViewController()
+	
+		CLShanYanSDKManager.quickAuthLogin(with = config, complete = (result:CLCompleteResult) =>{	
+			if (result != null){
+				
+				console.log(result)
+				let response: CLResultResponse = {
+					code: result.code,
+					message: result.message,
+					innerCode: result.innerCode,
+					innerDesc: result.innerDesc,
+					data: null
+				}
+				console.log(response)
+			}
+		}) 
+	}
+	
+	finishAuthControllerAnimated(){
+		CLShanYanSDKManager.finishAuthControllerCompletion(()=>{
+		})
+	}
+	
+	//代理方法
+	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad")authPageView: UIView | null, @argumentLabel("currentTelecom") telecom: string | null) {
+	    console.log('有结果啦啦啦啦啦111')
+	}
+	
+	clShanYanActionListener(type: Int | null ,code : Int | null, message: string | null){
+		console.log('有结果啦啦啦啦啦2222')
+	}
+	
+	// clShanYanSDKManagerAuthPageWillPresent(authPageVC: UIViewController | null, @argumentLabel("currentTelecom") telecom: string | null, object: NSObject | null, userInfo: any){
+	// 	console.log('有结果啦啦啦啦啦333')
+	// }
+	
+}
+
+
