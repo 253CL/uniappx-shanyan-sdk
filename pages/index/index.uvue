@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-	import { initWithAppId } from "../../uni_modules/cl-shanyan"
+	import { getPhoneInfo, initWithAppId } from "../../uni_modules/cl-shanyan"
 
 	export default {
 		data() {
@@ -45,7 +45,7 @@
 					// 非 android/ios/harmonyos平台 直接返回
 					return;
 				}
-				// 执行闪验初始化方法
+				// 执行闪验SDK初始化方法
 				initWithAppId(
 					appId,
 					(response) => {
@@ -55,7 +55,6 @@
 							let shanyan_result = response.result;
 							const logMessage = `初始化结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
 							this.addLog(logMessage);
-							this.scrollToBottom();
 						} catch (error) {
 							console.error('初始化处理失败:', error);
 						}
@@ -63,26 +62,29 @@
 				);
 			},
 			onPreGetNumberClick() : void {
-				this.addLog("预取号按钮被点击");
-				this.scrollToBottom();
+				//执行闪验SDK预取号方法
+				getPhoneInfo((response) => {
+					try {
+						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
+						let shanyan_code = response.code;
+						let shanyan_result = response.result;
+						const logMessage = `预取号结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
+						this.addLog(logMessage);
+					} catch (error) {
+						console.error('预取号处理失败:', error);
+					}
+				}
+				);
 			},
 			onFullScreenClick() : void {
 				this.addLog("全屏模式按钮被点击");
-				this.scrollToBottom();
 			},
 			onDialogClick() : void {
 				this.addLog("弹窗模式按钮被点击");
-				this.scrollToBottom();
 			},
 			onAuthExperienceClick() : void {
 				this.addLog("号码认证体验按钮被点击");
-				this.scrollToBottom();
 			},
-			scrollToBottom() : void {
-				this.$nextTick(() => {
-					this.scrollTop = 999999;
-				});
-			}
 		}
 	}
 </script>
@@ -91,7 +93,7 @@
 	.container {
 		display: flex;
 		flex-direction: column;
-		padding: 20px;
+		padding: 3px;
 	}
 
 	.button {
@@ -100,17 +102,17 @@
 		color: white;
 		border-radius: 5px;
 		border: none;
-		font-size: 14px;
-		margin-top: 10px;
-		margin-bottom: 10px;
+		font-size: 13px;
+		margin-top: 15px;
+		margin-left: 20px;
+		margin-right: 20px;
 	}
 
 	.log-box {
 		background-color: #363b5f;
-		padding: 10px;
+		padding: 5px;
 		border-radius: 5px;
 		height: 200px;
-		margin-bottom: 15px;
 		border: 1px solid red;
 	}
 
@@ -118,7 +120,9 @@
 		color: white;
 		display: flex;
 		width: 100%;
+		font-size: 13px;
 		font-family: monospace;
 		white-space: normal;
+
 	}
 </style>

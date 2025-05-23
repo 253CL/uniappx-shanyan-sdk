@@ -1,6 +1,16 @@
 // 引入闪验SDK相关类
-import OneKeyLoginManager from 'com.chuanglan.shanyan_sdk.OneKeyLoginManager'
-import InitListener from 'com.chuanglan.shanyan_sdk.listener.InitListener'
+import OneKeyLoginManager from 'com.chuanglan.shanyan_sdk.OneKeyLoginManager';
+// 闪验初始化、预取号、拉起授权页、获取token等结果对象
+type ShanYanResponse = {
+	/** 状态码 */
+	code : number;
+	/** 结果信息 */
+	result : string;
+}
+/**
+ * 一键登录初始化、预取号、拉起授权页、获取token等回调函数类型
+ */
+type ShanYanCallback = (response : ShanYanResponse) => void;
 /**
  * 闪验SDK初始化方法
  * 
@@ -17,28 +27,41 @@ import InitListener from 'com.chuanglan.shanyan_sdk.listener.InitListener'
 
 export function initWithAppId(
 	appId : string,
-	callback : InitCallback) {
+	callback : ShanYanCallback) {
 	//Android端原生SDK初始化结果监听
 	const initListener = (code : number, result : string) => {
 		//初始化结果回调函数
-		const response : InitResponse = { code, result };
+		const response : ShanYanResponse = { code, result };
 		callback(response);
 	};
-	//调用Android原生SDK方法
+	//调用Android原生SDK初始化方法
 	OneKeyLoginManager.getInstance().init(
 		UTSAndroid.getAppContext(),
 		appId,
 		initListener
 	);
 }
-// 初始化结果对象
-type InitResponse = {
-	/** 状态码 */
-	code : number;
-	/** 结果信息 */
-	result : string;
-}
 /**
- * 一键登录初始化回调函数类型
+ * 闪验SDK预取号方法
+ * 
+ * @description 在拉起授权页前2~3秒调用预取号，可以缩短拉起授权页耗时
+ * @param {function} callback - 预取号结果回调函数，参数为包含以下属性的对象:
+ *   @property {number} code - 预取号状态码
+ *   @property {string} result - 预取号结果描述
+ * @example
+ * getPhoneInfo(({code, result}) => {
+ *   console.log(`预取号状态: ${code}, 结果: ${result}`);
+ * });
  */
-type InitCallback = (response : InitResponse) => void;
+export function getPhoneInfo(callback : ShanYanCallback) {
+	//Android端原生SDK预取号结果监听
+	const getInfoListener = (code : number, result : string) => {
+		//预取号结果回调函数
+		const response : ShanYanResponse = { code, result };
+		callback(response);
+	};
+	//调用Android原生SDK预取号方法
+	OneKeyLoginManager.getInstance().getPhoneInfo(
+		getInfoListener
+	);
+}
