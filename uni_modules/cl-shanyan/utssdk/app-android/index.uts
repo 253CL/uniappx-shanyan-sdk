@@ -11,57 +11,60 @@ type ShanYanResponse = {
  * 一键登录初始化、预取号、拉起授权页、获取token等回调函数类型
  */
 type ShanYanCallback = (response : ShanYanResponse) => void;
-/**
- * 闪验SDK初始化方法
- * 
- * @description 使用从闪验平台申请的APP_ID进行SDK初始化
- * @param {string} appId - 闪验平台创建应用分配的APP_ID
- * @param {function} callback - 初始化结果回调函数，参数为包含以下属性的对象:
- *   @property {number} code - 初始化状态码
- *   @property {string} result - 初始化结果描述
- * @example
- * initWithAppId('your_app_id', ({code, result}) => {
- *   console.log(`初始化状态: ${code}, 结果: ${result}`);
- * });
- */
 
-export function initWithAppId(
-	appId : string,
-	callback : ShanYanCallback) {
-	//Android端原生SDK初始化结果监听
-	const initListener = (code : number, result : string) => {
-		//初始化结果回调函数
-		const response : ShanYanResponse = { code, result };
-		callback(response);
-	};
-	//调用Android原生SDK初始化方法
-	OneKeyLoginManager.getInstance().init(
-		UTSAndroid.getAppContext(),
-		appId,
-		initListener
-	);
-}
-/**
- * 闪验SDK预取号方法
- * 
- * @description 在拉起授权页前2~3秒调用预取号，可以缩短拉起授权页耗时
- * @param {function} callback - 预取号结果回调函数，参数为包含以下属性的对象:
- *   @property {number} code - 预取号状态码
- *   @property {string} result - 预取号结果描述
- * @example
- * getPhoneInfo(({code, result}) => {
- *   console.log(`预取号状态: ${code}, 结果: ${result}`);
- * });
- */
-export function getPhoneInfo(callback : ShanYanCallback) {
-	//Android端原生SDK预取号结果监听
-	const getInfoListener = (code : number, result : string) => {
-		//预取号结果回调函数
-		const response : ShanYanResponse = { code, result };
-		callback(response);
-	};
-	//调用Android原生SDK预取号方法
-	OneKeyLoginManager.getInstance().getPhoneInfo(
-		getInfoListener
-	);
+export class ShanYanSDKModule {
+	/**
+	 * 闪验SDK初始化方法
+	 * 
+	 * @description 使用从闪验平台申请的APP_ID进行SDK初始化
+	 * @param {string} appId - 闪验平台创建应用分配的APP_ID
+	 * @param {function} callback - 初始化结果回调函数，参数为包含以下属性的对象:
+	 *   @property {number} code - 初始化状态码
+	 *   @property {string} result - 初始化结果描述
+	 * @example
+	 * initWithAppId('your_app_id', ({code, result}) => {
+	 *   console.log(`初始化状态: ${code}, 结果: ${result}`);
+	 * });
+	 */
+
+	initWithAppId(
+		appId : string,
+		callback : ShanYanCallback) {
+		//Android端原生SDK初始化结果监听
+		const initListener = (code : number, result : string) => {
+			//初始化结果回调函数
+			const response : ShanYanResponse = { code, result };
+			callback(response);
+		};
+		//调用Android原生SDK初始化方法
+		OneKeyLoginManager.getInstance().init(
+			UTSAndroid.getAppContext(),
+			appId,
+			initListener
+		);
+	}
+	/**
+	 * 闪验SDK预取号方法
+	 * 
+	 * @description 在拉起授权页前2~3秒调用预取号，可以缩短拉起授权页耗时
+	 * @param {function} callback - 预取号结果回调函数，参数为包含以下属性的对象:
+	 *   @property {number} code - 预取号状态码
+	 *   @property {string} result - 预取号结果描述
+	 * @example
+	 * getPhoneInfo(({code, result}) => {
+	 *   console.log(`预取号状态: ${code}, 结果: ${result}`);
+	 * });
+	 */
+	getPhoneInfo(callback : ShanYanCallback) {
+		//Android端原生SDK预取号结果监听
+		const getInfoListener = (code : number, result : string) => {
+			//预取号结果回调函数
+			const response : ShanYanResponse = { code, result };
+			callback(response);
+		};
+		//调用Android原生SDK预取号方法
+		OneKeyLoginManager.getInstance().getPhoneInfo(
+			getInfoListener
+		);
+	}
 }

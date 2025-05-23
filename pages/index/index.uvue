@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts">
-	import { getPhoneInfo, initWithAppId } from "../../uni_modules/cl-shanyan"
-
+	import { ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	const shanYanSDKModule = new ShanYanSDKModule();
 	export default {
 		data() {
 			return {
@@ -46,7 +46,7 @@
 					return;
 				}
 				// 执行闪验SDK初始化方法
-				initWithAppId(
+				shanYanSDKModule.initWithAppId(
 					appId,
 					(response) => {
 						try {
@@ -63,7 +63,7 @@
 			},
 			onPreGetNumberClick() : void {
 				//执行闪验SDK预取号方法
-				getPhoneInfo((response) => {
+				shanYanSDKModule.getPhoneInfo((response) => {
 					try {
 						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
 						let shanyan_code = response.code;
