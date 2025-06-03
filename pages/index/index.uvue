@@ -12,13 +12,15 @@
 </template>
 
 <script lang="ts">
-	import { ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	import { AuthUIConfig, PrivacyItem, PrivacyText, ShanYanUIConfigure, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	import { CLResultResponse } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
 	const shanYanSDKModule = new ShanYanSDKModule();
 	export default {
 		data() {
 			return {
 				logText: "日志输出:\n" as string,
-				scrollTop: 0 as number
+				scrollTop: 0 as number,
+
 			}
 		},
 		methods: {
@@ -28,6 +30,7 @@
 			},
 
 			onInitClick() : void {
+				shanYanSDKModule.setDebug(true);
 				let platform = uni.getDeviceInfo().platform;
 				let appId : string;
 				console.log('当前运行的终端平台类型是：' + platform);
@@ -52,7 +55,7 @@
 						try {
 							// 初始化结果回调函数，参数为包含以下属性的对象:code - 初始化状态码,result - 初始化结果描述
 							let shanyan_code = response.code;
-							let shanyan_result = response.result;
+							let shanyan_result = response.message;
 							const logMessage = `初始化结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
 							this.addLog(logMessage);
 						} catch (error) {
@@ -67,7 +70,7 @@
 					try {
 						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
 						let shanyan_code = response.code;
-						let shanyan_result = response.result;
+						let shanyan_result = response.message;
 						const logMessage = `预取号结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
 						this.addLog(logMessage);
 					} catch (error) {
@@ -77,7 +80,57 @@
 				);
 			},
 			onFullScreenClick() : void {
-				this.addLog("全屏模式按钮被点击");
+				const uiConfigure : ShanYanUIConfigure = {
+					// 授权页已有元素配置
+					uiConfig: {
+						navText: "一键登录",
+						authBGImgPath: 'sy_login_bg',
+						setNavColor: '#ff0000',
+						setLogoImgPath: 'qq',
+						setLogBtnOffsetY: "280",
+						setAppPrivacyOne: {
+							title: '闪验用户协议',
+							url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html"
+						} as PrivacyItem,
+						setAppPrivacyTwo: {
+							title: '闪验隐私政策',
+							url: "https://api.253.com/api_doc/yin-si-zheng-ce/ge-ren-xin-xi-bao-hu-sheng-ming.html"
+						} as PrivacyItem,
+						setAppPrivacyThree: {
+							title: '服务协议',
+							url: "https://api.253.com/api_doc/yin-si-zheng-ce/ge-ren-xin-xi-bao-hu-sheng-ming.html"
+						} as PrivacyItem,
+						setPrivacyState: false,
+						setPrivacyText: {
+							privacyTextOne: '登录即同意',
+							privacyTextTwo: "、",
+							privacyTextThree: '、',
+							privacyTextFour: '和',
+							privacyTextFive: '并授权登录'
+						} as PrivacyText
+					} as AuthUIConfig // 显式声明类型
+				};
+				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfigure, (response) => {
+					try {
+						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
+						let shanyan_code = response.code;
+						let shanyan_result = response.message;
+						const logMessage = `拉授权页：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
+						this.addLog(logMessage);
+					} catch (error) {
+						console.error('拉授权页处理失败:', error);
+					}
+				}, (response) => {
+					try {
+						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
+						let shanyan_code = response.code;
+						let shanyan_result = response.message;
+						const logMessage = `授权结果：\nshanyan_code=${shanyan_code}\nshanyan_result=${shanyan_result}`;
+						this.addLog(logMessage);
+					} catch (error) {
+						console.error('授权结果处理失败:', error);
+					}
+				});
 			},
 			onDialogClick() : void {
 				this.addLog("弹窗模式按钮被点击");

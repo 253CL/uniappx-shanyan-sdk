@@ -1,18 +1,43 @@
 // 引入闪验SDK相关类
 import OneKeyLoginManager from 'com.chuanglan.shanyan_sdk.OneKeyLoginManager';
-// 闪验初始化、预取号、拉起授权页、获取token等结果对象
-type ShanYanResponse = {
-	/** 状态码 */
-	code : number;
-	/** 结果信息 */
-	result : string;
-}
-/**
- * 一键登录初始化、预取号、拉起授权页、获取token等回调函数类型
- */
-type ShanYanCallback = (response : ShanYanResponse) => void;
+import { ShanYanUIConfigure } from "../interface.uts";
+import ShanYanUIConfig from 'com.chuanglan.shanyan_sdk.tool.ShanYanUIConfig';
+import Drawable from 'android.graphics.drawable.Drawable';
+import ContextCompat from 'androidx.core.content.ContextCompat';
+import Color from 'android.graphics.Color';
+import { CLResultResponse, CLResultCallBack } from "../interface.uts"
+import JSONObject from 'org.json.JSONObject';
 
+/**
+ * 将图片名称转为drawable对象
+ * @param drawableName - 图片名称，不带图片格式后缀。
+ */
+function toDrawable(drawableName : string | null) : Drawable | null {
+	const context = UTSAndroid.getAppContext();
+	if (context == null || drawableName == null) {
+		return null;
+	}
+	const resources = context.getResources();
+	if (resources == null) {
+		return null;
+	}
+	const packageName = context.getPackageName();
+	const id = resources.getIdentifier(drawableName, "drawable", packageName);
+	if (id == 0) {
+		return null;
+	}
+	return ContextCompat.getDrawable(context, id);
+}
 export class ShanYanSDKModule {
+	isDebugEnable : boolean = false;
+	/**
+	 * 设置闪验SDK内部日志开关是否开启
+	 *  @param {boolean} isDebug - true:开启，false：关闭，默认false。
+	 */
+	setDebug(isDebug : boolean) {
+		OneKeyLoginManager.getInstance().setDebug(true);
+		this.isDebugEnable = isDebug;
+	}
 	/**
 	 * 闪验SDK初始化方法
 	 * 
@@ -26,14 +51,22 @@ export class ShanYanSDKModule {
 	 *   console.log(`初始化状态: ${code}, 结果: ${result}`);
 	 * });
 	 */
-
 	initWithAppId(
 		appId : string,
-		callback : ShanYanCallback) {
+		callback : CLResultCallBack) {
 		//Android端原生SDK初始化结果监听
 		const initListener = (code : number, result : string) => {
-			//初始化结果回调函数
-			const response : ShanYanResponse = { code, result };
+			if (this.isDebugEnable) {
+				console.log(`initListener：code=${code}result=${result}`);
+			}
+			let json = new JSONObject(result);
+			let response : CLResultResponse = {
+				code: code,
+				message: json.optString('message'),
+				innerCode: Number.from(json.optString('innerCode')),
+				innerDesc: json.optString('innerDesc'),
+				data: null
+			}
 			callback(response);
 		};
 		//调用Android原生SDK初始化方法
@@ -55,16 +88,70 @@ export class ShanYanSDKModule {
 	 *   console.log(`预取号状态: ${code}, 结果: ${result}`);
 	 * });
 	 */
-	getPhoneInfo(callback : ShanYanCallback) {
+	getPhoneInfo(callback : CLResultCallBack) {
 		//Android端原生SDK预取号结果监听
 		const getInfoListener = (code : number, result : string) => {
-			//预取号结果回调函数
-			const response : ShanYanResponse = { code, result };
+			if (this.isDebugEnable) {
+				console.log(`getInfoListener：code=${code}result=${result}`);
+			}
+			let json = new JSONObject(result);
+			let response : CLResultResponse = {
+				code: code,
+				message: json.optString('message'),
+				innerCode: Number.from(json.optString('innerCode')),
+				innerDesc: json.optString('innerDesc'),
+				data: null
+			}
 			callback(response);
 		};
 		//调用Android原生SDK预取号方法
 		OneKeyLoginManager.getInstance().getPhoneInfo(
 			getInfoListener
 		);
+	}
+	quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
+		const openLoginAuthListener = (code : number, result : string) => {
+			if (this.isDebugEnable) {
+				console.log(`openLoginAuthListener：code=${code}result=${result}`);
+			}
+			let json = new JSONObject(result);
+			let response : CLResultResponse = {
+				code: code,
+				message: json.optString('message'),
+				innerCode: Number.from(json.optString('innerCode')),
+				innerDesc: json.optString('innerDesc'),
+				data: null
+			}
+			openLoginAuthCallback(response);
+		};
+		const oneKeyLoginListener = (code : number, result : string) => {
+			if (this.isDebugEnable) {
+				console.log(`oneKeyLoginListener：code=${code}result=${result}`);
+			}
+			let json = new JSONObject(result);
+			let response : CLResultResponse = {
+				code: code,
+				message: json.optString('message'),
+				innerCode: Number.from(json.optString('innerCode')),
+				innerDesc: json.optString('innerDesc'),
+				data: null
+			}
+			oneKeyLoginCallback(response);
+		};
+		console.log('界面配置：'
+			+ configure.uiConfig?.navText
+			+ configure.uiConfig?.authBGImgPath);
+
+		const uiConfig = new ShanYanUIConfig.Builder()
+			.setLogoImgPath(toDrawable(configure.uiConfig?.setLogoImgPath))
+			.setNavColor(Color.parseColor("#ff0000"))
+			.setLogBtnTextColor(Color.parseColor("#ff0000"))
+			.setNavText(configure.uiConfig?.navText)
+			.setAuthBGImgPath(toDrawable(configure.uiConfig?.authBGImgPath))
+			.build();
+		//const uiconfig:ShanYanUIConfig =ShanYanUIConfig.
+		OneKeyLoginManager.getInstance().setAuthThemeConfig(uiConfig, uiConfig);
+		OneKeyLoginManager.getInstance().openLoginAuth(true, openLoginAuthListener, oneKeyLoginListener);
+
 	}
 }

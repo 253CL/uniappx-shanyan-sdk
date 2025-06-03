@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" xmlns:tools="http://schemas.android.com/tools"
+	package="chuanglan.com.shanyantest">
+	<application>
+		<!-- **********************移动授权页activity************************** -->
+		<activity android:name="com.chuanglan.shanyan_sdk.view.ShanYanOneKeyActivity"
+			android:configChanges="keyboardHidden|orientation|screenSize" android:exported="false"
+			android:launchMode="singleTop" android:theme="@style/dialogStyle">
+			<intent-filter>
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+		<!-- **********************协议页activity************************** -->
+		<activity android:name="com.chuanglan.shanyan_sdk.view.CTCCPrivacyProtocolActivity"
+			android:configChanges="keyboardHidden|orientation|screenSize" android:exported="false"
+			android:launchMode="singleTop" android:screenOrientation="behind" android:theme="@style/dialogStyle">
+			<intent-filter>
+				<category android:name="android.intent.category.DEFAULT" />
+			</intent-filter>
+		</activity>
+		<!-- **********************本机号校验activity************************** -->
+	</application>
+
+</manifest>
