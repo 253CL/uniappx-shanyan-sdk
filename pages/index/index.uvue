@@ -12,15 +12,14 @@
 </template>
 
 <script lang="ts">
-	import { AuthUIConfig, PrivacyItem, PrivacyText, ShanYanUIConfigure, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
-	import { CLResultResponse } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
+	import { BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	import { WidgetItem, PrivacyListItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, DialogThemeItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
 	const shanYanSDKModule = new ShanYanSDKModule();
 	export default {
 		data() {
 			return {
 				logText: "日志输出:\n" as string,
 				scrollTop: 0 as number,
-
 			}
 		},
 		methods: {
@@ -81,34 +80,81 @@
 			},
 			onFullScreenClick() : void {
 				const uiConfigure : ShanYanUIConfigure = {
-					// 授权页已有元素配置
-					uiConfig: {
-						navText: "一键登录",
-						authBGImgPath: 'sy_login_bg',
-						setNavColor: '#ff0000',
-						setLogoImgPath: 'qq',
-						setLogBtnOffsetY: "280",
-						setAppPrivacyOne: {
-							title: '闪验用户协议',
-							url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html"
-						} as PrivacyItem,
-						setAppPrivacyTwo: {
-							title: '闪验隐私政策',
-							url: "https://api.253.com/api_doc/yin-si-zheng-ce/ge-ren-xin-xi-bao-hu-sheng-ming.html"
-						} as PrivacyItem,
-						setAppPrivacyThree: {
-							title: '服务协议',
-							url: "https://api.253.com/api_doc/yin-si-zheng-ce/ge-ren-xin-xi-bao-hu-sheng-ming.html"
-						} as PrivacyItem,
-						setPrivacyState: false,
-						setPrivacyText: {
-							privacyTextOne: '登录即同意',
-							privacyTextTwo: "、",
-							privacyTextThree: '、',
-							privacyTextFour: '和',
-							privacyTextFive: '并授权登录'
-						} as PrivacyText
-					} as AuthUIConfig // 显式声明类型
+					androidConfig: {
+						//授权页竖屏配置
+						verticalConfig: {
+							baseUIConfig: {
+								authBGImgPath: 'shanyan_bg_vertival.png',
+								statusBarConfig: {
+									statusBarColor: "#00ff00",
+									isLightColor: true
+								},
+								systemNavBarConfig: {
+									isBackPressedAvailable: false
+								},
+								navBarConfig: {
+									navReturnImgPath: "close-black.png"
+								},
+								logoConfig: {
+									logoImgPath: "logo.png",
+									logoOffsetX: 50
+								},
+								numberConfig: {
+									numberColor: "#0000ff",
+									isNumberBold: true
+								},
+								sloganConfig: {
+									isSloganTextBold: true
+								},
+								loginButtonConfig: {
+									logBtnText: "登录测试"
+								},
+								privacyConfig: {
+									privacyTextSize: 20,
+									morePrivacy: [
+										{
+											name: "闪验用户协议1",
+											url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+											content: "同意",
+											isFirst: true,
+										} as PrivacyItem,
+										{
+											name: "闪验用户协议2",
+											url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+											content: "同意",
+											isFirst: false,
+										} as PrivacyItem]
+								},
+								dialogThemeConfig: {
+									isDialogTheme: true
+								},
+
+							},
+							widgetsConfig: [{
+								widgetId: "textview01",
+								type: "TextView",
+								width: 20,
+								height: 15,
+								leftOffsetX: 10,
+								topOffsetY: 100,
+								textContent: "测试"
+							} as WidgetItem, {
+								widgetId: "button01",
+								type: "Button",
+								width: 20,
+								height: 15,
+								leftOffsetX: 10,
+								topOffsetY: 100,
+								textContent: "测试"
+							} as WidgetItem]
+						},
+						//授权页横屏配置
+						horizontalConfig: {
+						}
+					},
+					iosConfig: {
+
+					}
 				};
 				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfigure, (response) => {
 					try {

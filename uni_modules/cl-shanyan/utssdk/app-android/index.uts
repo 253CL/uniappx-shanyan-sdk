@@ -110,6 +110,16 @@ export class ShanYanSDKModule {
 		);
 	}
 	quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
+		console.log('界面配置：' + configure.androidConfig?.verticalConfig?.baseUIConfig?.authBGImgPath);
+
+		const uiConfig = new ShanYanUIConfig.Builder()
+			.setAuthBGImgPath(toDrawable(configure.androidConfig?.verticalConfig?.baseUIConfig?.authBGImgPath))
+			.setStatusBarColor(Color.parseColor(configure.androidConfig?.verticalConfig?.baseUIConfig?.statusBarConfig?.statusBarColor))
+			.setLightColor(configure.androidConfig?.verticalConfig?.baseUIConfig?.statusBarConfig?.isLightColor)
+			.setBackPressedAvailable(configure.androidConfig?.verticalConfig?.baseUIConfig?.systemNavBarConfig?.isBackPressedAvailable)
+			.setNavReturnImgPath(toDrawable(configure.androidConfig?.verticalConfig?.baseUIConfig?.navBarConfig?.navReturnImgPath))
+			.build();
+		//const uiconfig:ShanYanUIConfig =ShanYanUIConfig.
 		const openLoginAuthListener = (code : number, result : string) => {
 			if (this.isDebugEnable) {
 				console.log(`openLoginAuthListener：code=${code}result=${result}`);
@@ -138,18 +148,6 @@ export class ShanYanSDKModule {
 			}
 			oneKeyLoginCallback(response);
 		};
-		console.log('界面配置：'
-			+ configure.uiConfig?.navText
-			+ configure.uiConfig?.authBGImgPath);
-
-		const uiConfig = new ShanYanUIConfig.Builder()
-			.setLogoImgPath(toDrawable(configure.uiConfig?.setLogoImgPath))
-			.setNavColor(Color.parseColor("#ff0000"))
-			.setLogBtnTextColor(Color.parseColor("#ff0000"))
-			.setNavText(configure.uiConfig?.navText)
-			.setAuthBGImgPath(toDrawable(configure.uiConfig?.authBGImgPath))
-			.build();
-		//const uiconfig:ShanYanUIConfig =ShanYanUIConfig.
 		OneKeyLoginManager.getInstance().setAuthThemeConfig(uiConfig, uiConfig);
 		OneKeyLoginManager.getInstance().openLoginAuth(true, openLoginAuthListener, oneKeyLoginListener);
 

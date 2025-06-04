@@ -17,10 +17,15 @@ export type CLResultResponse = {
  * 回调data数据封装
  */
 export type ResultData = {
-	number ?: string
+	//手机掩码，不再返回
+	//number ?: string
+	//运营商类型：CMCC（移动）；CUCC（联通）；CTCC（电信）； UNKNOW（无 SIM 卡或非三网运营商卡）
 	telecom ?: string
+	//当前运营商名称
 	protocolName ?: string
+	//当前运营商协议链接
 	protocolUrl ?: string
+	//一键登录/本机校验的token
 	token ?: string
 }
 
@@ -29,44 +34,10 @@ export type ResultData = {
  */
 export type CLResultCallBack = (response : CLResultResponse) => void;
 
-
-// 隐私协议项类型
-export type PrivacyItem = {
-	title : string
-	url : string
-}
-
-// 隐私文本类型
-export type PrivacyText = {
-	privacyTextOne : string
-	privacyTextTwo : string
-	privacyTextThree : string
-	privacyTextFour : string
-	privacyTextFive : string
-}
-
-// 授权页UI配置类型
-export type AuthUIConfig = {
-
-	/****************************************** 系统整体属性 ******************************************/
-
-	//Android - 设置授权页是否允许截图。true：允许；false：不允许；默认：false。
-	authFlagSecure ?: boolean
-	//Android - 设置协议页是否允许截图。true：允许；false：不允许；默认：false。
-	privacyFlagSecure ?: boolean
-	//Android&IOS - 设置授权页背景图片名称，不带图片格式后缀
-	authBGImgPath ?: string
-	//Android - 设置授权页背景动图，不带图片格式后缀
-	authBgGifPath ?: string
-	//Android - 设置授权页背景视频，不带图片格式后缀
-	authBgVideoPath ?: string
-	//Android - 设置授权页系统窗口区域占用。true：视图会将其内容绘制在系统窗口（如状态栏-电量、信号等显示区域）之外，避免内容被系统UI覆盖；false：内容能够伸入系统窗口；默认true。视频背景需要伸入到系统窗口时可以调用此方法
-	isFitsSystemWindows ?: boolean
-	//Android - 设置授权页默认字体单位是否是dp。true：sp；false：dp；默认：false。
-	textSizeIsdp ?: boolean
-
-	/******************************************* 系统状态栏（电量、信号等显示区域）属性 ******************************************/
-
+/**
+ * 授权页系统状态栏（电量、信号等显示区域）属性
+ */
+export type StatusBarItem = {
 	//Android - 设置授权页状态栏背景颜色，16进制颜色值，如："#0ff000"。
 	statusBarColor ?: string
 	//Android - 设置协议页状态栏背景颜色，16进制颜色值，如："#0ff000"。
@@ -79,13 +50,11 @@ export type AuthUIConfig = {
 	isStatusBarHidden ?: boolean
 	//Android - 设置协议页状态栏是否隐藏。true：隐藏；false：不隐藏；默认：false。
 	isPrivacyStatusBarHidden ?: boolean
-
-	//Android - 协议是否支持viewport。true：支持；false：不支持；默认：false。
-	isViewPortEnabled ?: boolean
-
-
-	/****************************************** 系统导航栏（底部返回按钮、标题等显示区域）属性 ******************************************/
-
+}
+/**
+ * 授权页系统导航栏（底部返回按钮、标题等显示区域）属性
+ */
+export type SystemNavBarItem = {
 	//Android - 设置授权页底部导航栏（虚拟Home键、物理返回键等显示区域）是否透明。true：透明；false：不透明；默认：false。
 	isVirtualKeyTransparent ?: boolean
 	//Android - 设置协议页底部导航栏（虚拟Home键、物理返回键等显示区域）是否透明。true：透明；false：不透明；默认：false。
@@ -96,10 +65,11 @@ export type AuthUIConfig = {
 	isPrivacyFullScreen ?: boolean
 	//Android - 设置授权页物理返回键点击事件是否可用。true：可用；false：不可用；默认：true。
 	isBackPressedAvailable ?: boolean
-
-
-	/****************************************** 自定义导航栏（顶部返回按钮、标题等显示区域）属性 ******************************************/
-
+}
+/**
+ * 授权页导航栏属性
+ */
+export type NavBarItem = {
 	//Android - 设置授权页自定义导航栏背景色，16进制颜色值，如："#0ff000"。
 	navColor ?: string
 	//Android - 设置授权页自定义导航栏标题文字内容
@@ -116,7 +86,7 @@ export type AuthUIConfig = {
 	authNavHidden ?: boolean
 	//Android - 设置授权页自定义导航栏返回键是否隐藏。true：隐藏；false：不隐藏；默认：false。
 	navReturnImgHidden ?: boolean
-	//Android - 设置授权页自定义导航栏返回键图片名称，不带图片格式后缀
+	//Android - 设置授权页自定义导航栏返回键图片名称，带图片格式后缀，如："abc.png"。
 	navReturnImgPath ?: string
 	//Android - 设置授权页自定义导航栏返回键宽度
 	returnBtnWidth ?: number
@@ -128,9 +98,11 @@ export type AuthUIConfig = {
 	navReturnBtnOffsetY ?: number
 	//Android  - 设置授权页自定义导航栏返回键距离屏幕右侧边界的X偏移量
 	navReturnBtnOffsetRightX ?: number
-
-	/****************************************** 授权页logo属性 ******************************************/
-
+}
+/**
+ * 授权页logo属性 
+*/
+export type LogoItem = {
 	//Android - 设置授权页logo从导航栏向下的Y偏移量
 	logoOffsetY ?: number
 	//Android - 设置授权页logo从屏幕下边界向上的Y偏移量
@@ -143,11 +115,13 @@ export type AuthUIConfig = {
 	logoHeight ?: number
 	//Android - 设置授权页logo是否隐藏
 	logoHidden ?: boolean
-	//Android - 设置授权页logo图片名称，不带图片格式后缀
-	LogoImgPath ?: string
-
-	/****************************************** 授权页号码栏属性 ******************************************/
-
+	//Android - 设置授权页logo图片名称，带图片格式后缀，如："abc.png"。
+	logoImgPath ?: string
+}
+/**
+ * 授权页号码栏属性 
+*/
+export type NumberItem = {
 	//Android - 设置授权页号码栏高度
 	numFieldHeight ?: number
 	//Android - 设置授权页号码栏宽度
@@ -164,9 +138,12 @@ export type AuthUIConfig = {
 	numFieldOffsetX ?: number
 	//Android - 设置授权页号码栏字体大小
 	numberSize ?: number
+}
 
-	/****************************************** 授权页运营商slogan栏（***提供认证服务）属性 ******************************************/
-
+/**
+ * 授权页运营商slogan栏属性
+ */
+export type SLoganItem = {
 	//Android - 设置授权页运营商slogan从导航栏向下的Y偏移量
 	sloganOffsetY ?: number
 	//Android - 设置授权页运营商slogan从屏幕下边界向上的Y偏移量
@@ -181,9 +158,11 @@ export type AuthUIConfig = {
 	sloganTextSize ?: number
 	//Android - 设置授权页运营商slogan是否隐藏，true：隐藏；false：不隐藏；默认：false。
 	sloganHidden ?: boolean
-
-	/****************************************** 授权页登录按钮栏属性 ******************************************/
-
+}
+/**
+ * 授权页登录按钮属性
+ */
+export type LoginButtonItem = {
 	//Android - 设置授权页登录按钮字体大小
 	logBtnTextSize ?: number
 	//Android - 设置授权页登录按钮文本内容
@@ -192,7 +171,7 @@ export type AuthUIConfig = {
 	logBtnTextColor ?: string
 	//Android - 设置授权页登录按钮背景颜色，16进制颜色值，如："#0ff000"。
 	logBtnBackgroundColor ?: string
-	//Android - 设置授权页登录按钮背景图片名称，不带图片格式后缀。
+	//Android - 设置授权页登录按钮背景图片名称，带图片格式后缀，如："abc.png"。
 	logBtnBackgroundPath ?: string
 	//Android - 设置授权页登录按钮宽度
 	logBtnWidth ?: number
@@ -206,21 +185,39 @@ export type AuthUIConfig = {
 	logBtnOffsetBottomY ?: number
 	//Android - 设置授权页登录按钮从屏幕左侧边界向右的X偏移量
 	logBtnOffsetX ?: number
-
-
-	/****************************************** 授权页协议栏属性 ******************************************/
+}
+/**
+ * 授权页协议栏属性
+ */
+export type PrivacyItem = {
 	//Android - 设置授权页协议栏父控件（父容器）宽度
 	privacyWidth ?: number
 	//Android - 设置授权页协议复选框默认是否选中。true：选中；false：不选中；默认：false。
 	privacyState ?: boolean
 	//Android - 设置授权页隐私协议栏字体大小
 	privacyTextSize ?: number
-	//Android - 设置授权页协议复选框未勾选时的图片名称，不带图片格式后缀。
+	//Android - 设置授权页协议复选框未勾选时的图片名称，带图片格式后缀，如："abc.png"。
 	uncheckedImgPath ?: number
-	//Android - 设置授权页协议复选框勾选时的图片名称，不带图片格式后缀。
+	//Android - 设置授权页协议复选框勾选时的图片名称，带图片格式后缀，如："abc.png"。
 	checkedImgPath ?: string
 	//Android - 设置授权页复选框是否隐藏。true：隐藏；false：不隐藏；默认：false。
 	checkBoxHidden ?: boolean
+	//Android - 设置授权页复选框宽度
+	checkboxWidth ?: number
+	//Android - 设置授权页复选框高度
+	checkboxHeight ?: number
+	//Android - 设置授权页复选框向左边拓展的热点区域
+	checkboxMarginLeft ?: number
+	//Android - 设置授权页复选框向右边拓展的热点区域
+	checkboxMarginRigth ?: number
+	//Android - 设置授权页复选框向上边拓展的热点区域
+	checkboxMarginTop ?: number
+	//Android - 设置授权页复选框向下边拓展的热点区域
+	checkboxMarginBottom ?: number
+	//Android - 设置授权页复选框在协议栏内的X偏移量
+	checkboxOffsetX ?: number
+	//Android - 设置授权页复选框在协议栏内的Y偏移量
+	checkboxOffsetY ?: number
 	//Android - 设置授权页协议栏从导航栏向下的Y偏移量
 	privacyOffsetY ?: number
 	//Android - 设置授权页协议栏从屏幕下边界向上的Y偏移量
@@ -233,24 +230,6 @@ export type AuthUIConfig = {
 	privacyOffsetGravityLeft ?: boolean
 	//Android - 设置授权页隐私协议栏内容在父控件是否居中显示。true：居中；false：居左；默认：true。
 	privacyGravityHorizontalCenter ?: boolean
-	//Android - 设置授权页隐私协议栏文字描述头部
-	privacyTextHead ?: string
-	//Android - 设置授权页隐私协议栏文字描述中间部分1
-	privacyTextMidOne ?: string
-	//Android - 设置授权页隐私协议栏文字描述中间部分2
-	privacyTextMidTwo ?: string
-	//Android - 设置授权页隐私协议栏文字描述中间部分3
-	privacyTextMidThree ?: string
-	//Android - 设置授权页隐私协议栏文字描述尾部
-	privacyTextEnd ?: string
-	//Android - 设置授权页第一个自定义协议名称
-	CLAUSE_NAME ?: string
-	//Android - 设置授权页第一个自定义协议链接
-	CLAUSE_URL ?: string
-	//Android - 设置授权页第二个自定义协议名称
-	CLAUSE_NAME_TWO ?: string
-	//Android - 设置授权页第二个自定义协议链接
-	CLAUSE_URL_TWO ?: string
 	//Android - 设置授权页运营商协议位置是否为最后一个。true：最后一个；false：第一个；默认：false。
 	operatorPrivacyAtLast ?: boolean
 	//Android - 设置授权页协议点击时，是否跳转到SDK内置协议页。true：跳转内置协议页；false：不跳转内置协议页；默认：true。
@@ -259,37 +238,142 @@ export type AuthUIConfig = {
 	privacyNameUnderline ?: boolean
 	//Android - 设置授权页协议未勾选时，toast提示是否隐藏。true：隐藏；false：不隐藏；默认：false。
 	privacyToastHidden ?: boolean
-	//Android - 设置授权页
-	//Android - 设置授权页
-	//Android - 设置授权页
-	//Android - 设置授权页
+	//Android - 设置授权页协议基础内容文字颜色，16进制颜色值，如："#0ff000"。
+	privacyBaseColor ?: string
+	//Android - 设置授权页协议名称文字颜色，16进制颜色值，如："#0ff000"。
+	privacyNameColor ?: string
+	//Android - 设置授权页协议文字的间距倍数
+	textLineSpacingMult ?: number
+	//Android - 设置授权页协议文字的间距数值
+	textLineSpacingAdd ?: number
+	//Android - 设置授权页协议名称外的书名号是否隐藏。true：隐藏；false：不隐藏；默认：false。
+	privacySmhHidden ?: boolean
+	//Android - 设置授权页协议未勾选时toast提示文字内容
+	toastText ?: string
+	//Android - 设置授权页自定义协议
+	morePrivacy ?: PrivacyList
 }
+// 自定义隐私协议属性
+export type PrivacyListItem = {
+	//自定义协议名称
+	name ?: string
+	//自定义协议链接
+	url ?: string
+	//自定义协议外的文字
+	content ?: string
+	//自定义协议外的文字是否在当前协议名称前面。true：在协议名称前；false：在协议名称后。默认：false。
+	isFirst ?: boolean
+}
+// 自定义隐私协议集合类型
+export type PrivacyList = Array<PrivacyItem>;
+/**
+ * 授权页弹窗样式的属性 
+ */
+export type DialogThemeItem = {
+	//Android - 设置授权页是否是弹窗样式。true：弹窗样式；false：全屏样式；默认：false。
+	isDialogTheme ?: boolean
+	//Android - 设置弹窗授权页是否显示到屏幕底部。true：显示到屏幕底部；false：居中；默认：false。
+	isDialogBottom ?: boolean
+	//Android - 设置弹窗授权页遮盖层灰度（0-1）
+	dialogDimAmount ?: number
+	//Android - 设置弹窗授权页宽度
+	dialogWidth ?: number
+	//Android - 设置弹窗授权页高度
+	dialogHeight ?: number
+	//Android - 设置弹窗授权页从屏幕左侧边界向右的X偏移量
+	dialogOffsetX ?: number
+	//Android - 设置弹窗授权页从屏幕顶部向下的Y偏移量
+	dialogOffsetY ?: number
+}
+// 授权页UI配置类型
+export type BaseUIConfig = {
 
+	/****************************************** 系统整体属性 ******************************************/
+
+	//Android - 设置授权页是否允许截图。true：允许；false：不允许；默认：false。
+	authFlagSecure ?: boolean
+	//Android - 设置协议页是否允许截图。true：允许；false：不允许；默认：false。
+	privacyFlagSecure ?: boolean
+	//Android&IOS - 设置授权页背景图片名称，带图片格式后缀，如："abc.png"。
+	authBGImgPath ?: string
+	//Android - 设置授权页背景动图，带图片格式后缀，如："abc.png"。
+	authBgGifPath ?: string
+	//Android - 设置授权页背景视频，带图片格式后缀，如："abc.png"。
+	authBgVideoPath ?: string
+	//Android - 设置授权页系统窗口区域占用。true：视图会将其内容绘制在系统窗口（如状态栏-电量、信号等显示区域）之外，避免内容被系统UI覆盖；false：内容能够伸入系统窗口；默认true。视频背景需要伸入到系统窗口时可以调用此方法
+	isFitsSystemWindows ?: boolean
+	//Android - 设置授权页默认字体单位是否是dp。true：sp；false：dp；默认：false。
+	textSizeIsdp ?: boolean
+	//Android - 协议是否支持viewport。true：支持；false：不支持；默认：false。
+	isViewPortEnabled ?: boolean
+	//授权页系统状态栏（电量、信号等显示区域）属性
+	statusBarConfig ?: StatusBarItem
+	//授权页系统导航栏（底部返回按钮、标题等显示区域）属性
+	systemNavBarConfig ?: SystemNavBarItem
+	//授权页导航栏属性
+	navBarConfig ?: NavBarItem
+	//授权页logo属性
+	logoConfig ?: LogoItem
+	//授权页号码栏属性
+	numberConfig ?: NumberItem
+	//授权页运营商slogan栏属性
+	sloganConfig ?: SLoganItem
+	//授权页登录按钮属性
+	loginButtonConfig ?: LoginButtonItem
+	//授权页协议栏属性
+	privacyConfig ?: PrivacyItem
+	//授权页弹窗样式属性
+	dialogThemeConfig ?: DialogThemeItem
+}
 // 自定义控件类型
-export type WidgetConfig = {
+export type WidgetItem = {
+	//Android - 设置自定义控件ID
 	widgetId : string
+	//Android - 设置自定义控件类型，包括"TextView"、"Button"、"ImageView"。
 	type : string
-	left ?: string
-	top ?: string
-	right ?: string
-	bottom ?: string
+	//Android - 设置自定义控件宽度
 	width ?: string
+	//Android - 设置自定义控件高度
 	height ?: string
+	//Android - 设置自定义控件从屏幕左侧边界向右的X偏移量
+	leftOffsetX ?: string
+	//Android - 设置自定义控件从导航栏向下的Y偏移量
+	topOffsetY ?: string
+	//Android - 设置自定义控件从屏幕右侧边界向左的X偏移量
+	rightOffsetX ?: string
+	//Android - 设置自定义控件从屏幕底部向上的Y偏移量
+	bottomOffsetY ?: string
+	//Android - 设置自定义控件文本内容
 	textContent ?: string
+	//Android - 设置自定义控件文本字体大小
 	textFont ?: string
+	//Android - 设置自定义控件文本字体颜色，16进制颜色值，如："#0ff000"。
 	textColor ?: string
+	//Android - 设置自定义控件容器背景色，16进制颜色值，如："#0ff000"。
 	backgroundColor ?: string
+	//Android - 设置自定义控件容器背景图片名称，带图片格式后缀，如："abc.png"。
 	backgroundImgPath ?: string
+	//Android - 设置点击自定义控件，是否自动销毁授权页
 	isFinish : string
 }
 
 // 所有控件集合类型
-export type WidgetsConfig = Map<string, WidgetConfig>;
+export type WidgetsConfig = Array<WidgetItem>;
 
+export type ConfigItem = {
+	//授权页固定元素配置
+	baseUIConfig ?: BaseUIConfig
+	//授权页自定义控件配置
+	widgetsConfig ?: WidgetsConfig
+}
+export type UIConfigItem = {
+	//授权页竖屏配置
+	verticalConfig ?: ConfigItem
+	//授权页横屏配置
+	horizontalConfig ?: ConfigItem
+}
 // 主配置类型
 export type ShanYanUIConfigure = {
-	//授权页固定元素配置
-	uiConfig ?: AuthUIConfig
-	//授权页自定义控件配置
-	widgets ?: WidgetsConfig
+	androidConfig ?: UIConfigItem
+	iosConfig ?: UIConfigItem
 }
