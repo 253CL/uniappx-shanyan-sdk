@@ -1,53 +1,23 @@
-import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate,CLUIConfigure} from 'CL_ShanYanSDK'
-import { CLResultOptions, CLResultResponse } from "../interface.uts"
-import { Int, Hashable } from 'Swift';
-import { UIView , UIViewController } from 'UIKit';
-import { Code } from 'ARKit';
+import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate,CLUIConfigure,CLOrientationLayOut} from 'CL_ShanYanSDK'
+import { CLResultResponse, TUIConfigure,CLResultCallBack, ResultData, CLActionListenerBlock,AuthIOSUIConfigure } from "../interface.uts"
+import { Int } from 'Swift';
+import { UIView ,UIImage ,UIColor , UIFont } from 'UIKit';
+import { NSAttributedString,NSMutableAttributedString } from 'Foundation';
+import { setCustomUI } from './customView.uts';
+import { DispatchQueue } from 'Dispatch';
+import { Object } from 'RoomPlan';
+
 	
 
-// export function 
-// export function initWithAppId(
-// 	appId : string,
-// 	callback : ShanYanCallback | null) {
-// 	//Android端原生SDK初始化结果监听
-// 	const initListener = (code : number, result : string) => {
-// 		//初始化结果回调函数
-// 		const response : ShanYanResponse = { code, result };
-// 		callback(response);
-// 	};
-// 	//调用Android原生SDK初始化方法
-// 	CLShanYanSDKManager.initWithAppId(appId, complete = (result:CLCompleteResult) =>{
-// 		if (result != null){
-// 			console.log(result.data)
-// 			let response: CLResultResponse = {
-// 				code: result.code,
-// 				message: result.message,
-// 				innerCode: result.innerCode,
-// 				innerDesc: result.innerDesc,
-// 				data: result.data
-// 			}
-// 			console.log(response)			
-// 			options.complete(response)
-// 		}else{
-// 			options.complete({
-// 				code: -1,
-// 				message: "初始化失败",
-// 				innerCode: -1,
-// 				innerDesc: "初始化失败",
-// 				data: null
-// 			})
-// 		}
-// 	}) 
-// }
-
-
-
-export class CLShanModules implements CLShanYanSDKManagerDelegate{
+export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 	
 	uiConfigure:UTSJSONObject = {}
+	actionListenerBlock?:CLActionListenerBlock
 	
-	shanYanInit(appId: string ,options: CLResultOptions){
+	// 初始化
+	initWithAppId(appId: string ,options: CLResultCallBack){
 		CLShanYanSDKManager.printConsoleEnable(true)
+		this.setShanYanDelegate()
 		CLShanYanSDKManager.initWithAppId(appId, complete = (result:CLCompleteResult) =>{	
 			if (result != null){
 				console.log(result.data)
@@ -56,70 +26,76 @@ export class CLShanModules implements CLShanYanSDKManagerDelegate{
 					message: result.message,
 					innerCode: result.innerCode,
 					innerDesc: result.innerDesc,
-					data: result.data
+					data: null,
 				}
 				console.log(response)
-				options.complete(response)
+				options(response)
 			}else{
-				options.complete({
+				options({
 					code: -1,
 					message: "初始化失败",
 					innerCode: -1,
 					innerDesc: "初始化失败",
-					data: null
+					data: null,
+					result:''
 				})
 			}
 		}) 
 	}
 	
-	shanYanPreGetPhonenumber(options: CLResultOptions){
+	// 预取号
+	getPhoneInfo(options: CLResultCallBack){
 		CLShanYanSDKManager.preGetPhonenumber((result: CLCompleteResult)=>{
 			if (result != null){
+				
+				let data:ResultData = {
+					protocolName: result.data?.["protocolName"],
+					protocolUrl: result.data?.["protocolUrl"],
+					telecom: result.data?.["telecom"],
+					number:result.data?.["number"],
+					slogan: result.data?.["slogan"],
+				}
+				
 				let response: CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
 					innerDesc: result.innerDesc,
-					data: ({
-						protocolName: result.data?.["protocolName"],
-						protocolUrl: result.data?.["protocolUrl"],
-						telecom: result.data?.["telecom"],
-						number:result.data?.["number"],
-						clTokenFromType: result.data?.["clTokenFromType"],
-						slogan: result.data?.["slogan"],
-					})
+					data: data,
 				}
 				console.log(response)
-				options.complete(response)
+				options(response)
 			}else{
-				options.complete({
+				options({
 					code: -1,
 					message: "预取号失败",
 					innerCode: -1,
 					innerDesc: "预取号失败",
-					data: null
+					data: null,
 				})
 			}
 		})
 	}
 	
-	
+	// 
 	setShanYanDelegate(){
 		CLShanYanSDKManager.setCLShanYanSDKManagerDelegate(this)
 	}
 	
 	
-	setUIConfigure(configure:UTSJSONObject){
-		this.uiConfigure = configure
-		console.log(configure.getString('clBackgroundImg'))
-		console.log("hahhahahahahh")
-	}
+	quickAuthLoginWithConfigure(configure:AuthIOSUIConfigure,openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack){
 	
-	quickLoginWithConfigure(){
-		let config = CLUIConfigure.clDefault()
+		let config = this.transformConfigure(configure)
 		config.viewController = UTSiOS.getCurrentViewController()
-	
-		CLShanYanSDKManager.quickAuthLogin(with = config, complete = (result:CLCompleteResult) =>{	
+		
+		config.customAreaView = (customAreaView:UIView) => {
+			DispatchQueue.main.async(execute=():void => {
+				setCustomUI(customAreaView)
+			})
+		}
+		
+		
+		const openLoginAuthListener = (result:CLCompleteResult) =>{
 			if (result != null){
 				
 				console.log(result)
@@ -128,11 +104,29 @@ export class CLShanModules implements CLShanYanSDKManagerDelegate{
 					message: result.message,
 					innerCode: result.innerCode,
 					innerDesc: result.innerDesc,
-					data: null
+					data: null,
 				}
 				console.log(response)
+				openLoginAuthCallback(response)
 			}
-		}) 
+		}
+		
+		const oneKeyLoginListener = (result:CLCompleteResult) =>{
+			if (result != null){
+				
+				console.log(result)
+				let response: CLResultResponse = {
+					code: result.code,
+					message: result.message,
+					innerCode: result.innerCode,
+					innerDesc: result.innerDesc,
+					data: null,
+				}
+				console.log(response)
+				oneKeyLoginCallback(response)
+			}
+		}
+		CLShanYanSDKManager.quickAuthLogin(with = config, openLoginAuthListener =openLoginAuthListener, oneKeyLoginListener= oneKeyLoginListener)	
 	}
 	
 	finishAuthControllerAnimated(){
@@ -146,6 +140,7 @@ export class CLShanModules implements CLShanYanSDKManagerDelegate{
 	}
 	
 	clShanYanActionListener(type: Int | null ,code : Int | null, message: string | null){
+		// this.actionListenerBlock?.(Number.from(type),Number.from(code),message)
 		console.log('有结果啦啦啦啦啦2222')
 	}
 	
@@ -153,6 +148,143 @@ export class CLShanModules implements CLShanYanSDKManagerDelegate{
 	// 	console.log('有结果啦啦啦啦啦333')
 	// }
 	
+	
+	private transformConfigure(tmpConfigure:AuthIOSUIConfigure):CLUIConfigure{
+		let config  =  this.defaultConfigure()
+		let defaultImage = new UIImage()
+			
+		// 设置是否点击登录关闭授权页
+		config.manualDismiss = 0	
+			
+		// 是否隐藏导航栏
+		config.clNavigationBarHidden = 0
+		
+		/* ********************* 授权页 ********************* */
+		// 设置授权页背景图片
+		let backImageString = tmpConfigure.clBackgroundImg ?? ""		
+		let backimage = new UIImage(named = backImageString)
+		config.clBackgroundImg = backimage ?? defaultImage
+		
+		// 设置授权页背景颜色		
+		if (tmpConfigure.clBackgroundColor != null){
+			config.clBackgroundColor = UTSiOS.colorWithString(tmpConfigure.clBackgroundColor!)
+		}
+		
+		/* *********************导航栏********************* */
+		// 导航栏是否隐藏
+		if (tmpConfigure.clNavigationBackBtnHidden !=null){
+			config.clNavigationBackBtnHidden = tmpConfigure.clNavigationBackBtnHidden!
+		}
+		//背景色
+		if (tmpConfigure.clNavigationBackgroundClear != null ){
+			config.clNavigationBackgroundClear = tmpConfigure.clNavigationBackgroundClear!
+		}
+		
+		// 设置导航title
+		if (tmpConfigure.clNavigationTitleText != null ){
+			//TODO: warning --
+			let titleString =  tmpConfigure.clNavigationTitleText ?? '闪验'
+			let att = new NSMutableAttributedString(string = titleString)
+			// let range = Foundation._NSRange(location = 0,length = att.length)
+			// att.addAttribute(NSAttributedString.Key.font, value = UIFont.systemFont(ofSize = 20), range = range)
+			// att.addAttribute(NSAttributedString.Key.foregroundColor, value = UIColor.blue, range =range)
+			config.clNavigationAttributesTitleText = att			
+		}
+		
+		if (tmpConfigure.clNavigationBackBtnImage != null){
+			let navBackImageString = tmpConfigure.clNavigationBackBtnImage ?? ""
+			let navBackImage  = new UIImage(named = navBackImageString)
+			config.clNavigationBackBtnImage = navBackImage ?? defaultImage
+		}
+		if (tmpConfigure.clNavigationBackBtnHidden != null){
+			
+		}
+		
+		if (tmpConfigure.clNavBackBtnAlimentRight != null){
+			
+		}
+		
+		if (tmpConfigure.clNavigationBottomLineHidden != null){
+			
+		}
+		
+		if (tmpConfigure.clNavigationShadowImage != null){
+			
+		}
+		
+		if (tmpConfigure.clNavigationShadowImage != null){
+			
+		}
+		
+		Object.keys(tmpConfigure).forEach(key =>{
+			console.log(`${key}:`, tmpConfigure[key]);
+		})
+		
+		
+		
+		
+		/* -------------------号码-----------------------*/
+		// 设置号码显示颜色
+		let clPhoneNumberColorString =  tmpConfigure.clPhoneNumberColor ?? '#FF0000'
+		config.clPhoneNumberColor = UTSiOS.colorWithString(clPhoneNumberColorString)
+		
+		/* -------------------登录按钮-----------------------*/
+		
+		/* -------------------隐私协议-----------------------*/
+		
+		/* -------------------布局参数-----------------------*/
+		return config
+	}
+	
+	
+	private defaultConfigure():CLUIConfigure{
+		let config = CLUIConfigure.clDefault()
+		
+		config.clPhoneNumberColor = UIColor.red
+		config.clBackgroundColor = UIColor.clear
+		
+		let layOutPortrait = new CLOrientationLayOut()
+		    layOutPortrait.clLayoutLogoCenterX = 0;
+		    layOutPortrait.clLayoutLogoTop = 150
+		    layOutPortrait.clLayoutLogoWidth = 120
+		    layOutPortrait.clLayoutLogoHeight = 80
+		    
+		    layOutPortrait.clLayoutLoginBtnCenterX = 0
+		    layOutPortrait.clLayoutLoginBtnWidth = 120
+		    layOutPortrait.clLayoutLoginBtnCenterY = 0
+		    layOutPortrait.clLayoutLoginBtnHeight = 45
+		    
+		    layOutPortrait.clLayoutPhoneCenterX = 0
+		    layOutPortrait.clLayoutPhoneCenterY = layOutPortrait.clLayoutLoginBtnCenterY - 80
+		    layOutPortrait.clLayoutPhoneWidth = 120
+		    layOutPortrait.clLayoutPhoneHeight = 40
+		    
+		    layOutPortrait.clLayoutAppPrivacyLeft = 50
+		    layOutPortrait.clLayoutAppPrivacyRight = -50
+		    layOutPortrait.clLayoutAppPrivacyBottom = -60
+		    layOutPortrait.clLayoutAppPrivacyHeight = 50
+		    
+		    layOutPortrait.clLayoutShanYanSloganBottom = -20
+		    layOutPortrait.clLayoutShanYanSloganLeft = 0
+		    layOutPortrait.clLayoutShanYanSloganRight = 0
+		    layOutPortrait.clLayoutPhoneHeight = 40
+		    
+		    layOutPortrait.clLayoutAppPrivacyLeft = 50
+		    layOutPortrait.clLayoutAppPrivacyRight = -50
+		    layOutPortrait.clLayoutAppPrivacyBottom = -60
+		    layOutPortrait.clLayoutAppPrivacyHeight = 50
+		    
+		    layOutPortrait.clLayoutShanYanSloganBottom = -20
+		    layOutPortrait.clLayoutShanYanSloganLeft = 0
+		    layOutPortrait.clLayoutShanYanSloganRight = 0
+		    layOutPortrait.clLayoutShanYanSloganHeight = 20
+		
+		    layOutPortrait.clLayoutSloganBottom = -40
+		    layOutPortrait.clLayoutSloganLeft = 0
+		    layOutPortrait.clLayoutSloganRight = 0
+		    layOutPortrait.clLayoutSloganHeight = 20
+		    config.clOrientationLayOutPortrait = layOutPortrait;
+			
+			return config
+	}
 }
-
-

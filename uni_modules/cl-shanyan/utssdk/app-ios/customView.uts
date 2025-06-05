@@ -1,0 +1,34 @@
+import {UIView,UIColor, UIImage, UIImageView } from 'UIKit'
+import { CGRect } from 'CoreFoundation';
+import { DispatchQueue } from 'Dispatch';
+
+
+
+
+export function setCustomUI(customAreaView:UIView) {	
+	
+	DispatchQueue.main.async(execute=():void => {
+		
+		// 创建view
+	    let view = new UIView()
+	    view.backgroundColor = UIColor.red	    
+	    view.frame = new CGRect(x = 90, y =  120, width = 100, height = 100)
+	    customAreaView.addSubview(view)
+		
+		// 创建imageView
+		let imageView = new UIImageView()
+		imageView.image = new UIImage(named = "back-7.png")
+		imageView.backgroundColor = UIColor.red
+		imageView.frame =new CGRect(x = 90, y =  320, width = 100, height = 100)
+		customAreaView.addSubview(imageView)
+		
+		// 创建la bel
+		let label = new UILabel()
+		label.text = "自定义view"
+		label.textColor = UIColor.red
+		label.frame =new CGRect(x = 90, y =  420, width = 100, height = 100)
+		customAreaView.addSubview(label)
+			
+	})
+	
+}
