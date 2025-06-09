@@ -427,7 +427,7 @@ export type AuthIOSUIConfigure ={
     // iOS-一键登录按钮字体样式，默认为系统字体
     clLoginBtnTextFontFamily?:string
     // iOS-一键登录按钮字体大小
-    clLoginBtnTextFontSize?:string
+    clLoginBtnTextFontSize?:number
     // iOS-一键登录按钮state Normal背景图片
     clLoginBtnNormalBgImage?:string
     // iOS-一键登录按钮state高亮图片
@@ -442,14 +442,35 @@ export type AuthIOSUIConfigure ={
     clLoginBtnBorderWidth?:number
     
     /****************************************** 隐私协议 ******************************************/
-    // iOS-协议数组
-    clAppMorePrivacyArray?:Array<CLPrivacyItem>
+    // iOS-协议数组 
+	/*
+    decollator:string      //隐私协议拼接内容，如"、"
+    lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
+    privacyName:string     //隐私条款名称，如"《自定义隐私协议》"
+    privacyURL:string      //隐私条款URL，如"https://xxx.com"
+	示例： [{decollator:'、',lastDecollator:'NO',privacyName:'《自定义隐私协议》',privacyURL:'https://xxx.com'}]
+	*/
+    clAppMorePrivacyArray?:Array<object>
     // iOS-协议文本字体样式，默认系统字体
     clAppPrivacyTextFontFamily?:string
     // iOS-协议文本字体大小
     clAppPrivacyTextFontSize?:number
     // iOS- 协议文本颜色，[基础文本颜色, 协议文本颜色]
     clAppPrivacyTextColor?:Array<string>
+	// iOS- 协议导航返回图片
+	clAppPrivacyWebBackBtnImage?:string
+	// iOS- 协议UINavigationTintColor
+	clAppPrivacyWebNavigationTintColor:string
+	// iOS- 协议UINavigationBarTintColor
+	clAppPrivacyWebNavigationBarTintColor?:string
+	// iOS- 协议 UINavigationBackgroundImage
+	clAppPrivacyWebNavigationBackgroundImage?:string
+	// iOS- 协议 UINavigationBarMetrics
+	clAppPrivacyWebNavigationBarMetrics?:string
+	// iOS- 协议 UINavigationShadowImage
+	clAppPrivacyWebNavigationShadowImage?:string
+	// iOS- 协议 UINavigationBarStyle
+	clAppPrivacyWebNavigationBarStyle?:string
     
     /****************************************** 运营商SLOGAN相关 ******************************************/
     // iOS-slogan字体样式
@@ -554,7 +575,7 @@ export type AuthIOSUIConfigure ={
     // 竖屏布局
     clOrientationLayOutPortrait?:CLLayoutUIItem
     // 横屏布局
-    clOrientationLayOutLandscape?:CLLayoutItem
+    clOrientationLayOutLandscape?:CLLayoutUIItem
     
 }
 
@@ -569,15 +590,15 @@ export type TUIConfigure = {
 
 
 export type CLSizeItem = {
-    width?: number
-    height?: number
+    width: number
+    height: number
 }
 
 export type CLEdgeInsetsItem ={
-    top?: number
-    left?: number
-    bottom?:number
-    right?: number
+    top: number
+    left: number
+    bottom:number
+    right: number
 }
 
 export type CLLayoutItem = {
@@ -609,18 +630,6 @@ export type CLLayoutUIItem = {
     // 窗口大小：高
     clAuthWindowOrientationHeight?:number
 }
-
-export type CLPrivacyItem = {
-    // 隐私协议拼接内容，如"、"
-    decollator:string
-    // 拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
-    lastDecollator:string
-    // 隐私条款名称，如"《自定义隐私协议》"
-    privacyName:string
-    // 隐私条款URL，如"https://xxx.com"
-    privacyURL:string
-}
-
 
 
 // 所有控件集合类型

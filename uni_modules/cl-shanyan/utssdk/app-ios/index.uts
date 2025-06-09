@@ -1,27 +1,27 @@
-import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate,CLUIConfigure,CLOrientationLayOut} from 'CL_ShanYanSDK'
-import { CLResultResponse, TUIConfigure,CLResultCallBack, ResultData, CLActionListenerBlock,AuthIOSUIConfigure } from "../interface.uts"
+import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate, CLUIConfigure, CLOrientationLayOut } from 'CL_ShanYanSDK'
+import { CLResultResponse, CLResultCallBack, ResultData, AuthIOSUIConfigure, ShanYanUIConfigure, CLLayoutItem, CLLayoutUIItem } from "../interface.uts"
 import { Int } from 'Swift';
-import { UIView ,UIImage ,UIColor , UIFont } from 'UIKit';
-import { NSAttributedString,NSMutableAttributedString } from 'Foundation';
+import { UIView, UIImage, UIFont, UIEdgeInsets } from 'UIKit';
+import { NSAttributedString, NSMutableAttributedString, NSValue } from 'Foundation';
 import { setCustomUI } from './customView.uts';
 import { DispatchQueue } from 'Dispatch';
-import { Object } from 'RoomPlan';
+import { CGSize, CGFloat } from 'CoreFoundation';
 
-	
 
-export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
-	
-	uiConfigure:UTSJSONObject = {}
-	actionListenerBlock?:CLActionListenerBlock
-	
+
+export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
+
+	uiConfigure : UTSJSONObject = {}
+	// actionListenerBlock?:CLActionListenerBlock
+
 	// 初始化
-	initWithAppId(appId: string ,options: CLResultCallBack){
+	initWithAppId(appId : string, options : CLResultCallBack) {
 		CLShanYanSDKManager.printConsoleEnable(true)
 		this.setShanYanDelegate()
-		CLShanYanSDKManager.initWithAppId(appId, complete = (result:CLCompleteResult) =>{	
-			if (result != null){
+		CLShanYanSDKManager.initWithAppId(appId, complete = (result : CLCompleteResult) => {
+			if (result != null) {
 				console.log(result.data)
-				let response: CLResultResponse = {
+				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
@@ -30,33 +30,33 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 				}
 				console.log(response)
 				options(response)
-			}else{
+			} else {
 				options({
 					code: -1,
 					message: "初始化失败",
 					innerCode: -1,
 					innerDesc: "初始化失败",
 					data: null,
-					result:''
+					result: ''
 				})
 			}
-		}) 
+		})
 	}
-	
+
 	// 预取号
-	getPhoneInfo(options: CLResultCallBack){
-		CLShanYanSDKManager.preGetPhonenumber((result: CLCompleteResult)=>{
-			if (result != null){
-				
-				let data:ResultData = {
+	getPhoneInfo(options : CLResultCallBack) {
+		CLShanYanSDKManager.preGetPhonenumber((result : CLCompleteResult) => {
+			if (result != null) {
+
+				let data : ResultData = {
 					protocolName: result.data?.["protocolName"],
 					protocolUrl: result.data?.["protocolUrl"],
 					telecom: result.data?.["telecom"],
-					number:result.data?.["number"],
+					number: result.data?.["number"],
 					slogan: result.data?.["slogan"],
 				}
-				
-				let response: CLResultResponse = {
+
+				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
@@ -65,7 +65,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 				}
 				console.log(response)
 				options(response)
-			}else{
+			} else {
 				options({
 					code: -1,
 					message: "预取号失败",
@@ -76,30 +76,31 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 			}
 		})
 	}
-	
+
 	// 
-	setShanYanDelegate(){
+	setShanYanDelegate() {
 		CLShanYanSDKManager.setCLShanYanSDKManagerDelegate(this)
 	}
-	
-	
-	quickAuthLoginWithConfigure(configure:AuthIOSUIConfigure,openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack){
-	
-		let config = this.transformConfigure(configure)
+
+
+	quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
+
+		let tmpConfigure : AuthIOSUIConfigure = configure.iOSConfig!
+		let config = this.transformConfigure(tmpConfigure)
 		config.viewController = UTSiOS.getCurrentViewController()
-		
-		config.customAreaView = (customAreaView:UIView) => {
-			DispatchQueue.main.async(execute=():void => {
+
+		config.customAreaView = (customAreaView : UIView) => {
+			DispatchQueue.main.async(execute = () : void => {
 				setCustomUI(customAreaView)
 			})
 		}
-		
-		
-		const openLoginAuthListener = (result:CLCompleteResult) =>{
-			if (result != null){
-				
+
+
+		const openLoginAuthListener = (result : CLCompleteResult) => {
+			if (result != null) {
+
 				console.log(result)
-				let response: CLResultResponse = {
+				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
@@ -110,12 +111,12 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 				openLoginAuthCallback(response)
 			}
 		}
-		
-		const oneKeyLoginListener = (result:CLCompleteResult) =>{
-			if (result != null){
-				
+
+		const oneKeyLoginListener = (result : CLCompleteResult) => {
+			if (result != null) {
+
 				console.log(result)
-				let response: CLResultResponse = {
+				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
@@ -126,165 +127,560 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate{
 				oneKeyLoginCallback(response)
 			}
 		}
-		CLShanYanSDKManager.quickAuthLogin(with = config, openLoginAuthListener =openLoginAuthListener, oneKeyLoginListener= oneKeyLoginListener)	
+		CLShanYanSDKManager.quickAuthLogin(with = config, openLoginAuthListener = openLoginAuthListener, oneKeyLoginListener = oneKeyLoginListener)
 	}
-	
-	finishAuthControllerAnimated(){
-		CLShanYanSDKManager.finishAuthControllerCompletion(()=>{
+
+	finishAuthControllerAnimated() {
+		CLShanYanSDKManager.finishAuthControllerCompletion(() => {
 		})
 	}
-	
+
 	//代理方法
-	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad")authPageView: UIView | null, @argumentLabel("currentTelecom") telecom: string | null) {
-	    console.log('有结果啦啦啦啦啦111')
+	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad") authPageView : UIView | null, @argumentLabel("currentTelecom") telecom : string | null) {
+		console.log('有结果啦啦啦啦啦111')
 	}
-	
-	clShanYanActionListener(type: Int | null ,code : Int | null, message: string | null){
+
+	clShanYanActionListener(type : Int | null, code : Int | null, message : string | null) {
 		// this.actionListenerBlock?.(Number.from(type),Number.from(code),message)
 		console.log('有结果啦啦啦啦啦2222')
 	}
-	
+
 	// clShanYanSDKManagerAuthPageWillPresent(authPageVC: UIViewController | null, @argumentLabel("currentTelecom") telecom: string | null, object: NSObject | null, userInfo: any){
 	// 	console.log('有结果啦啦啦啦啦333')
 	// }
-	
-	
-	private transformConfigure(tmpConfigure:AuthIOSUIConfigure):CLUIConfigure{
-		let config  =  this.defaultConfigure()
+
+
+	private transformConfigure(tmpConfigure : AuthIOSUIConfigure) : CLUIConfigure {
+		let config = CLUIConfigure.clDefault()
 		let defaultImage = new UIImage()
-			
+		config.clAppPrivacyWebBackBtnImage = defaultImage
 		// 设置是否点击登录关闭授权页
-		config.manualDismiss = 0	
-			
+		config.manualDismiss = 0
+
 		// 是否隐藏导航栏
 		config.clNavigationBarHidden = 0
-		
+
 		/* ********************* 授权页 ********************* */
 		// 设置授权页背景图片
-		let backImageString = tmpConfigure.clBackgroundImg ?? ""		
+		let backImageString = tmpConfigure.clBackgroundImg ?? ""
 		let backimage = new UIImage(named = backImageString)
 		config.clBackgroundImg = backimage ?? defaultImage
-		
+
 		// 设置授权页背景颜色		
-		if (tmpConfigure.clBackgroundColor != null){
+		if (tmpConfigure.clBackgroundColor != null) {
 			config.clBackgroundColor = UTSiOS.colorWithString(tmpConfigure.clBackgroundColor!)
 		}
-		
+
 		/* *********************导航栏********************* */
 		// 导航栏是否隐藏
-		if (tmpConfigure.clNavigationBackBtnHidden !=null){
+		if (tmpConfigure.clNavigationBackBtnHidden != null) {
 			config.clNavigationBackBtnHidden = tmpConfigure.clNavigationBackBtnHidden!
 		}
 		//背景色
-		if (tmpConfigure.clNavigationBackgroundClear != null ){
+		if (tmpConfigure.clNavigationBackgroundClear != null) {
 			config.clNavigationBackgroundClear = tmpConfigure.clNavigationBackgroundClear!
 		}
-		
+
 		// 设置导航title
-		if (tmpConfigure.clNavigationTitleText != null ){
+		if (tmpConfigure.clNavigationTitleText != null) {
 			//TODO: warning --
-			let titleString =  tmpConfigure.clNavigationTitleText ?? '闪验'
+			let titleString = tmpConfigure.clNavigationTitleText ?? '闪验'
 			let att = new NSMutableAttributedString(string = titleString)
 			// let range = Foundation._NSRange(location = 0,length = att.length)
 			// att.addAttribute(NSAttributedString.Key.font, value = UIFont.systemFont(ofSize = 20), range = range)
 			// att.addAttribute(NSAttributedString.Key.foregroundColor, value = UIColor.blue, range =range)
-			config.clNavigationAttributesTitleText = att			
+			config.clNavigationAttributesTitleText = att
 		}
-		
-		if (tmpConfigure.clNavigationBackBtnImage != null){
+
+		if (tmpConfigure.clNavigationBackBtnImage != null) {
 			let navBackImageString = tmpConfigure.clNavigationBackBtnImage ?? ""
-			let navBackImage  = new UIImage(named = navBackImageString)
+			let navBackImage = new UIImage(named = navBackImageString)
 			config.clNavigationBackBtnImage = navBackImage ?? defaultImage
 		}
-		if (tmpConfigure.clNavigationBackBtnHidden != null){
-			
+		if (tmpConfigure.clNavigationBackBtnHidden != null) {
+			config.clNavigationBackBtnHidden = tmpConfigure.clNavigationBackBtnHidden!
+		}
+
+		if (tmpConfigure.clNavBackBtnAlimentRight != null) {
+			config.clNavBackBtnAlimentRight = tmpConfigure.clNavBackBtnAlimentRight!
+		}
+
+		if (tmpConfigure.clNavigationBottomLineHidden != null) {
+			config.clNavigationBottomLineHidden = tmpConfigure.clNavigationBottomLineHidden!
+		}
+
+		if (tmpConfigure.clNavigationShadowImage != null) {
+			config.clNavigationShadowImage = new UIImage(named = tmpConfigure.clNavigationShadowImage!) ?? defaultImage
+		}
+
+		if (tmpConfigure.clNavigationTintColor != null) {
+			config.clNavigationTintColor = UTSiOS.colorWithString(tmpConfigure.clNavigationTintColor!)
+		}
+
+		if (tmpConfigure.clNavigationBarTintColor != null) {
+			config.clNavigationBarTintColor = UTSiOS.colorWithString(tmpConfigure.clNavigationBarTintColor!)
+		}
+
+		if (tmpConfigure.clNavigationBackgroundImage != null) {
+			config.clNavigationBackgroundImage = new UIImage(named = tmpConfigure.clNavigationBackgroundImage!) ?? defaultImage
+		}
+
+		if (tmpConfigure.clNavigationBarMetrics != null) {
+			config.clNavigationBarMetrics = tmpConfigure.clNavigationBarMetrics!
+		}
+
+		/* *********************logo********************* */
+
+		if (tmpConfigure.clLogoImage != null) {
+			config.clLogoImage = new UIImage(named = tmpConfigure.clLogoImage!) ?? defaultImage
+		}
+
+		if (tmpConfigure.clLogoCornerRadius != null) {
+			config.clLogoCornerRadius = tmpConfigure.clLogoCornerRadius!
+		}
+
+		if (tmpConfigure.clLogoHiden != null) {
+			config.clLogoHiden = tmpConfigure.clLogoHiden!
+		}
+
+
+		/* ********************* 手机号 ********************* */
+
+		if (tmpConfigure.clPhoneNumberColor != null) {
+			config.clPhoneNumberColor = UTSiOS.colorWithString(tmpConfigure.clPhoneNumberColor!)
+		}
+
+		if (tmpConfigure.clPhoneNumberFontSize != null) {
+			if (tmpConfigure.clPhoneNumberFontFamily != null) {
+				config.clPhoneNumberFont = new UIFont(name = tmpConfigure.clPhoneNumberFontFamily!, size = tmpConfigure.clPhoneNumberFontSize!.toFloat() as CGFloat)!
+			}
+			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clPhoneNumberFontSize!.toFloat() as CGFloat)
+		}
+
+		if (tmpConfigure.clPhoneNumberTextAlignment != null) {
+			config.clPhoneNumberTextAlignment = tmpConfigure.clPhoneNumberTextAlignment!
+		}
+
+		/* ********************* 一键登录 ********************* */
+		// iOS-一键登录按钮文字
+		if (tmpConfigure.clLoginBtnText != null) {
+			config.clLoginBtnText = tmpConfigure.clLoginBtnText!
+		}
+		// iOS-一键登录按钮文本颜色，16进制颜色值，如："#0ff000"
+		if (tmpConfigure.clLoginBtnTextColor != null) {
+			config.clLoginBtnTextColor = UTSiOS.colorWithString(tmpConfigure.clLoginBtnTextColor!)
+		}
+		// iOS-一键登录按钮背景颜色，16进制颜色值，如："#0ff000"
+		if (tmpConfigure.clNavigationShadowImage != null) {
+			config.clNavigationShadowImage = new UIImage(named = tmpConfigure.clNavigationShadowImage!) ?? defaultImage
+		}
+
+		// iOS-一键登录按钮字体样式及大小
+		if (tmpConfigure.clLoginBtnTextFontSize != null) {
+			if (tmpConfigure.clLoginBtnTextFontFamily != null) {
+				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clLoginBtnTextFontFamily!, size = tmpConfigure.clLoginBtnTextFontSize!.toFloat() as CGFloat)!
+			}
+			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clLoginBtnTextFontSize!.toFloat() as CGFloat)
+		}
+
+		// iOS-一键登录按钮state Normal背景图片
+		if (tmpConfigure.clLoginBtnNormalBgImage != null) {
+			config.clLoginBtnNormalBgImage = new UIImage(named = tmpConfigure.clLoginBtnNormalBgImage!) ?? defaultImage
+		}
+		// iOS-一键登录按钮state Normal背景图片
+		if (tmpConfigure.clLoginBtnNormalBgImage != null) {
+			config.clLoginBtnNormalBgImage = new UIImage(named = tmpConfigure.clLoginBtnNormalBgImage!) ?? defaultImage
+		}
+		// iOS-一键登录按钮state高亮图片
+		if (tmpConfigure.clLoginBtnHightLightBgImage != null) {
+			config.clLoginBtnHightLightBgImage = new UIImage(named = tmpConfigure.clLoginBtnHightLightBgImage!) ?? defaultImage
+		}
+		// iOS-一键登录按钮state不可用图片
+		if (tmpConfigure.clLoginBtnDisabledBgImage != null) {
+			config.clLoginBtnDisabledBgImage = new UIImage(named = tmpConfigure.clLoginBtnDisabledBgImage!) ?? defaultImage
+		}
+		// iOS-一键登录按钮边框颜色，16进制颜色值，如："#0ff000"
+		if (tmpConfigure.clLoginBtnBorderColor != null) {
+			config.clLoginBtnBorderColor = UTSiOS.colorWithString(tmpConfigure.clLoginBtnBorderColor!)
+		}
+
+		// iOS-一键登录按钮圆角大小
+		if (tmpConfigure.clLoginBtnCornerRadius != null) {
+			config.clLoginBtnCornerRadius = tmpConfigure.clLoginBtnCornerRadius!
+		}
+		// iOS-一键登录按钮边框宽度
+		if (tmpConfigure.clLoginBtnBorderWidth != null) {
+			config.clLoginBtnBorderWidth = tmpConfigure.clLoginBtnBorderWidth!
+		}
+
+		/* ********************* 隐私协议 ********************* */
+		
+		// iOS- 隐私协议数组
+		if (tmpConfigure.clAppMorePrivacyArray != null) {
+			config.clAppMorePrivacyArray = tmpConfigure.clAppMorePrivacyArray!
 		}
 		
-		if (tmpConfigure.clNavBackBtnAlimentRight != null){
-			
+		// iOS- 隐私协议颜色数组
+		if (tmpConfigure.clAppPrivacyTextColor != null) {
+			// let tmp = new Array<string>()
+			// tmpConfigure.clAppPrivacyTextColor!.forEach((colorString:string) =>{
+			// 	tmp.add(UTSiOS.colorWithString(colorString))
+			// })
+			// config.clAppPrivacyTextColor = tmp			
+		}
+
+
+		/* ********************* 运营商SLOGAN相关 ********************* */
+		
+		// iOS- 运营商SLOGAN 字体样式及大小
+		if (tmpConfigure.clSloganTextFontSize != null) {
+			if (tmpConfigure.clSloganTextFontFamily != null) {
+				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clSloganTextFontFamily!, size = tmpConfigure.clSloganTextFontSize!.toFloat() as CGFloat)!
+			}
+			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clSloganTextFontSize!.toFloat() as CGFloat)
+		}
+		// iOS- 运营商SLOGAN 字体颜色
+		if (tmpConfigure.clSloganTextColor != null) {
+			config.clSloganTextColor = UTSiOS.colorWithString(tmpConfigure.clSloganTextColor!)
+		}
+		// iOS- 运营商SLOGAN 对齐方式
+		if (tmpConfigure.clSlogaTextAlignment != null) {
+			config.clSlogaTextAlignment = tmpConfigure.clSlogaTextAlignment!
+		}
+		// iOS- 运营商SLOGAN 是否隐藏
+		if (tmpConfigure.clSloganTextHidden != null) {
+			config.clSloganTextHidden = tmpConfigure.clSloganTextHidden!
+		}
+
+		/* ********************* 闪验SLOGAN相关 ********************* */
+		// iOS- 闪验SLOGAN 字体样式大小设置
+		if (tmpConfigure.clShanYanSloganTextFontSize != null) {
+			if (tmpConfigure.clShanYanSloganTextFontFamily != null) {
+				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clShanYanSloganTextFontFamily!, size = tmpConfigure.clShanYanSloganTextFontSize!.toFloat() as CGFloat)!
+			}
+			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clShanYanSloganTextFontSize!.toFloat() as CGFloat)
+		}
+		// iOS- 闪验SLOGAN 字体颜色设置
+		if (tmpConfigure.clShanYanSloganTextColor != null) {
+			config.clShanYanSloganTextColor = UTSiOS.colorWithString(tmpConfigure.clShanYanSloganTextColor!)
+		}
+		// iOS- 闪验SLOGAN对齐方式
+		if (tmpConfigure.clShanYanSlogaTextAlignment != null) {
+			config.clShanYanSloganTextAlignment = tmpConfigure.clShanYanSlogaTextAlignment!
+		}
+		// iOS- 闪验SLOGAN 是否隐藏
+		if (tmpConfigure.clShanYanSloganTextHidden != null) {
+			config.clShanYanSloganHidden = tmpConfigure.clShanYanSloganTextHidden!
+		}
+
+		/* ********************* checkBox相关 ********************* */
+
+		// iOS- checkBox 勾选框是否隐藏
+		if (tmpConfigure.clCheckBoxHidden != null) {
+			config.clCheckBoxHidden = tmpConfigure.clCheckBoxHidden!
+		}
+		// iOS- checkBox 勾选框是否选中
+		if (tmpConfigure.clCheckBoxValue != null) {
+			config.clCheckBoxValue = tmpConfigure.clCheckBoxValue!
+		}
+		// iOS- checkBox 大小
+		if (tmpConfigure.clCheckBoxSize != null) {
+			config.clCheckBoxSize = new NSValue(cgSize = new CGSize(width = tmpConfigure.clCheckBoxSize!.width.toDouble(), height = tmpConfigure.clCheckBoxSize!.height.toDouble()))
+		}
+		// iOS- checkBox 内边距
+		if (tmpConfigure.clCheckBoxImageEdgeInsets != null) {
+			config.clCheckBoxImageEdgeInsets = new NSValue(uiEdgeInsets = new UIEdgeInsets(
+				top = new CGFloat(tmpConfigure.clCheckBoxImageEdgeInsets!.top),
+				left = new CGFloat(tmpConfigure.clCheckBoxImageEdgeInsets!.left),
+				bottom = new CGFloat(tmpConfigure.clCheckBoxImageEdgeInsets!.bottom),
+				right = new CGFloat(tmpConfigure.clCheckBoxImageEdgeInsets!.right)
+			))
+		}
+		// iOS- checkBox 是否顶部对齐
+		if (tmpConfigure.clCheckBoxVerticalAlignmentToAppPrivacyTop != null) {
+			config.clCheckBoxVerticalAlignmentToAppPrivacyTop = tmpConfigure.clCheckBoxVerticalAlignmentToAppPrivacyTop!
+		}
+		// iOS- checkBox Y轴是否中心对齐
+		if (tmpConfigure.clCheckBoxVerticalAlignmentToAppPrivacyCenterY != null) {
+			config.clCheckBoxVerticalAlignmentToAppPrivacyCenterY = tmpConfigure.clCheckBoxVerticalAlignmentToAppPrivacyCenterY!
+		}
+		// iOS- checkBox 上下偏移
+		if (tmpConfigure.clCheckBoxVerticalAlignmentOffset != null) {
+			config.clCheckBoxVerticalAlignmentOffset = tmpConfigure.clCheckBoxVerticalAlignmentOffset!
+		}
+		// iOS- checkBox 未选中图片
+		if (tmpConfigure.clCheckBoxUncheckedImage != null) {
+			config.clCheckBoxUncheckedImage = new UIImage(named = tmpConfigure.clCheckBoxUncheckedImage!) ?? defaultImage
+		}
+		// iOS- checkBox 选中的图片
+		if (tmpConfigure.clCheckBoxCheckedImage != null) {
+			config.clCheckBoxCheckedImage = new UIImage(named = tmpConfigure.clCheckBoxCheckedImage!) ?? defaultImage
+		}
+		// iOS- checkBox 提示信息
+		if (tmpConfigure.clCheckBoxTipMsg != null) {
+			config.clCheckBoxTipMsg = tmpConfigure.clCheckBoxTipMsg!
+		}
+		// iOS- checkBox 是否隐藏提示信息
+		if (tmpConfigure.clCheckBoxTipDisable != null) {
+			config.clCheckBoxTipDisable = tmpConfigure.clCheckBoxTipDisable!
+		}
+
+		/* ********************* Loading相关 ********************* */
+
+		// iOS- loading大小
+		if (tmpConfigure.clLoadingSize != null) {
+			let w = tmpConfigure.clLoadingSize!.width.toDouble()
+			let h = tmpConfigure.clLoadingSize!.height.toDouble()
+			config.clLoadingSize = new NSValue(cgSize = new CGSize(width = w, height = h))
+		}
+		// iOS- loading圆角
+		if (tmpConfigure.clLoadingCornerRadius != null) {
+			config.clLoadingCornerRadius = tmpConfigure.clLoadingCornerRadius!
+		}
+		// iOS- loading颜色
+		if (tmpConfigure.clLoadingBackgroundColor != null) {
+			config.clLoadingBackgroundColor = UTSiOS.colorWithString(tmpConfigure.clLoadingBackgroundColor!)
+		}
+		// iOS- 样式
+		if (tmpConfigure.clLoadingIndicatorStyle != null) {
+			config.clLoadingIndicatorStyle = tmpConfigure.clLoadingIndicatorStyle!
+		}
+		// iOS- 颜色
+		if (tmpConfigure.clLoadingTintColor != null) {
+			config.clLoadingTintColor = UTSiOS.colorWithString(tmpConfigure.clLoadingTintColor!)
 		}
 		
-		if (tmpConfigure.clNavigationBottomLineHidden != null){
-			
+		/* ********************* 横竖屏设置 ********************* */
+		if (tmpConfigure.shouldAutorotate != null) {
+			config.shouldAutorotate = tmpConfigure.shouldAutorotate!
+		}
+
+		if (tmpConfigure.supportedInterfaceOrientations != null) {
+			config.supportedInterfaceOrientations = tmpConfigure.supportedInterfaceOrientations!
+		}
+
+		if (tmpConfigure.preferredInterfaceOrientationForPresentation != null) {
+			config.preferredInterfaceOrientationForPresentation = tmpConfigure.preferredInterfaceOrientationForPresentation!
+		}
+
+		/* ********************* 窗口模式 ********************* */
+		
+		// iOS-窗口模式是否以此显示（0，,1），默认0
+		if (tmpConfigure.clAuthTypeUseWindow != null){
+			config.clAuthTypeUseWindow = tmpConfigure.clAuthTypeUseWindow!
+		}
+		// iOS-窗口模式圆角
+		if (tmpConfigure.clAuthWindowCornerRadius != null){
+			config.clAuthWindowCornerRadius = tmpConfigure.clAuthWindowCornerRadius!
 		}
 		
-		if (tmpConfigure.clNavigationShadowImage != null){
-			
+		// iOS-窗口模式clAuthWindowModalTransitionStyle系统自带的弹出方式 仅支持以下三种:CoverVertical CrossDissolve FlipHorizontal
+		if (tmpConfigure.clAuthWindowModalTransitionStyle != null){
+			config.clAuthWindowModalTransitionStyle = tmpConfigure.clAuthWindowModalTransitionStyle!
 		}
 		
-		if (tmpConfigure.clNavigationShadowImage != null){
-			
+		// iOS-窗口模式 遮罩模式
+		if (tmpConfigure.clAuthWindowModalPresentationStyle != null){
+			config.clAuthWindowModalPresentationStyle = tmpConfigure.clAuthWindowModalPresentationStyle!
+		}
+		// iOS-窗口模式，协议页 ModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
+		if (tmpConfigure.clAppPrivacyWebModalPresentationStyle != null){
+			config.clAppPrivacyWebModalPresentationStyle = tmpConfigure.clAppPrivacyWebModalPresentationStyle!
 		}
 		
-		Object.keys(tmpConfigure).forEach(key =>{
-			console.log(`${key}:`, tmpConfigure[key]);
-		})
+		// iOS-窗口模式，协议页 ModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
+		if (tmpConfigure.clAppPrivacyWebModalPresentationStyle != null){
+			config.clAppPrivacyWebModalPresentationStyle = tmpConfigure.clAppPrivacyWebModalPresentationStyle!
+		}
 		
+		// iOS-窗口模式UIUserInterfaceStyle
+		if (tmpConfigure.clAuthWindowOverrideUserInterfaceStyle != null){
+			config.clAuthWindowOverrideUserInterfaceStyle = tmpConfigure.clAuthWindowOverrideUserInterfaceStyle!
+		}
+		// iOS-窗口模式，授权页面present弹出时animate动画设置（0，,1），默认1带动画
+		if (tmpConfigure.clAuthWindowPresentingAnimate != null){
+			config.clAuthWindowPresentingAnimate = tmpConfigure.clAuthWindowPresentingAnimate!
+		}
+		// iOS-窗口模式，授权页面dismiss时animate动画设置（0，,1），默认1带动画
+		if (tmpConfigure.clAuthWindowDismissAnimate != null){
+			config.clAuthWindowDismissAnimate = tmpConfigure.clAuthWindowDismissAnimate!
+		}
 		
-		
-		
-		/* -------------------号码-----------------------*/
-		// 设置号码显示颜色
-		let clPhoneNumberColorString =  tmpConfigure.clPhoneNumberColor ?? '#FF0000'
-		config.clPhoneNumberColor = UTSiOS.colorWithString(clPhoneNumberColorString)
-		
-		/* -------------------登录按钮-----------------------*/
-		
-		/* -------------------隐私协议-----------------------*/
-		
-		/* -------------------布局参数-----------------------*/
+		/* ********************* 竖屏布局 ********************* */
+		if (tmpConfigure.clOrientationLayOutPortrait != null) {
+			let inputTmpLayout = tmpConfigure.clOrientationLayOutPortrait!
+			config.clOrientationLayOutPortrait = this.setUpUILayout(inputTmpLayout)
+		}
+
+		/* ********************* 横屏布局 ********************* */
+		if (tmpConfigure.clOrientationLayOutLandscape != null) {
+			let inputTmpLayout = tmpConfigure.clOrientationLayOutLandscape!
+			config.clOrientationLayOutPortrait = this.setUpUILayout(inputTmpLayout)
+		}
 		return config
 	}
 	
-	
-	private defaultConfigure():CLUIConfigure{
-		let config = CLUIConfigure.clDefault()
+	// 将uts布局转成原生的 竖/横 屏布局
+	private setUpUILayout(inputTmpLayout:CLLayoutUIItem) :CLOrientationLayOut{
+		let layOutPortrait = this.defaultOrientationLayOut()
 		
-		config.clPhoneNumberColor = UIColor.red
-		config.clBackgroundColor = UIColor.clear
+		// logo约束
+		if (inputTmpLayout.clLogonLayout != null) {
+			let logoLayoutItem = inputTmpLayout.clLogonLayout!
 		
+			if (logoLayoutItem.left != null) { layOutPortrait.clLayoutLogoLeft = logoLayoutItem.left! }
+			if (logoLayoutItem.top != null) { layOutPortrait.clLayoutLogoTop = logoLayoutItem.top! }
+			if (logoLayoutItem.right != null) { layOutPortrait.clLayoutLogoRight = logoLayoutItem.right! }
+			if (logoLayoutItem.bottom != null) { layOutPortrait.clLayoutLogoBottom = logoLayoutItem.bottom! }
+			if (logoLayoutItem.width != null) { layOutPortrait.clLayoutLogoWidth = logoLayoutItem.width! }
+			if (logoLayoutItem.height != null) { layOutPortrait.clLayoutLogoHeight = logoLayoutItem.height! }
+			if (logoLayoutItem.centerX != null) { layOutPortrait.clLayoutLogoCenterX = logoLayoutItem.centerX! }
+			if (logoLayoutItem.centerY != null) { layOutPortrait.clLayoutLogoCenterY = logoLayoutItem.centerY! }
+		}
+		
+		// 手机号约束
+		if (inputTmpLayout.clPhoneLayout != null) {
+			let phoneLayoutItem = inputTmpLayout.clPhoneLayout!
+		
+			if (phoneLayoutItem.right != null) { layOutPortrait.clLayoutPhoneLeft = phoneLayoutItem.left! }
+			if (phoneLayoutItem.right != null) { layOutPortrait.clLayoutPhoneRight = phoneLayoutItem.right! }
+			if (phoneLayoutItem.top != null) { layOutPortrait.clLayoutPhoneTop = phoneLayoutItem.top! }
+			if (phoneLayoutItem.bottom != null) { layOutPortrait.clLayoutPhoneBottom = phoneLayoutItem.bottom! }
+			if (phoneLayoutItem.width != null) { layOutPortrait.clLayoutPhoneWidth = phoneLayoutItem.width! }
+			if (phoneLayoutItem.height != null) { layOutPortrait.clLayoutPhoneHeight = phoneLayoutItem.height! }
+			if (phoneLayoutItem.centerX != null) { layOutPortrait.clLayoutPhoneCenterX = phoneLayoutItem.centerX! }
+			if (phoneLayoutItem.centerY != null) { layOutPortrait.clLayoutPhoneCenterY = phoneLayoutItem.centerY! }
+		}
+		
+		
+		// 登录按钮约束
+		if (inputTmpLayout.clLoginBtnLayout != null) {
+			let loginBtnLayoutItem = inputTmpLayout.clLoginBtnLayout!
+		
+			if (loginBtnLayoutItem.left != null) { layOutPortrait.clLayoutLoginBtnLeft = loginBtnLayoutItem.left! }
+			if (loginBtnLayoutItem.top != null) { layOutPortrait.clLayoutLoginBtnTop = loginBtnLayoutItem.top! }
+			if (loginBtnLayoutItem.right != null) { layOutPortrait.clLayoutLoginBtnRight = loginBtnLayoutItem.right! }
+			if (loginBtnLayoutItem.bottom != null) { layOutPortrait.clLayoutLoginBtnBottom = loginBtnLayoutItem.bottom! }
+			if (loginBtnLayoutItem.width != null) { layOutPortrait.clLayoutLoginBtnWidth = loginBtnLayoutItem.width! }
+			if (loginBtnLayoutItem.height != null) { layOutPortrait.clLayoutLoginBtnHeight = loginBtnLayoutItem.height! }
+			if (loginBtnLayoutItem.centerX != null) { layOutPortrait.clLayoutLoginBtnCenterX = loginBtnLayoutItem.centerX! }
+			if (loginBtnLayoutItem.centerY != null) { layOutPortrait.clLayoutLoginBtnCenterY = loginBtnLayoutItem.centerY! }
+		}
+		
+		// // 隐私约束
+		if (inputTmpLayout.clPrivacyLayout != null) {
+			let privacyLayoutItem = inputTmpLayout.clPrivacyLayout!
+		
+			if (privacyLayoutItem.left != null) { layOutPortrait.clLayoutAppPrivacyLeft = privacyLayoutItem.left! }
+			if (privacyLayoutItem.top != null) { layOutPortrait.clLayoutAppPrivacyTop = privacyLayoutItem.top! }
+			if (privacyLayoutItem.right != null) { layOutPortrait.clLayoutAppPrivacyRight = privacyLayoutItem.right! }
+			if (privacyLayoutItem.bottom != null) { layOutPortrait.clLayoutAppPrivacyBottom = privacyLayoutItem.bottom! }
+			if (privacyLayoutItem.width != null) { layOutPortrait.clLayoutAppPrivacyWidth = privacyLayoutItem.width! }
+			if (privacyLayoutItem.height != null) { layOutPortrait.clLayoutAppPrivacyHeight = privacyLayoutItem.height! }
+			if (privacyLayoutItem.centerX != null) { layOutPortrait.clLayoutAppPrivacyCenterX = privacyLayoutItem.centerX! }
+			if (privacyLayoutItem.centerY != null) { layOutPortrait.clLayoutAppPrivacyCenterY = privacyLayoutItem.centerY! }
+		}
+		
+		
+		// // slogan约束
+		if (inputTmpLayout.clSloganLayout != null) {
+			let sloganLayoutItem = inputTmpLayout.clSloganLayout!
+		
+			if (sloganLayoutItem.left != null) { layOutPortrait.clLayoutSloganLeft = sloganLayoutItem.left! }
+			if (sloganLayoutItem.top != null) { layOutPortrait.clLayoutSloganTop = sloganLayoutItem.top! }
+			if (sloganLayoutItem.right != null) { layOutPortrait.clLayoutSloganRight = sloganLayoutItem.right! }
+			if (sloganLayoutItem.bottom != null) { layOutPortrait.clLayoutSloganBottom = sloganLayoutItem.bottom! }
+			if (sloganLayoutItem.width != null) { layOutPortrait.clLayoutSloganWidth = sloganLayoutItem.width! }
+			if (sloganLayoutItem.height != null) { layOutPortrait.clLayoutSloganHeight = sloganLayoutItem.height! }
+			if (sloganLayoutItem.centerX != null) { layOutPortrait.clLayoutSloganCenterX = sloganLayoutItem.centerX! }
+			if (sloganLayoutItem.centerY != null) { layOutPortrait.clLayoutSloganCenterY = sloganLayoutItem.centerY! }
+		}
+		
+		// 闪验slogan约束
+		if (inputTmpLayout.clShanSloganLayout != null) {
+			let shanYanSloganLayoutItem = inputTmpLayout.clShanSloganLayout!
+		
+			if (shanYanSloganLayoutItem.left != null) { layOutPortrait.clLayoutShanYanSloganLeft = shanYanSloganLayoutItem.left! }
+			if (shanYanSloganLayoutItem.top != null) { layOutPortrait.clLayoutShanYanSloganTop = shanYanSloganLayoutItem.top! }
+			if (shanYanSloganLayoutItem.right != null) { layOutPortrait.clLayoutShanYanSloganRight = shanYanSloganLayoutItem.right! }
+			if (shanYanSloganLayoutItem.bottom != null) { layOutPortrait.clLayoutShanYanSloganBottom = shanYanSloganLayoutItem.bottom! }
+			if (shanYanSloganLayoutItem.width != null) { layOutPortrait.clLayoutShanYanSloganWidth = shanYanSloganLayoutItem.width! }
+			if (shanYanSloganLayoutItem.height != null) { layOutPortrait.clLayoutShanYanSloganHeight = shanYanSloganLayoutItem.height! }
+			if (shanYanSloganLayoutItem.centerX != null) { layOutPortrait.clLayoutShanYanSloganCenterX = shanYanSloganLayoutItem.centerX! }
+			if (shanYanSloganLayoutItem.centerY != null) { layOutPortrait.clLayoutShanYanSloganCenterY = shanYanSloganLayoutItem.centerY! }
+		}
+		
+		
+		if (inputTmpLayout.clAuthWindowOrientationCenter != null) {
+			layOutPortrait.clAuthWindowOrientationCenter = new NSValue(cgSize = new CGSize(
+				width = inputTmpLayout.clAuthWindowOrientationCenter!.width.toDouble(),
+				height = inputTmpLayout.clAuthWindowOrientationCenter!.height.toDouble())
+			)
+		}
+		
+		if (inputTmpLayout.clAuthWindowOrientationOrigin != null) {
+			layOutPortrait.clAuthWindowOrientationOrigin = new NSValue(cgSize = new CGSize(
+				width = inputTmpLayout.clAuthWindowOrientationOrigin!.width.toDouble(),
+				height = inputTmpLayout.clAuthWindowOrientationOrigin!.height.toDouble()))
+		}
+		
+		if (inputTmpLayout.clAuthWindowOrientationWidth != null) {
+			layOutPortrait.clAuthWindowOrientationWidth = inputTmpLayout.clAuthWindowOrientationWidth!
+		}
+		
+		if (inputTmpLayout.clAuthWindowOrientationHeight != null) {
+			layOutPortrait.clAuthWindowOrientationHeight = inputTmpLayout.clAuthWindowOrientationHeight!
+		}
+		
+		return layOutPortrait
+	}
+
+
+
+
+	private defaultOrientationLayOut() : CLOrientationLayOut {
+
 		let layOutPortrait = new CLOrientationLayOut()
-		    layOutPortrait.clLayoutLogoCenterX = 0;
-		    layOutPortrait.clLayoutLogoTop = 150
-		    layOutPortrait.clLayoutLogoWidth = 120
-		    layOutPortrait.clLayoutLogoHeight = 80
-		    
-		    layOutPortrait.clLayoutLoginBtnCenterX = 0
-		    layOutPortrait.clLayoutLoginBtnWidth = 120
-		    layOutPortrait.clLayoutLoginBtnCenterY = 0
-		    layOutPortrait.clLayoutLoginBtnHeight = 45
-		    
-		    layOutPortrait.clLayoutPhoneCenterX = 0
-		    layOutPortrait.clLayoutPhoneCenterY = layOutPortrait.clLayoutLoginBtnCenterY - 80
-		    layOutPortrait.clLayoutPhoneWidth = 120
-		    layOutPortrait.clLayoutPhoneHeight = 40
-		    
-		    layOutPortrait.clLayoutAppPrivacyLeft = 50
-		    layOutPortrait.clLayoutAppPrivacyRight = -50
-		    layOutPortrait.clLayoutAppPrivacyBottom = -60
-		    layOutPortrait.clLayoutAppPrivacyHeight = 50
-		    
-		    layOutPortrait.clLayoutShanYanSloganBottom = -20
-		    layOutPortrait.clLayoutShanYanSloganLeft = 0
-		    layOutPortrait.clLayoutShanYanSloganRight = 0
-		    layOutPortrait.clLayoutPhoneHeight = 40
-		    
-		    layOutPortrait.clLayoutAppPrivacyLeft = 50
-		    layOutPortrait.clLayoutAppPrivacyRight = -50
-		    layOutPortrait.clLayoutAppPrivacyBottom = -60
-		    layOutPortrait.clLayoutAppPrivacyHeight = 50
-		    
-		    layOutPortrait.clLayoutShanYanSloganBottom = -20
-		    layOutPortrait.clLayoutShanYanSloganLeft = 0
-		    layOutPortrait.clLayoutShanYanSloganRight = 0
-		    layOutPortrait.clLayoutShanYanSloganHeight = 20
-		
-		    layOutPortrait.clLayoutSloganBottom = -40
-		    layOutPortrait.clLayoutSloganLeft = 0
-		    layOutPortrait.clLayoutSloganRight = 0
-		    layOutPortrait.clLayoutSloganHeight = 20
-		    config.clOrientationLayOutPortrait = layOutPortrait;
-			
-			return config
+		layOutPortrait.clLayoutLogoCenterX = 0;
+		layOutPortrait.clLayoutLogoTop = 150
+		layOutPortrait.clLayoutLogoWidth = 120
+		layOutPortrait.clLayoutLogoHeight = 80
+
+		layOutPortrait.clLayoutLoginBtnCenterX = 0
+		layOutPortrait.clLayoutLoginBtnWidth = 120
+		layOutPortrait.clLayoutLoginBtnCenterY = 0
+		layOutPortrait.clLayoutLoginBtnHeight = 45
+
+		layOutPortrait.clLayoutPhoneCenterX = 0
+		layOutPortrait.clLayoutPhoneCenterY = layOutPortrait.clLayoutLoginBtnCenterY - 80
+		layOutPortrait.clLayoutPhoneWidth = 120
+		layOutPortrait.clLayoutPhoneHeight = 40
+
+		layOutPortrait.clLayoutAppPrivacyLeft = 50
+		layOutPortrait.clLayoutAppPrivacyRight = -50
+		layOutPortrait.clLayoutAppPrivacyBottom = -60
+		layOutPortrait.clLayoutAppPrivacyHeight = 50
+
+		layOutPortrait.clLayoutShanYanSloganBottom = -20
+		layOutPortrait.clLayoutShanYanSloganLeft = 0
+		layOutPortrait.clLayoutShanYanSloganRight = 0
+		layOutPortrait.clLayoutPhoneHeight = 40
+
+		layOutPortrait.clLayoutAppPrivacyLeft = 50
+		layOutPortrait.clLayoutAppPrivacyRight = -50
+		layOutPortrait.clLayoutAppPrivacyBottom = -60
+		layOutPortrait.clLayoutAppPrivacyHeight = 50
+
+		layOutPortrait.clLayoutShanYanSloganBottom = -20
+		layOutPortrait.clLayoutShanYanSloganLeft = 0
+		layOutPortrait.clLayoutShanYanSloganRight = 0
+		layOutPortrait.clLayoutShanYanSloganHeight = 20
+
+		layOutPortrait.clLayoutSloganBottom = -40
+		layOutPortrait.clLayoutSloganLeft = 0
+		layOutPortrait.clLayoutSloganRight = 0
+		layOutPortrait.clLayoutSloganHeight = 20
+
+		return layOutPortrait
 	}
 }

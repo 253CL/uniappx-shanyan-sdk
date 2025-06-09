@@ -29,7 +29,7 @@
 			},
 
 			onInitClick() : void {
-				shanYanSDKModule.setDebug(true);
+				// shanYanSDKModule.setDebug(true);
 				let platform = uni.getDeviceInfo().platform;
 				let appId : string;
 				console.log('当前运行的终端平台类型是：' + platform);
@@ -38,7 +38,7 @@
 					appId = 'loXN4jDs';
 				} else if (platform === 'ios') {
 					// ios端信息-->appId：jbZTAzrm，appkey：3QknmACj，bundleId：com.zto.connect.fat
-					appId = 'jbZTAzrm';
+					appId = '7I5nJT7h';
 				} else if (platform === 'harmonyos') {
 					// harmonyos端信息-->appId：FyiH0sFV，appkey：FrUrFv6V，包名：com.harmony.shanyantest，包签名：7265454aa66fb198041e78deed7e68d93ff73dc6c5fa11274612635e05caee85,应用唯一标识:6918664681503718031
 					appId = 'FyiH0sFV';
@@ -79,6 +79,7 @@
 				);
 			},
 			onFullScreenClick() : void {
+
 				const uiConfigure : ShanYanUIConfigure = {
 					androidConfig: {
 						//授权页竖屏配置
@@ -152,7 +153,32 @@
 						horizontalConfig: {
 						}
 					},
-					iosConfig: {
+					iOSConfig: {
+						clNavigationTitleText: '闪验demo',
+						clBackgroundImg: 'bb4bf6b9301170c7fa0a766b1024d2d3.jpg',
+						clNavigationBackBtnImage: 'back-7.png',
+						clLogoImage: 'back-7.png',
+						clOrientationLayOutPortrait: {
+							// clLogonLayout: {
+							// 	right: -30,
+							// 	centerY: 0,
+							// 	width: 100,
+							// 	height: 100
+							// }
+						},
+						clAppMorePrivacyArray: [{
+							decollator: '、',
+							lastDecollator: 'NO',
+							privacyName: '测试协议',
+							privacyURL: 'https://www.baidu.com',
+						}, {
+							decollator: '、',
+							lastDecollator: 'NO',
+							privacyName: '测试协议222',
+							privacyURL: 'https://www.baidu.com'
+						}
+						],
+						clAppPrivacyTextColor: ['#FF4455', '#FE3545']
 
 					}
 				};
