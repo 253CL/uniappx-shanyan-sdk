@@ -12,8 +12,8 @@
 </template>
 
 <script lang="ts">
-	import { BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
-	import { WidgetItem, PrivacyListItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, DialogThemeItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
+	import { PrivacyListItem, AuthAndroidUIConfigure, AuthIOSUIConfigure, BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	import { WidgetItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, PrivacyList, DialogThemeItem, CLLayoutUIItem, ConfigItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
 	const shanYanSDKModule = new ShanYanSDKModule();
 	export default {
 		data() {
@@ -29,7 +29,7 @@
 			},
 
 			onInitClick() : void {
-				// shanYanSDKModule.setDebug(true);
+				shanYanSDKModule.setDebug(true);
 				let platform = uni.getDeviceInfo().platform;
 				let appId : string;
 				console.log('当前运行的终端平台类型是：' + platform);
@@ -85,20 +85,22 @@
 						//授权页竖屏配置
 						verticalConfig: {
 							baseUIConfig: {
-								authBGImgPath: 'shanyan_bg_vertival.png',
+								authBGImgPath: 'sy_login_bg',
 								statusBarConfig: {
-									statusBarColor: "#00ff00",
-									isLightColor: true
+									statusBarColor: "#ffaa00",
+									isLightColor: false
 								},
 								systemNavBarConfig: {
-									isBackPressedAvailable: false
+									isBackPressedAvailable: true
 								},
 								navBarConfig: {
 									navReturnImgPath: "close-black.png"
 								},
 								logoConfig: {
 									logoImgPath: "logo.png",
-									logoOffsetX: 50
+									logoOffsetX: 50,
+									logoWidth: 60,
+									logoHeight: 60
 								},
 								numberConfig: {
 									numberColor: "#0000ff",
@@ -108,51 +110,101 @@
 									isSloganTextBold: true
 								},
 								loginButtonConfig: {
-									logBtnText: "登录测试"
+									logBtnText: "一键登录登录测试"
 								},
 								privacyConfig: {
-									privacyTextSize: 20,
+									privacyTextSize: 10,
+									privacyText: {
+										privacyTextHead: "已知晓且同意",
+										privacyTextFirst: "和",
+										privacyTextEnd: "并授权本应用获取手机号"
+									},
 									morePrivacy: [
 										{
 											name: "闪验用户协议1",
 											url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
-											content: "同意",
-											isFirst: true,
-										} as PrivacyItem,
+											content: "、",
+											color: "#ff00ff",
+										},
 										{
 											name: "闪验用户协议2",
 											url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
-											content: "同意",
-											isFirst: false,
-										} as PrivacyItem]
+											content: "、",
+											//color: "#f00f0f",
+										},
+										{
+											name: "闪验用户协议3",
+											url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+											content: "",
+											color: "#f00f0f",
+										}]
 								},
 								dialogThemeConfig: {
-									isDialogTheme: true
+									isDialogTheme: false,
+									isDialogBottom: true,
+									//Android - 设置弹窗授权页遮盖层灰度（0-1）
+									dialogDimAmount: 0.5,
+									//Android - 设置弹窗授权页宽度
+									dialogWidth: 300,
+									//Android - 设置弹窗授权页高度
+									dialogHeight: 500,
+									//Android - 设置弹窗授权页从屏幕左侧边界向右的X偏移量
+									//dialogOffsetX: 10,
+									//Android - 设置弹窗授权页从屏幕顶部向下的Y偏移量
+									//dialogOffsetY: 20
 								},
 
 							},
-							widgetsConfig: [{
-								widgetId: "textview01",
-								type: "TextView",
-								width: 20,
-								height: 15,
-								leftOffsetX: 10,
-								topOffsetY: 100,
-								textContent: "测试"
-							} as WidgetItem, {
-								widgetId: "button01",
-								type: "Button",
-								width: 20,
-								height: 15,
-								leftOffsetX: 10,
-								topOffsetY: 100,
-								textContent: "测试"
-							} as WidgetItem]
-						},
-						//授权页横屏配置
-						horizontalConfig: {
-						}
-					},
+							widgetsConfig: [
+								{
+									widgetId: "TextView01",
+									type: "TextView",
+									width: 200,
+									height: 40,
+									//leftOffsetX: 10,
+									topOffsetY: 280,
+									textColor: "#ff0000",
+									backgroundColor: "#ffffff",
+									textContent: "测试TextView类型自定义控件",
+									callback: () => {
+										console.log(`测试TextView类型自定义控件点击事件监听`)
+									}
+								},
+								{
+									widgetId: "Button01",
+									type: "Button",
+									width: 300,
+									height: 50,
+									textColor: "#0000ff",
+									//leftOffsetX: 10,
+									topOffsetY: 350,
+									//cornerRadius: 10,
+									backgroundColor: "#ffffff",
+									//backgroundImgPath: "weixin",
+									isAllCaps: true,
+									textContent: "测试Button类型自定义控件",
+									callback: () => {
+										console.log(`测试Button类型自定义控件点击事件监听`)
+									}
+								},
+								{
+									widgetId: "ImageView01",
+									type: "ImageView",
+									width: 50,
+									height: 50,
+									leftOffsetX: 30,
+									topOffsetY: 450,
+									backgroundImgPath: "qq",
+									textContent: "测试ImageView类型自定义控件",
+									callback: () => {
+										console.log(`测试ImageView类型自定义控件点击事件监听`)
+									}
+								}]
+						} as ConfigItem,
+						// //授权页横屏配置
+						// horizontalConfig: {
+						// }
+					} as AuthAndroidUIConfigure,
 					iOSConfig: {
 						clNavigationTitleText: '闪验demo',
 						clBackgroundImg: 'bb4bf6b9301170c7fa0a766b1024d2d3.jpg',
@@ -165,7 +217,7 @@
 							// 	width: 100,
 							// 	height: 100
 							// }
-						},
+						} as CLLayoutUIItem,
 						clAppMorePrivacyArray: [{
 							decollator: '、',
 							lastDecollator: 'NO',
@@ -180,7 +232,7 @@
 						],
 						clAppPrivacyTextColor: ['#FF4455', '#FE3545']
 
-					}
+					} as AuthIOSUIConfigure
 				};
 				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfigure, (response) => {
 					try {

@@ -34,6 +34,8 @@ export type ResultData = {
  */
 export type CLResultCallBack = (response : CLResultResponse) => void;
 
+export type WidgetCallBack = () => void;
+
 /**
  * 授权页系统状态栏（电量、信号等显示区域）属性
  */
@@ -250,22 +252,33 @@ export type PrivacyItem = {
 	privacySmhHidden ?: boolean
 	//Android - 设置授权页协议未勾选时toast提示文字内容
 	toastText ?: string
+	//Android - 设置授权页协议最前和最后的文字描述
+	privacyText ?: PrivacyTextItem
 	//Android - 设置授权页自定义协议
 	morePrivacy ?: PrivacyList
 }
 // 自定义隐私协议属性
 export type PrivacyListItem = {
 	//自定义协议名称
-	name ?: string
+	name : string
 	//自定义协议链接
-	url ?: string
+	url : string
 	//自定义协议外的文字
 	content ?: string
-	//自定义协议外的文字是否在当前协议名称前面。true：在协议名称前；false：在协议名称后。默认：false。
-	isFirst ?: boolean
+	//自定义协议名称颜色
+	color ?: string
 }
 // 自定义隐私协议集合类型
-export type PrivacyList = Array<PrivacyItem>;
+export type PrivacyList = Array<PrivacyListItem>;
+//
+export type PrivacyTextItem = {
+	//协议栏最前端的文字描述
+	privacyTextHead ?: string
+	//当运营商协议默认显示到第一个时，此为运营商协议后的文字描述
+	privacyTextFirst ?: string
+	//协议栏最后端的文字描述
+	privacyTextEnd ?: string
+}
 /**
  * 授权页弹窗样式的属性 
  */
@@ -327,8 +340,12 @@ export type BaseUIConfig = {
 }
 // 自定义控件类型
 export type WidgetItem = {
+	//Android -  是否自动大写
+	isAllCaps ?: boolean;
+	//Android - 圆角半径（dp）
+	cornerRadius ?: number;
 	//Android - 设置自定义控件ID
-	widgetId : string
+	widgetId ?: string
 	//Android - 设置自定义控件类型，包括"TextView"、"Button"、"ImageView"。
 	type : string
 	//Android - 设置自定义控件宽度
@@ -355,280 +372,281 @@ export type WidgetItem = {
 	backgroundImgPath ?: string
 	//Android - 设置点击自定义控件，是否自动销毁授权页。true：自动销毁；false：不自动消耗，默认false
 	isFinish ?: boolean
+	callback ?: WidgetCallBack
 }
 
 
 
-export type AuthIOSUIConfigure ={
-    
-    /****************************************** 授权页 ******************************************/
-    
-    // iOS-是否手动关闭授权页（0，,1），默认 0
-    clManualDismiss?:number
-    // iOS-授权页背景图片，如"xxx.png"。图片路径为nativeResources/ios
-    clBackgroundImg?:string
-    // iOS-授权页背景颜色，16进制颜色值，如："#0ff000"
-    clBackgroundColor?:string
-    
-    /****************************************** 系统整体属性 ******************************************/
-    
-    // iOS-导航栏是否隐藏(0，,1), 默认0, 设置优先级高于clNavigationBackgroundClear eg.@(NO)
-    clNavigationBarHidden?:number
-    // iOS-导航栏是否透明(0,1),默认1
-    clNavigationBackgroundClear?:number
-    // iOS-导航栏标题
-    clNavigationTitleText?:string
-    // iOS-导航栏左侧返回按钮图片,如"xxx.png"。图片路径为nativeResources/ios
-    clNavigationBackBtnImage?:string
-    // iOS-导航栏返回按钮是否隐藏(0，1)，默认1
-    clNavigationBackBtnHidden?:number
-    // iOS-导航栏自带返回(关闭)按钮位置 默认0 居左,设置为1居右显示
-    clNavBackBtnAlimentRight?:number
-    // iOS-导航栏分割线是否隐藏（0，1），默认1
-    clNavigationBottomLineHidden?:number
-    // iOS-导航栏分割线图片,如"xxx.png"。图片路径为nativeResources/ios
-    clNavigationShadowImage?:string
-    // iOS-导航栏文字颜色，16进制颜色值，如："#0ff000"
-    clNavigationTintColor?:string
-    // iOS-导航栏背景颜色，默认white
-    clNavigationBarTintColor?:string
-    // iOS-导航栏背景图片，如"xxx.png"。图片路径为nativeResources/ios
-    clNavigationBackgroundImage?:string
-    // iOS-导航栏 配合背景图片设置，用来控制在不同状态下导航栏的显示(横竖屏是否显示) UIBarMetrics eg.@(UIBarMetricsCompact)
-    clNavigationBarMetrics?:number
-    /****************************************** LOGO相关 ******************************************/
-    
-    // iOS-logo图片，如"xxx.png"。图片路径为nativeResources/ios
-    clLogoImage?:string
-    // iOS-logo圆角
-    clLogoCornerRadius?:number
-    // iOS-logo是否隐藏（0，1），默认为0
-    clLogoHiden?:number
-    
-    /****************************************** 手机号相关 ******************************************/
-    
-    // iOS-手机号颜色，16进制颜色值，如："#0ff000"
-    clPhoneNumberColor?:string
-    // iOS-手机号字体样式，默认系统字体
-    clPhoneNumberFontFamily?:string
-    // iOS-字体大小
-    clPhoneNumberFontSize?:number
-    // iOS-对齐方式，原生对应枚举数字 NSTextAlignment 默认@(NSTextAlignmentCenter)
-    clPhoneNumberTextAlignment?:number
-    
-    /****************************************** 一键登录按钮相关  ******************************************/
-    
-    // iOS-一键登录按钮文字
-    clLoginBtnText?:string
-    // iOS-一键登录按钮文本颜色，16进制颜色值，如："#0ff000"
-    clLoginBtnTextColor?:string
-    // iOS-一键登录按钮背景颜色，16进制颜色值，如："#0ff000"
-    clLoginBtnBgColor?:string
-    // iOS-一键登录按钮字体样式，默认为系统字体
-    clLoginBtnTextFontFamily?:string
-    // iOS-一键登录按钮字体大小
-    clLoginBtnTextFontSize?:number
-    // iOS-一键登录按钮state Normal背景图片
-    clLoginBtnNormalBgImage?:string
-    // iOS-一键登录按钮state高亮图片
-    clLoginBtnHightLightBgImage?:string
-    // iOS-一键登录按钮state不可用图片
-    clLoginBtnDisabledBgImage?:string
-    // iOS-一键登录按钮边框颜色，16进制颜色值，如："#0ff000"
-    clLoginBtnBorderColor?:string
-    // iOS-一键登录按钮圆角大小
-    clLoginBtnCornerRadius?:number
-    // iOS-一键登录按钮边框宽度
-    clLoginBtnBorderWidth?:number
-    
-    /****************************************** 隐私协议 ******************************************/
-    // iOS-协议数组 
+export type AuthIOSUIConfigure = {
+
+	/****************************************** 授权页 ******************************************/
+
+	// iOS-是否手动关闭授权页（0，,1），默认 0
+	clManualDismiss ?: number
+	// iOS-授权页背景图片，如"xxx.png"。图片路径为nativeResources/ios
+	clBackgroundImg ?: string
+	// iOS-授权页背景颜色，16进制颜色值，如："#0ff000"
+	clBackgroundColor ?: string
+
+	/****************************************** 系统整体属性 ******************************************/
+
+	// iOS-导航栏是否隐藏(0，,1), 默认0, 设置优先级高于clNavigationBackgroundClear eg.@(NO)
+	clNavigationBarHidden ?: number
+	// iOS-导航栏是否透明(0,1),默认1
+	clNavigationBackgroundClear ?: number
+	// iOS-导航栏标题
+	clNavigationTitleText ?: string
+	// iOS-导航栏左侧返回按钮图片,如"xxx.png"。图片路径为nativeResources/ios
+	clNavigationBackBtnImage ?: string
+	// iOS-导航栏返回按钮是否隐藏(0，1)，默认1
+	clNavigationBackBtnHidden ?: number
+	// iOS-导航栏自带返回(关闭)按钮位置 默认0 居左,设置为1居右显示
+	clNavBackBtnAlimentRight ?: number
+	// iOS-导航栏分割线是否隐藏（0，1），默认1
+	clNavigationBottomLineHidden ?: number
+	// iOS-导航栏分割线图片,如"xxx.png"。图片路径为nativeResources/ios
+	clNavigationShadowImage ?: string
+	// iOS-导航栏文字颜色，16进制颜色值，如："#0ff000"
+	clNavigationTintColor ?: string
+	// iOS-导航栏背景颜色，默认white
+	clNavigationBarTintColor ?: string
+	// iOS-导航栏背景图片，如"xxx.png"。图片路径为nativeResources/ios
+	clNavigationBackgroundImage ?: string
+	// iOS-导航栏 配合背景图片设置，用来控制在不同状态下导航栏的显示(横竖屏是否显示) UIBarMetrics eg.@(UIBarMetricsCompact)
+	clNavigationBarMetrics ?: number
+	/****************************************** LOGO相关 ******************************************/
+
+	// iOS-logo图片，如"xxx.png"。图片路径为nativeResources/ios
+	clLogoImage ?: string
+	// iOS-logo圆角
+	clLogoCornerRadius ?: number
+	// iOS-logo是否隐藏（0，1），默认为0
+	clLogoHiden ?: number
+
+	/****************************************** 手机号相关 ******************************************/
+
+	// iOS-手机号颜色，16进制颜色值，如："#0ff000"
+	clPhoneNumberColor ?: string
+	// iOS-手机号字体样式，默认系统字体
+	clPhoneNumberFontFamily ?: string
+	// iOS-字体大小
+	clPhoneNumberFontSize ?: number
+	// iOS-对齐方式，原生对应枚举数字 NSTextAlignment 默认@(NSTextAlignmentCenter)
+	clPhoneNumberTextAlignment ?: number
+
+	/****************************************** 一键登录按钮相关  ******************************************/
+
+	// iOS-一键登录按钮文字
+	clLoginBtnText ?: string
+	// iOS-一键登录按钮文本颜色，16进制颜色值，如："#0ff000"
+	clLoginBtnTextColor ?: string
+	// iOS-一键登录按钮背景颜色，16进制颜色值，如："#0ff000"
+	clLoginBtnBgColor ?: string
+	// iOS-一键登录按钮字体样式，默认为系统字体
+	clLoginBtnTextFontFamily ?: string
+	// iOS-一键登录按钮字体大小
+	clLoginBtnTextFontSize ?: number
+	// iOS-一键登录按钮state Normal背景图片
+	clLoginBtnNormalBgImage ?: string
+	// iOS-一键登录按钮state高亮图片
+	clLoginBtnHightLightBgImage ?: string
+	// iOS-一键登录按钮state不可用图片
+	clLoginBtnDisabledBgImage ?: string
+	// iOS-一键登录按钮边框颜色，16进制颜色值，如："#0ff000"
+	clLoginBtnBorderColor ?: string
+	// iOS-一键登录按钮圆角大小
+	clLoginBtnCornerRadius ?: number
+	// iOS-一键登录按钮边框宽度
+	clLoginBtnBorderWidth ?: number
+
+	/****************************************** 隐私协议 ******************************************/
+	// iOS-协议数组 
 	/*
-    decollator:string      //隐私协议拼接内容，如"、"
-    lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
-    privacyName:string     //隐私条款名称，如"《自定义隐私协议》"
-    privacyURL:string      //隐私条款URL，如"https://xxx.com"
+	decollator:string      //隐私协议拼接内容，如"、"
+	lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
+	privacyName:string     //隐私条款名称，如"《自定义隐私协议》"
+	privacyURL:string      //隐私条款URL，如"https://xxx.com"
 	示例： [{decollator:'、',lastDecollator:'NO',privacyName:'《自定义隐私协议》',privacyURL:'https://xxx.com'}]
 	*/
-    clAppMorePrivacyArray?:Array<object>
-    // iOS-协议文本字体样式，默认系统字体
-    clAppPrivacyTextFontFamily?:string
-    // iOS-协议文本字体大小
-    clAppPrivacyTextFontSize?:number
-    // iOS- 协议文本颜色，[基础文本颜色, 协议文本颜色]
-    clAppPrivacyTextColor?:Array<string>
+	clAppMorePrivacyArray ?: Array<object>
+	// iOS-协议文本字体样式，默认系统字体
+	clAppPrivacyTextFontFamily ?: string
+	// iOS-协议文本字体大小
+	clAppPrivacyTextFontSize ?: number
+	// iOS- 协议文本颜色，[基础文本颜色, 协议文本颜色]
+	clAppPrivacyTextColor ?: Array<string>
 	// iOS- 协议导航返回图片
-	clAppPrivacyWebBackBtnImage?:string
+	clAppPrivacyWebBackBtnImage ?: string
 	// iOS- 协议UINavigationTintColor
-	clAppPrivacyWebNavigationTintColor:string
+	clAppPrivacyWebNavigationTintColor ?: string
 	// iOS- 协议UINavigationBarTintColor
-	clAppPrivacyWebNavigationBarTintColor?:string
+	clAppPrivacyWebNavigationBarTintColor ?: string
 	// iOS- 协议 UINavigationBackgroundImage
-	clAppPrivacyWebNavigationBackgroundImage?:string
+	clAppPrivacyWebNavigationBackgroundImage ?: string
 	// iOS- 协议 UINavigationBarMetrics
-	clAppPrivacyWebNavigationBarMetrics?:string
+	clAppPrivacyWebNavigationBarMetrics ?: string
 	// iOS- 协议 UINavigationShadowImage
-	clAppPrivacyWebNavigationShadowImage?:string
+	clAppPrivacyWebNavigationShadowImage ?: string
 	// iOS- 协议 UINavigationBarStyle
-	clAppPrivacyWebNavigationBarStyle?:string
-    
-    /****************************************** 运营商SLOGAN相关 ******************************************/
-    // iOS-slogan字体样式
-    clSloganTextFontFamily? :string
-    // iOS-slogan字体大小
-    clSloganTextFontSize? :number
-    // iOS-slogan字体颜色
-    clSloganTextColor?: string
-    // iOS-slogan字体对齐方式，具体为原生iOS枚举数字
-    clSlogaTextAlignment?: number
-    // iOS-slogan是否隐藏（0，,1），默认0，不隐藏
-    clSloganTextHidden?: number
-    /******************************************  闪验SLOGAN相关 ******************************************/
+	clAppPrivacyWebNavigationBarStyle ?: string
 
-    // iOS-slogan字体样式
-    clShanYanSloganTextFontFamily? :string
-    // iOS-slogan字体大小
-    clShanYanSloganTextFontSize? :number
-    // iOS-slogan字体颜色
-    clShanYanSloganTextColor?: string
-    // iOS-slogan字体对齐方式，具体为原生iOS枚举数字
-    clShanYanSlogaTextAlignment?: number
-    // iOS-slogan是否隐藏（0，,1），默认0，不隐藏
-    clShanYanSloganTextHidden?: number
-    
-    /****************************************** checkBox相关 ******************************************/
-    // iOS-协议勾选框是否隐藏（0，,1）
-    clCheckBoxHidden? : number
-    // iOS-协议勾选框，是否选中（0，1）
-    clCheckBoxValue?: number
-    // iOS-协议勾选框尺寸大小
-    clCheckBoxSize?: CLSizeItem
-    // iOS-协议勾选框，UIButton内部图片边距
-    clCheckBoxImageEdgeInsets?:CLEdgeInsetsItem
-    // iOS-协议勾选框，设置CheckBox顶部与隐私协议控件顶部对齐 YES或大于0生效 eg.@(YES)
-    clCheckBoxVerticalAlignmentToAppPrivacyTop?: number
-    // iOS-协议勾选框，设置CheckBox顶部与隐私协议控件竖向中心对齐 YES或大于0生效 eg.@(YES)
-    clCheckBoxVerticalAlignmentToAppPrivacyCenterY?: number
-    // iOS-协议勾选框，设置CheckBox对齐后的偏移量,相对于对齐后的中心距离在当前垂直方向上的偏移
-    clCheckBoxVerticalAlignmentOffset?: number
-    // iOS-协议勾选框，未选中时图片
-    clCheckBoxUncheckedImage?: string
-    // iOS-协议勾选框，选中时图片
-    clCheckBoxCheckedImage?: string
-    // iOS-协议勾选框，提示文本，默认"请勾选协议"
-    clCheckBoxTipMsg?:string
-    // iOS-协议勾选框点击登录提示是否Disable(0,1)，1禁止
-    clCheckBoxTipDisable?:number
-    
-    /****************************************** Loading相关 ******************************************/
-    
-    //iOS-loading大小
-    clLoadingSize?:CLSizeItem
-    //iOS-loading圆角
-    clLoadingCornerRadius?:number
-    //iOS-loading颜色
-    clLoadingBackgroundColor?:string
-    //iOS-loading样式，原生iOS枚举对应的数字
-    clLoadingIndicatorStyle?:number
-    //iOS-loading颜色
-    clLoadingTintColor?:string
-    
-    /****************************************** 横竖屏设置 ******************************************/
-    // iOS-是否支持自动旋转
-    shouldAutorotate?:number
-    // iOS-支持方向，对应原生枚举类型
-    supportedInterfaceOrientations?:number
-    // iOS-默认方向，对应原生枚举类型
-    preferredInterfaceOrientationForPresentation?:number
-    
-    /****************************************** 窗口模式 ******************************************/
-    // iOS-窗口模式是否以此显示（0，,1），默认0
-    clAuthTypeUseWindow?:number
-    // iOS-窗口模式圆角
-    clAuthWindowCornerRadius?:number
-    // iOS-窗口模式clAuthWindowModalTransitionStyle系统自带的弹出方式 仅支持以下三种
-    // - UIModalTransitionStyleCoverVertical 底部弹出
-    // - UIModalTransitionStyleCrossDissolve 淡入
-    // - UIModalTransitionStyleFlipHorizontal 翻转显示
-    clAuthWindowModalTransitionStyle?:number
-    
-    // iOS-窗口模式，若使用窗口模式，请设置为UIModalPresentationOverFullScreen 或不设置
-    //  *iOS13强制全屏，请设置为UIModalPresentationFullScreen
-    //  *UIModalPresentationAutomatic API_AVAILABLE(ios(13.0)) = -2
-    //  *默认UIModalPresentationFullScreen
-    //  *eg. @(UIModalPresentationOverFullScreen)
-    clAuthWindowModalPresentationStyle?:number
-    // iOS-窗口模式，协议页 ModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
-    clAppPrivacyWebModalPresentationStyle?:number
-    // iOS-窗口模式UIUserInterfaceStyle
-    // UIUserInterfaceStyleUnspecified - 不指定样式，跟随系统设置进行展示
-    // UIUserInterfaceStyleLight       - 明亮
-    // UIUserInterfaceStyleDark,       - 暗黑 仅对iOS13+系统有效
-    // 授权页 UIUserInterfaceStyle,默认:UIUserInterfaceStyleLight,eg. @(UIUserInterfaceStyleLight)
-    clAuthWindowOverrideUserInterfaceStyle?:number
-    // iOS-窗口模式，授权页面present弹出时animate动画设置（0，,1），默认1带动画
-    clAuthWindowPresentingAnimate?:number
-    // iOS-窗口模式，授权页面dismiss时animate动画设置（0，,1），默认1带动画
-    clAuthWindowDismissAnimate?:number
-    
-    /****************************************** 布局 ******************************************/
-    // 竖屏布局
-    clOrientationLayOutPortrait?:CLLayoutUIItem
-    // 横屏布局
-    clOrientationLayOutLandscape?:CLLayoutUIItem
-    
+	/****************************************** 运营商SLOGAN相关 ******************************************/
+	// iOS-slogan字体样式
+	clSloganTextFontFamily ?: string
+	// iOS-slogan字体大小
+	clSloganTextFontSize ?: number
+	// iOS-slogan字体颜色
+	clSloganTextColor ?: string
+	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
+	clSlogaTextAlignment ?: number
+	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
+	clSloganTextHidden ?: number
+	/******************************************  闪验SLOGAN相关 ******************************************/
+
+	// iOS-slogan字体样式
+	clShanYanSloganTextFontFamily ?: string
+	// iOS-slogan字体大小
+	clShanYanSloganTextFontSize ?: number
+	// iOS-slogan字体颜色
+	clShanYanSloganTextColor ?: string
+	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
+	clShanYanSlogaTextAlignment ?: number
+	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
+	clShanYanSloganTextHidden ?: number
+
+	/****************************************** checkBox相关 ******************************************/
+	// iOS-协议勾选框是否隐藏（0，,1）
+	clCheckBoxHidden ?: number
+	// iOS-协议勾选框，是否选中（0，1）
+	clCheckBoxValue ?: number
+	// iOS-协议勾选框尺寸大小
+	clCheckBoxSize ?: CLSizeItem
+	// iOS-协议勾选框，UIButton内部图片边距
+	clCheckBoxImageEdgeInsets ?: CLEdgeInsetsItem
+	// iOS-协议勾选框，设置CheckBox顶部与隐私协议控件顶部对齐 YES或大于0生效 eg.@(YES)
+	clCheckBoxVerticalAlignmentToAppPrivacyTop ?: number
+	// iOS-协议勾选框，设置CheckBox顶部与隐私协议控件竖向中心对齐 YES或大于0生效 eg.@(YES)
+	clCheckBoxVerticalAlignmentToAppPrivacyCenterY ?: number
+	// iOS-协议勾选框，设置CheckBox对齐后的偏移量,相对于对齐后的中心距离在当前垂直方向上的偏移
+	clCheckBoxVerticalAlignmentOffset ?: number
+	// iOS-协议勾选框，未选中时图片
+	clCheckBoxUncheckedImage ?: string
+	// iOS-协议勾选框，选中时图片
+	clCheckBoxCheckedImage ?: string
+	// iOS-协议勾选框，提示文本，默认"请勾选协议"
+	clCheckBoxTipMsg ?: string
+	// iOS-协议勾选框点击登录提示是否Disable(0,1)，1禁止
+	clCheckBoxTipDisable ?: number
+
+	/****************************************** Loading相关 ******************************************/
+
+	//iOS-loading大小
+	clLoadingSize ?: CLSizeItem
+	//iOS-loading圆角
+	clLoadingCornerRadius ?: number
+	//iOS-loading颜色
+	clLoadingBackgroundColor ?: string
+	//iOS-loading样式，原生iOS枚举对应的数字
+	clLoadingIndicatorStyle ?: number
+	//iOS-loading颜色
+	clLoadingTintColor ?: string
+
+	/****************************************** 横竖屏设置 ******************************************/
+	// iOS-是否支持自动旋转
+	shouldAutorotate ?: number
+	// iOS-支持方向，对应原生枚举类型
+	supportedInterfaceOrientations ?: number
+	// iOS-默认方向，对应原生枚举类型
+	preferredInterfaceOrientationForPresentation ?: number
+
+	/****************************************** 窗口模式 ******************************************/
+	// iOS-窗口模式是否以此显示（0，,1），默认0
+	clAuthTypeUseWindow ?: number
+	// iOS-窗口模式圆角
+	clAuthWindowCornerRadius ?: number
+	// iOS-窗口模式clAuthWindowModalTransitionStyle系统自带的弹出方式 仅支持以下三种
+	// - UIModalTransitionStyleCoverVertical 底部弹出
+	// - UIModalTransitionStyleCrossDissolve 淡入
+	// - UIModalTransitionStyleFlipHorizontal 翻转显示
+	clAuthWindowModalTransitionStyle ?: number
+
+	// iOS-窗口模式，若使用窗口模式，请设置为UIModalPresentationOverFullScreen 或不设置
+	//  *iOS13强制全屏，请设置为UIModalPresentationFullScreen
+	//  *UIModalPresentationAutomatic API_AVAILABLE(ios(13.0)) = -2
+	//  *默认UIModalPresentationFullScreen
+	//  *eg. @(UIModalPresentationOverFullScreen)
+	clAuthWindowModalPresentationStyle ?: number
+	// iOS-窗口模式，协议页 ModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
+	clAppPrivacyWebModalPresentationStyle ?: number
+	// iOS-窗口模式UIUserInterfaceStyle
+	// UIUserInterfaceStyleUnspecified - 不指定样式，跟随系统设置进行展示
+	// UIUserInterfaceStyleLight       - 明亮
+	// UIUserInterfaceStyleDark,       - 暗黑 仅对iOS13+系统有效
+	// 授权页 UIUserInterfaceStyle,默认:UIUserInterfaceStyleLight,eg. @(UIUserInterfaceStyleLight)
+	clAuthWindowOverrideUserInterfaceStyle ?: number
+	// iOS-窗口模式，授权页面present弹出时animate动画设置（0，,1），默认1带动画
+	clAuthWindowPresentingAnimate ?: number
+	// iOS-窗口模式，授权页面dismiss时animate动画设置（0，,1），默认1带动画
+	clAuthWindowDismissAnimate ?: number
+
+	/****************************************** 布局 ******************************************/
+	// 竖屏布局
+	clOrientationLayOutPortrait ?: CLLayoutUIItem
+	// 横屏布局
+	clOrientationLayOutLandscape ?: CLLayoutUIItem
+
 }
 
 export type TUIConfigure = {
-    clNavigationBackBtnImage? : string
-    clNavigationBarHidden? : number
-    clNavigationAttributesTitleText: string
-    clBackgroundImg? :string
-    clBackgroundColor? : string
-    clPhoneNumberColor? : string
+	clNavigationBackBtnImage ?: string
+	clNavigationBarHidden ?: number
+	clNavigationAttributesTitleText : string
+	clBackgroundImg ?: string
+	clBackgroundColor ?: string
+	clPhoneNumberColor ?: string
 }
 
 
 export type CLSizeItem = {
-    width: number
-    height: number
+	width : number
+	height : number
 }
 
-export type CLEdgeInsetsItem ={
-    top: number
-    left: number
-    bottom:number
-    right: number
+export type CLEdgeInsetsItem = {
+	top : number
+	left : number
+	bottom : number
+	right : number
 }
 
 export type CLLayoutItem = {
-    top?: number
-    left?: number
-    bottom?:number
-    right?: number
-    width?:number
-    height?:number
-    centerX?:number
-    centerY?:number
+	top ?: number
+	left ?: number
+	bottom ?: number
+	right ?: number
+	width ?: number
+	height ?: number
+	centerX ?: number
+	centerY ?: number
 }
 
 export type CLLayoutUIItem = {
-    clLogonLayout?:CLLayoutItem
-    clPhoneLayout?:CLLayoutItem
-    clLoginBtnLayout?:CLLayoutItem
-    clPrivacyLayout?:CLLayoutItem
-    clSloganLayout?:CLLayoutItem
-    clShanSloganLayout?:CLLayoutItem
-    /* ***************************************窗口模式下布局***************************************/
-    
-    // 窗口中心：CGPoint X Y
-    clAuthWindowOrientationCenter?:CLSizeItem
-    // 窗口左上角：frame.origin：CGPoint X Y
-    clAuthWindowOrientationOrigin?:CLSizeItem
-    // 窗口大小：宽
-    clAuthWindowOrientationWidth?:number
-    // 窗口大小：高
-    clAuthWindowOrientationHeight?:number
+	clLogonLayout ?: CLLayoutItem
+	clPhoneLayout ?: CLLayoutItem
+	clLoginBtnLayout ?: CLLayoutItem
+	clPrivacyLayout ?: CLLayoutItem
+	clSloganLayout ?: CLLayoutItem
+	clShanSloganLayout ?: CLLayoutItem
+	/* ***************************************窗口模式下布局***************************************/
+
+	// 窗口中心：CGPoint X Y
+	clAuthWindowOrientationCenter ?: CLSizeItem
+	// 窗口左上角：frame.origin：CGPoint X Y
+	clAuthWindowOrientationOrigin ?: CLSizeItem
+	// 窗口大小：宽
+	clAuthWindowOrientationWidth ?: number
+	// 窗口大小：高
+	clAuthWindowOrientationHeight ?: number
 }
 
 
@@ -641,7 +659,7 @@ export type ConfigItem = {
 	//授权页自定义控件配置
 	widgetsConfig ?: WidgetsConfig
 }
-export type UIConfigItem = {
+export type AuthAndroidUIConfigure = {
 	//授权页竖屏配置
 	verticalConfig ?: ConfigItem
 	//授权页横屏配置
@@ -649,6 +667,6 @@ export type UIConfigItem = {
 }
 // 主配置类型
 export type ShanYanUIConfigure = {
-	androidConfig ?: UIConfigItem
+	androidConfig ?: AuthAndroidUIConfigure
 	iOSConfig ?: AuthIOSUIConfigure
 }

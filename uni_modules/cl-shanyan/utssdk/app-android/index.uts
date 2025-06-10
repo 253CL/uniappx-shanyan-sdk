@@ -1,13 +1,22 @@
 // 引入闪验SDK相关类
 import OneKeyLoginManager from 'com.chuanglan.shanyan_sdk.OneKeyLoginManager';
-import { ShanYanUIConfigure } from "../interface.uts";
+import { PrivacyListItem, ShanYanUIConfigure, CLResultResponse, CLResultCallBack, WidgetCallBack, WidgetItem } from "../interface.uts";
 import ShanYanUIConfig from 'com.chuanglan.shanyan_sdk.tool.ShanYanUIConfig';
 import Drawable from 'android.graphics.drawable.Drawable';
 import ContextCompat from 'androidx.core.content.ContextCompat';
 import Color from 'android.graphics.Color';
-import { CLResultResponse, CLResultCallBack } from "../interface.uts"
 import JSONObject from 'org.json.JSONObject';
-
+import ConfigPrivacyBean from "com.chuanglan.shanyan_sdk.tool.ConfigPrivacyBean";
+import color from 'android.R.color';
+import TextView from "android.widget.TextView";
+import RelativeLayout from "android.widget.RelativeLayout";
+import Gravity from "android.view.Gravity";
+import ShanYanCustomInterface from "com.chuanglan.shanyan_sdk.listener.ShanYanCustomInterface";
+import View from "android.view.View";
+import Context from 'android.content.Context';
+import ImageView from "android.widget.ImageView";
+import Button from "android.widget.Button";
+import GradientDrawable from 'android.graphics.drawable.GradientDrawable';
 /**
  * 将图片名称转为drawable对象
  * @param drawableName - 图片名称，不带图片格式后缀。
@@ -17,25 +26,331 @@ function toDrawable(drawableName : string | null) : Drawable | null {
 	if (context == null || drawableName == null) {
 		return null;
 	}
+	// 移除可能已经存在的扩展名
+	let baseName = drawableName.replace(/\.[^/.]+$/, "");
 	const resources = context.getResources();
 	if (resources == null) {
 		return null;
 	}
 	const packageName = context.getPackageName();
-	const id = resources.getIdentifier(drawableName, "drawable", packageName);
+	const id = resources.getIdentifier(baseName, "drawable", packageName);
 	if (id == 0) {
 		return null;
 	}
 	return ContextCompat.getDrawable(context, id);
 }
+/**
+ * 将颜色字符串转换为颜色值
+ * @param colorParam 颜色字符串，支持格式如 "#RRGGBB"、"#AARRGGBB" 或颜色名称
+ * @returns 颜色整数值
+ */
+function toColor(colorParam ?: string) : Int {
+	if (colorParam == null) {
+		return 0 // 返回默认颜色值（透明）
+	}
+	return Color.parseColor(colorParam).toInt()
+}
+/**
+ * dp转px
+ * @param dp dp值
+ * @returns 转换后的px整数值
+ */
+function dp2Pix(dp : number) : Int {
+	try {
+		const context = UTSAndroid.getAppContext()
+		const density : number = context?.getResources()?.getDisplayMetrics()?.density ?? 1.0
+		return (dp * density + 0.5).toInt()
+	} catch (e : any) {
+		console.error("dp2Pix error:", e)
+		return dp.toInt()
+	}
+}
+
+/**
+ * 添加自定义 TextView
+ */
+function addCustomTextWidgets(widgetList : WidgetItem, builder : ShanYanUIConfig.Builder, customViewCallback ?: WidgetCallBack) : void {
+	const context = UTSAndroid.getAppContext();
+	let left = widgetList.leftOffsetX ?? -1;
+	let top = widgetList.topOffsetY ?? -1
+	let right = widgetList.rightOffsetX ?? -1
+	let bottom = widgetList.bottomOffsetY ?? -1
+	let width = widgetList.width ?? -1
+	let height = widgetList.height ?? -1
+	let textContent = widgetList.textContent
+	let font = widgetList.textFont ?? -1
+	let textColor = widgetList.textColor
+	let backgroundColor = widgetList.backgroundColor
+	let backgroundImgPath = widgetList.backgroundImgPath
+	let isFinish = widgetList.isFinish ?? false;
+
+	const customView : TextView = new TextView(context);
+	customView.setText(textContent);
+
+	if (textColor != null) {
+		customView.setTextColor(toColor(textColor));
+	}
+	if (backgroundColor != null) {
+		customView.setBackgroundColor(toColor(backgroundColor));
+	}
+
+	const backgroundDrawable = toDrawable(backgroundImgPath);
+	if (backgroundDrawable != null) {
+		customView.setBackground(backgroundDrawable);
+	}
+
+	customView.setGravity(Gravity.CENTER);
+
+	const mLayoutParams1 = new RelativeLayout.LayoutParams(
+		RelativeLayout.LayoutParams.WRAP_CONTENT,
+		RelativeLayout.LayoutParams.WRAP_CONTENT
+	);
+	mLayoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
+	if (font > 0) {
+		customView.setTextSize(font.toFloat())
+	}
+	if (left >= 0) {
+		mLayoutParams1.leftMargin = dp2Pix(left);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+	}
+
+	if (top >= 0) {
+		mLayoutParams1.topMargin = dp2Pix(top);
+	}
+
+	if (right >= 0) {
+		mLayoutParams1.rightMargin = dp2Pix(right);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+	}
+
+	if (bottom >= 0) {
+		mLayoutParams1.bottomMargin = dp2Pix(bottom);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+	}
+
+	if (width >= 0) {
+		mLayoutParams1.width = dp2Pix(width);
+	}
+
+	if (height >= 0) {
+		mLayoutParams1.height = dp2Pix(height);
+	}
+
+	customView.setLayoutParams(mLayoutParams1);
+	const customInterface = (c : Context, v : View) => {
+		if (customViewCallback != null) {
+			customViewCallback();
+		}
+	}
+	builder.addCustomView(customView, isFinish, false, customInterface);
+}
+/**
+ * 添加自定义 ImageView
+ */
+function addCustomImageWidgets(widgetList : WidgetItem, builder : ShanYanUIConfig.Builder, customViewCallback ?: WidgetCallBack) : void {
+	const context = UTSAndroid.getAppContext();
+	let left = widgetList.leftOffsetX ?? -1;
+	let top = widgetList.topOffsetY ?? -1;
+	let right = widgetList.rightOffsetX ?? -1;
+	let bottom = widgetList.bottomOffsetY ?? -1;
+	let width = widgetList.width ?? -1;
+	let height = widgetList.height ?? -1;
+	let backgroundColor = widgetList.backgroundColor;
+	let backgroundImgPath = widgetList.backgroundImgPath;
+	let isFinish = widgetList.isFinish ?? false;
+
+	const customView : ImageView = new ImageView(context);
+
+	if (backgroundColor != null) {
+		customView.setBackgroundColor(toColor(backgroundColor));
+	}
+
+	const backgroundDrawable = toDrawable(backgroundImgPath);
+	if (backgroundDrawable != null) {
+		customView.setBackground(backgroundDrawable);
+	}
+
+	const mLayoutParams1 = new RelativeLayout.LayoutParams(
+		RelativeLayout.LayoutParams.WRAP_CONTENT,
+		RelativeLayout.LayoutParams.WRAP_CONTENT
+	);
+	mLayoutParams1.addRule(RelativeLayout.CENTER_HORIZONTAL);
+
+	if (left >= 0) {
+		mLayoutParams1.leftMargin = dp2Pix(left);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+	}
+
+	if (top >= 0) {
+		mLayoutParams1.topMargin = dp2Pix(top);
+	}
+
+	if (right >= 0) {
+		mLayoutParams1.rightMargin = dp2Pix(right);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+	}
+
+	if (bottom >= 0) {
+		mLayoutParams1.bottomMargin = dp2Pix(bottom);
+		mLayoutParams1.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+	}
+
+	if (width >= 0) {
+		mLayoutParams1.width = dp2Pix(width);
+	}
+
+	if (height >= 0) {
+		mLayoutParams1.height = dp2Pix(height);
+	}
+
+	customView.setLayoutParams(mLayoutParams1);
+
+	customView.setLayoutParams(mLayoutParams1);
+	const customInterface = (c : Context, v : View) => {
+		if (customViewCallback != null) {
+			customViewCallback();
+		}
+	}
+	builder.addCustomView(customView, isFinish, false, customInterface);
+}
+/**
+ * 添加自定义 Button
+ */
+function addCustomButtonWidgets(widgetList : WidgetItem, builder : ShanYanUIConfig.Builder, customViewCallback ?: WidgetCallBack) : void {
+	const context = UTSAndroid.getAppContext();
+
+	// 基础布局参数
+	let left = widgetList.leftOffsetX ?? -1;
+	let top = widgetList.topOffsetY ?? -1;
+	let right = widgetList.rightOffsetX ?? -1;
+	let bottom = widgetList.bottomOffsetY ?? -1;
+	let width = widgetList.width ?? -1;
+	let height = widgetList.height ?? -1;
+
+	// Button特有属性
+	let textContent = widgetList.textContent ?? "";
+	let textColor = widgetList.textColor;
+	let textSize = widgetList.textFont ?? -1;
+	let backgroundColor = widgetList.backgroundColor;
+	let backgroundImgPath = widgetList.backgroundImgPath;
+	let isFinish = widgetList.isFinish ?? false;
+	let cornerRadius = widgetList.cornerRadius ?? 0; // 圆角半径（dp）
+	let isAllCaps = widgetList.isAllCaps ?? true; // 是否自动大写
+	console.log(`addCustomButtonWidgets：code=${backgroundColor}result=${backgroundImgPath}`);
+
+	// 创建Button实例
+	const customButton : Button = new Button(context);
+	customButton.setText(textContent);
+	customButton.setAllCaps(isAllCaps);
+
+	// 文本样式
+	if (textColor != null) {
+		customButton.setTextColor(toColor(textColor));
+	}
+
+	if (textSize > 0) {
+		customButton.setTextSize(textSize.toFloat());
+	}
+
+	// 背景处理（支持颜色和图片）
+	if (backgroundColor != null) {
+		customButton.setBackgroundColor(toColor(backgroundColor));
+	}
+
+	const backgroundDrawable = toDrawable(backgroundImgPath);
+	if (backgroundDrawable != null) {
+		customButton.setBackground(backgroundDrawable);
+	}
+
+	// 布局参数设置
+	const mLayoutParams = new RelativeLayout.LayoutParams(
+		width >= 0 ? dp2Pix(width) : RelativeLayout.LayoutParams.WRAP_CONTENT,
+		height >= 0 ? dp2Pix(height) : RelativeLayout.LayoutParams.WRAP_CONTENT
+	);
+
+	mLayoutParams.addRule(RelativeLayout.CENTER_HORIZONTAL);
+
+	// 边距设置
+	if (left >= 0) {
+		mLayoutParams.leftMargin = dp2Pix(left);
+		mLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_LEFT);
+	}
+
+	if (top >= 0) {
+		mLayoutParams.topMargin = dp2Pix(top);
+	}
+
+	if (right >= 0) {
+		mLayoutParams.rightMargin = dp2Pix(right);
+		mLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+	}
+
+	if (bottom >= 0) {
+		mLayoutParams.bottomMargin = dp2Pix(bottom);
+		mLayoutParams.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM);
+	}
+
+	customButton.setLayoutParams(mLayoutParams);
+	const customInterface = (c : Context, v : View) => {
+		if (customViewCallback != null) {
+			customViewCallback();
+		}
+	}
+	builder.addCustomView(customButton, isFinish, false, customInterface);
+}
+function addCustomWidgets(customWidgetItems : Array<WidgetItem>, builder : ShanYanUIConfig.Builder) {
+	if (customWidgetItems.length > 0) {
+		for (const item of customWidgetItems) {
+			const itemType = item.type;
+			const customViewCallback = item.callback
+			console.log(`自定义控件类型： ${itemType} `);
+			if ("TextView".equals(itemType)) {
+				addCustomTextWidgets(item, builder, customViewCallback);
+			} else if ("Button".equals(itemType)) {
+				addCustomButtonWidgets(item, builder, customViewCallback);
+			} else if ("ImageView".equals(itemType)) {
+				addCustomImageWidgets(item, builder, customViewCallback);
+			}
+
+		}
+	}
+
+}
+
+
 export class ShanYanSDKModule {
 	isDebugEnable : boolean = false;
+	private getMorePrivacy(privacyItems : Array<PrivacyListItem>) : Array<ConfigPrivacyBean> {
+		// 初始化返回列表
+		const result : Array<ConfigPrivacyBean> = [];
+		if (privacyItems.length > 0) {
+			if (this.isDebugEnable) {
+				console.log(`自定义隐私条款，共 ${privacyItems.length} 条`);
+			}
+
+			// 遍历输入数组
+			for (const item of privacyItems) {
+				const bean = new ConfigPrivacyBean(
+					item.name,
+					item.url
+				)
+				if (item.color != null) {
+					bean.setColor(toColor(item.color));
+				}
+				if (item.content != null) {
+					bean.setMidStr(item.content);
+				}
+				result.push(bean)
+			}
+		}
+		return result
+	}
 	/**
 	 * 设置闪验SDK内部日志开关是否开启
 	 *  @param {boolean} isDebug - true:开启，false：关闭，默认false。
 	 */
 	setDebug(isDebug : boolean) {
-		OneKeyLoginManager.getInstance().setDebug(true);
+		OneKeyLoginManager.getInstance().setDebug(isDebug);
 		this.isDebugEnable = isDebug;
 	}
 	/**
@@ -109,15 +424,72 @@ export class ShanYanSDKModule {
 			getInfoListener
 		);
 	}
+	/**
+	 * 拉起授权页方法
+	 * @param {ShanYanUIConfigure}configure - 授权页界面配置对象
+	 * @param {CLResultCallBack}openLoginAuthCallback - 授权页是否启动成功回调
+	 * @param {CLResultCallBack}oneKeyLoginCallback - 授权页点击事件回调
+	 */
 	quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
-		console.log('界面配置：' + configure.androidConfig?.verticalConfig?.baseUIConfig?.authBGImgPath);
-
-		const uiConfig = new ShanYanUIConfig.Builder()
-			.setAuthBGImgPath(toDrawable(configure.androidConfig?.verticalConfig?.baseUIConfig?.authBGImgPath))
-			.setStatusBarColor(Color.parseColor(configure.androidConfig?.verticalConfig?.baseUIConfig?.statusBarConfig?.statusBarColor))
-			.setLightColor(configure.androidConfig?.verticalConfig?.baseUIConfig?.statusBarConfig?.isLightColor)
-			.setBackPressedAvailable(configure.androidConfig?.verticalConfig?.baseUIConfig?.systemNavBarConfig?.isBackPressedAvailable)
-			.setNavReturnImgPath(toDrawable(configure.androidConfig?.verticalConfig?.baseUIConfig?.navBarConfig?.navReturnImgPath))
+		//竖屏属性
+		const verticalConfig = configure.androidConfig?.verticalConfig;
+		const verticalBaseConfig = verticalConfig?.baseUIConfig;
+		const verticalWidgetsConfig = verticalConfig?.widgetsConfig;
+		const verticalStatusBarConfig = verticalBaseConfig?.statusBarConfig;
+		const verticalSystemNavBarConfig = verticalBaseConfig?.systemNavBarConfig;
+		const verticalNavBarConfig = verticalBaseConfig?.navBarConfig;
+		const verticalLogoConfig = verticalBaseConfig?.logoConfig;
+		const verticalNumberConfig = verticalBaseConfig?.numberConfig;
+		const verticalSloganConfig = verticalBaseConfig?.sloganConfig;
+		const verticalLoginButtonConfig = verticalBaseConfig?.loginButtonConfig;
+		const verticalPrivacyConfig = verticalBaseConfig?.privacyConfig;
+		const verticalDialogThemeConfig = verticalBaseConfig?.dialogThemeConfig;
+		//横屏属性
+		const horizontalConfig = configure.androidConfig?.horizontalConfig;
+		const horizontalBaseConfig = horizontalConfig?.baseUIConfig;
+		const horizontalStatusBarConfig = horizontalBaseConfig?.statusBarConfig;
+		const horizontalSystemNavBarConfig = horizontalBaseConfig?.systemNavBarConfig;
+		const horizontalNavBarConfig = horizontalBaseConfig?.navBarConfig;
+		const horizontalLogoConfig = horizontalBaseConfig?.logoConfig;
+		const horizontalNumberConfig = horizontalBaseConfig?.numberConfig;
+		const horizontalSloganConfig = horizontalBaseConfig?.sloganConfig;
+		const horizontalLoginButtonConfig = horizontalBaseConfig?.loginButtonConfig;
+		const horizontalPrivacyConfig = horizontalBaseConfig?.privacyConfig;
+		const horizontalDialogThemeConfig = horizontalBaseConfig?.dialogThemeConfig;
+		const morePrivacy = this.getMorePrivacy(verticalPrivacyConfig?.morePrivacy ?? [])
+		const builder = new ShanYanUIConfig.Builder();
+		builder
+			.setAuthBGImgPath(toDrawable(verticalBaseConfig?.authBGImgPath))
+			.setStatusBarColor(toColor(verticalStatusBarConfig?.statusBarColor))
+			.setLightColor(verticalStatusBarConfig?.isLightColor ?? false)
+			.setBackPressedAvailable(verticalSystemNavBarConfig?.isBackPressedAvailable ?? false)
+			.setNavReturnImgPath(toDrawable(verticalNavBarConfig?.navReturnImgPath))
+			.setLogoImgPath(toDrawable(verticalLogoConfig?.logoImgPath))
+			.setLogoWidth(verticalLogoConfig?.logoWidth?.toInt() ?? -1)
+			.setLogoHeight(verticalLogoConfig?.logoHeight?.toInt() ?? -1)
+			.setNumberColor(toColor(verticalNumberConfig?.numberColor))
+			.setSloganTextBold(verticalSloganConfig?.isSloganTextBold ?? false)
+			.setLogBtnText(verticalLoginButtonConfig?.logBtnText)
+			.setPrivacyText(verticalPrivacyConfig?.privacyText?.privacyTextHead ?? "", verticalPrivacyConfig?.privacyText?.privacyTextFirst ?? "", "", "", verticalPrivacyConfig?.privacyText?.privacyTextEnd ?? "")
+			//.setOperatorPrivacyAtLast(true)
+			.setPrivacyTextSize(verticalPrivacyConfig?.privacyTextSize?.toInt() ?? -1)
+			.setMorePrivacy(morePrivacy)
+			.setDialogTheme(verticalDialogThemeConfig?.isDialogTheme ?? false, verticalDialogThemeConfig?.dialogWidth?.toInt() ?? -1, verticalDialogThemeConfig?.dialogHeight?.toInt() ?? -1, verticalDialogThemeConfig?.dialogOffsetX?.toInt() ?? -1, verticalDialogThemeConfig?.dialogOffsetY?.toInt() ?? -1, verticalDialogThemeConfig?.isDialogBottom ?? false)
+		// .addCustomView(customView);
+		addCustomWidgets(verticalWidgetsConfig ?? [], builder);
+		const verticalUiConfig = builder.build();
+		const horizontalUiConfig = new ShanYanUIConfig.Builder()
+			.setAuthBGImgPath(toDrawable(horizontalBaseConfig?.authBGImgPath))
+			.setStatusBarColor(toColor(horizontalStatusBarConfig?.statusBarColor))
+			.setLightColor(horizontalStatusBarConfig?.isLightColor ?? true)
+			.setBackPressedAvailable(horizontalSystemNavBarConfig?.isBackPressedAvailable ?? false)
+			.setNavReturnImgPath(toDrawable(horizontalNavBarConfig?.navReturnImgPath))
+			.setLogoImgPath(toDrawable(horizontalLogoConfig?.logoImgPath))
+			.setNumberColor(toColor(horizontalNumberConfig?.numberColor))
+			.setSloganTextBold(horizontalSloganConfig?.isSloganTextBold ?? false)
+			.setLogBtnText(horizontalLoginButtonConfig?.logBtnText)
+			.setPrivacyTextSize(horizontalPrivacyConfig?.privacyTextSize?.toInt() ?? -1)
+			.setDialogTheme(horizontalDialogThemeConfig?.isDialogTheme ?? false, horizontalDialogThemeConfig?.dialogWidth?.toInt() ?? -1, horizontalDialogThemeConfig?.dialogHeight?.toInt() ?? -1, horizontalDialogThemeConfig?.dialogOffsetX?.toInt() ?? -1, horizontalDialogThemeConfig?.dialogOffsetY?.toInt() ?? -1, horizontalDialogThemeConfig?.isDialogBottom ?? false)
 			.build();
 		//const uiconfig:ShanYanUIConfig =ShanYanUIConfig.
 		const openLoginAuthListener = (code : number, result : string) => {
@@ -148,7 +520,7 @@ export class ShanYanSDKModule {
 			}
 			oneKeyLoginCallback(response);
 		};
-		OneKeyLoginManager.getInstance().setAuthThemeConfig(uiConfig, uiConfig);
+		OneKeyLoginManager.getInstance().setAuthThemeConfig(verticalUiConfig, horizontalUiConfig);
 		OneKeyLoginManager.getInstance().openLoginAuth(true, openLoginAuthListener, oneKeyLoginListener);
 
 	}
