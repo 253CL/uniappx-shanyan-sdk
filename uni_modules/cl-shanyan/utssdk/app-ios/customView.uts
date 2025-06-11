@@ -1,34 +1,49 @@
-import {UIView,UIColor, UIImage, UIImageView } from 'UIKit'
+import { UIView, UIColor, UIImage, UIImageView, UIButton, UIControl } from 'UIKit'
 import { CGRect } from 'CoreFoundation';
 import { DispatchQueue } from 'Dispatch';
+import { Selector } from 'ObjectiveC';
 
 
+export const setCustomUI = (customAreaView : UIView) =>{
+	customView.setCustomUI(customAreaView)
+}
 
+class customView {
+	static setCustomUI(customAreaView : UIView) {
+		DispatchQueue.main.async(execute = () : void => {
 
-export function setCustomUI(customAreaView:UIView) {	
-	
-	DispatchQueue.main.async(execute=():void => {
+			// 创建view
+			// let view = new UIView()
+			// view.backgroundColor = UIColor.red
+			// view.frame = new CGRect(x = 90, y = 120, width = 100, height = 100)
+			// customAreaView.addSubview(view)
+
+			// 创建imageView
+			// let imageView = new UIImageView()
+			// imageView.image = new UIImage(named = "back-7.png")
+			// imageView.backgroundColor = UIColor.red
+			// imageView.frame = new CGRect(x = 90, y = 320, width = 100, height = 100)
+			// customAreaView.addSubview(imageView)
+
+			// 创建label
+			// let label = new UILabel()
+			// label.text = "自定义view"
+			// label.textColor = UIColor.red
+			// label.frame = new CGRect(x = 90, y = 420, width = 100, height = 100)
+			// customAreaView.addSubview(label)
+
+			// let btn = new UIButton(type = UIButton.ButtonType.custom)
+			// btn.frame = new CGRect(x = 90, y = 520, width = 100, height = 100)
+			// btn.setTitle("点击", for = UIControl.State.normal)
+			// const method = new Selector("clickEvent")
+			// btn.addTarget(this, action = method, for = UIControl.Event.touchUpInside)
+			// customAreaView.addSubview(btn)
+		})
+
 		
-		// 创建view
-	    let view = new UIView()
-	    view.backgroundColor = UIColor.red	    
-	    view.frame = new CGRect(x = 90, y =  120, width = 100, height = 100)
-	    customAreaView.addSubview(view)
-		
-		// 创建imageView
-		let imageView = new UIImageView()
-		imageView.image = new UIImage(named = "back-7.png")
-		imageView.backgroundColor = UIColor.red
-		imageView.frame =new CGRect(x = 90, y =  320, width = 100, height = 100)
-		customAreaView.addSubview(imageView)
-		
-		// 创建la bel
-		let label = new UILabel()
-		label.text = "自定义view"
-		label.textColor = UIColor.red
-		label.frame =new CGRect(x = 90, y =  420, width = 100, height = 100)
-		customAreaView.addSubview(label)
-			
-	})
-	
+	}
+	@objc static clickEvent() {
+		// 回调
+		console.log("调用了---")
+	}
 }

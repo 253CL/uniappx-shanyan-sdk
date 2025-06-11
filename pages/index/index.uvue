@@ -210,7 +210,16 @@
 						clBackgroundImg: 'bb4bf6b9301170c7fa0a766b1024d2d3.jpg',
 						clNavigationBackBtnImage: 'back-7.png',
 						clLogoImage: 'back-7.png',
+						clManualDismiss: 0,
+						clNavigationBarHidden:0,
+						clAppPrivacyWebBackBtnImage:'back-7.png',
 						clOrientationLayOutPortrait: {
+							clAuthWindowOrientationCenter:{
+								width:(uni.getSystemInfoSync().screenWidth)/2,
+								height:(uni.getSystemInfoSync().screenHeight)/2
+							},
+							clAuthWindowOrientationWidth:(uni.getSystemInfoSync().screenWidth)/2 +100,
+							clAuthWindowOrientationHeight:(uni.getSystemInfoSync().screenWidth)/2
 							// clLogonLayout: {
 							// 	right: -30,
 							// 	centerY: 0,
@@ -228,12 +237,57 @@
 							lastDecollator: 'NO',
 							privacyName: '测试协议222',
 							privacyURL: 'https://www.baidu.com'
+<<<<<<< Updated upstream
 						}
 						],
 						clAppPrivacyTextColor: ['#FF4455', '#FE3545']
 
 					} as AuthIOSUIConfigure
 				};
+=======
+						}],
+						clAppPrivacyTextColor: ['#FF4455', '#FE3545'],
+						clAuthTypeUseWindow:0,
+						clAuthWindowCornerRadius:20,
+						clAppPrivacyNormalDesTextFirst:"同意",
+						widgetsConfig: [{
+							widgetId: "textview01",
+							type: "TextView",
+							width: 200,
+							height: 150,
+							leftOffsetX: 10,
+							topOffsetY: 100,
+							textContent: "测试",
+							tag:11
+						}, {
+							widgetId: "button01",
+							type: "Button",
+							topOffsetY: 520,
+							leftOffsetX: 90,
+							textContent: "点击按钮",
+							width:100,
+							height:100,
+							tag:21
+						},{
+							widgetId:'label',
+							type:'TextView',
+							topOffsetY: 190,
+							leftOffsetX: 220,
+							textContent: "点击一下就知道",
+							width:130,
+							height:100,
+							tag:31
+						}]
+
+					}
+				};
+				
+				shanYanSDKModule.setCallEventUIBlock((tag) => {
+					console.log("")
+					console.log(tag)
+				})
+				
+>>>>>>> Stashed changes
 				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfigure, (response) => {
 					try {
 						// 预取号结果回调函数，参数为包含以下属性的对象:code - 预取号状态码,result - 预取号结果描述
