@@ -33,8 +33,8 @@ export type ResultData = {
  * 一键登录初始化、预取号、拉起授权页、获取token等回调函数类型
  */
 export type CLResultCallBack = (response : CLResultResponse) => void;
-
 export type WidgetCallBack = () => void;
+export type CLResultCallBlock = (wid ?: string) => void;
 
 /**
  * 授权页系统状态栏（电量、信号等显示区域）属性
@@ -373,6 +373,8 @@ export type WidgetItem = {
 	//Android - 设置点击自定义控件，是否自动销毁授权页。true：自动销毁；false：不自动消耗，默认false
 	isFinish ?: boolean
 	callback ?: WidgetCallBack
+
+	tag ?: number
 }
 
 
@@ -396,6 +398,12 @@ export type AuthIOSUIConfigure = {
 	clNavigationBackgroundClear ?: number
 	// iOS-导航栏标题
 	clNavigationTitleText ?: string
+	// iOS-导航栏标题字体大小
+	clNavigationTitleTextFontSize ?: number
+	// iOS-导航栏标题字体样式
+	clNavigationTitleTextFontFamily ?: string
+	// iOS-导航栏 字体颜色
+	clNavigationTitleTextColor ?: string
 	// iOS-导航栏左侧返回按钮图片,如"xxx.png"。图片路径为nativeResources/ios
 	clNavigationBackBtnImage ?: string
 	// iOS-导航栏返回按钮是否隐藏(0，1)，默认1
@@ -459,61 +467,6 @@ export type AuthIOSUIConfigure = {
 	// iOS-一键登录按钮边框宽度
 	clLoginBtnBorderWidth ?: number
 
-	/****************************************** 隐私协议 ******************************************/
-	// iOS-协议数组 
-	/*
-	decollator:string      //隐私协议拼接内容，如"、"
-	lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
-	privacyName:string     //隐私条款名称，如"《自定义隐私协议》"
-	privacyURL:string      //隐私条款URL，如"https://xxx.com"
-	示例： [{decollator:'、',lastDecollator:'NO',privacyName:'《自定义隐私协议》',privacyURL:'https://xxx.com'}]
-	*/
-	clAppMorePrivacyArray ?: Array<object>
-	// iOS-协议文本字体样式，默认系统字体
-	clAppPrivacyTextFontFamily ?: string
-	// iOS-协议文本字体大小
-	clAppPrivacyTextFontSize ?: number
-	// iOS- 协议文本颜色，[基础文本颜色, 协议文本颜色]
-	clAppPrivacyTextColor ?: Array<string>
-	// iOS- 协议导航返回图片
-	clAppPrivacyWebBackBtnImage ?: string
-	// iOS- 协议UINavigationTintColor
-	clAppPrivacyWebNavigationTintColor ?: string
-	// iOS- 协议UINavigationBarTintColor
-	clAppPrivacyWebNavigationBarTintColor ?: string
-	// iOS- 协议 UINavigationBackgroundImage
-	clAppPrivacyWebNavigationBackgroundImage ?: string
-	// iOS- 协议 UINavigationBarMetrics
-	clAppPrivacyWebNavigationBarMetrics ?: string
-	// iOS- 协议 UINavigationShadowImage
-	clAppPrivacyWebNavigationShadowImage ?: string
-	// iOS- 协议 UINavigationBarStyle
-	clAppPrivacyWebNavigationBarStyle ?: string
-
-	/****************************************** 运营商SLOGAN相关 ******************************************/
-	// iOS-slogan字体样式
-	clSloganTextFontFamily ?: string
-	// iOS-slogan字体大小
-	clSloganTextFontSize ?: number
-	// iOS-slogan字体颜色
-	clSloganTextColor ?: string
-	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
-	clSlogaTextAlignment ?: number
-	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
-	clSloganTextHidden ?: number
-	/******************************************  闪验SLOGAN相关 ******************************************/
-
-	// iOS-slogan字体样式
-	clShanYanSloganTextFontFamily ?: string
-	// iOS-slogan字体大小
-	clShanYanSloganTextFontSize ?: number
-	// iOS-slogan字体颜色
-	clShanYanSloganTextColor ?: string
-	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
-	clShanYanSlogaTextAlignment ?: number
-	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
-	clShanYanSloganTextHidden ?: number
-
 	/****************************************** checkBox相关 ******************************************/
 	// iOS-协议勾选框是否隐藏（0，,1）
 	clCheckBoxHidden ?: number
@@ -538,6 +491,73 @@ export type AuthIOSUIConfigure = {
 	// iOS-协议勾选框点击登录提示是否Disable(0,1)，1禁止
 	clCheckBoxTipDisable ?: number
 
+	/****************************************** 隐私协议 ******************************************/
+	// iOS-协议数组 
+	/*
+	decollator:string      //隐私协议拼接内容，如"、"
+	lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
+	privacyName:string     //隐私条款名称，如"《自定义隐私协议》"
+	privacyURL:string      //隐私条款URL，如"https://xxx.com"
+	示例： [{decollator:'、',lastDecollator:'NO',privacyName:'《自定义隐私协议》',privacyURL:'https://xxx.com'}]
+	*/
+	clAppMorePrivacyArray ?: Array<object>
+	// iOS-协议文本字体样式，默认系统字体
+	clAppPrivacyTextFontFamily ?: string
+	// iOS-协议文本字体大小
+	clAppPrivacyTextFontSize ?: number
+	// iOS- 协议文本颜色，[基础文本颜色, 协议文本颜色]
+	clAppPrivacyTextColor ?: Array<string>
+	// iOS- 协议下划线（0，,1），默认0，不加下划线
+	clPrivacyShowUnderline ?: number
+	// iOS- 协议下多行间距
+	clAppPrivacyLineSpacing ?: number
+	// iOS- 协议导航返回图片
+	clAppPrivacyWebBackBtnImage ?: string
+	// iOS- 协议UINavigationTintColor
+	clAppPrivacyWebNavigationTintColor ?: string
+	// iOS- 协议UINavigationBarTintColor
+	clAppPrivacyWebNavigationBarTintColor ?: string
+	// iOS- 协议 UINavigationBackgroundImage
+	clAppPrivacyWebNavigationBackgroundImage ?: string
+	// iOS- 协议 UINavigationBarMetrics
+	clAppPrivacyWebNavigationBarMetrics ?: number
+	// iOS- 协议 UINavigationShadowImage
+	clAppPrivacyWebNavigationShadowImage ?: string
+	// iOS- 协议 UINavigationBarStyle
+	clAppPrivacyWebNavigationBarStyle ?: number
+	// iOS- 协议 运营商协议是否添加《》，默认（0，,1）0，
+	clAppPrivacyPunctuationMarks ?: number
+	// iOS- 协议 开头描述文本，默认为: “同意”
+	clAppPrivacyNormalDesTextFirst ?: string
+	// iOS- 协议 末尾描述文本，默认为: 并授权<#appName#>获得本机号码
+	clAppPrivacyNormalDesTextLast ?: string
+	// iOS- 协议 运营商协议是否后置（0，1），默认0
+	clOperatorPrivacyAtLast ?: number
+	/****************************************** 运营商SLOGAN相关 ******************************************/
+	// iOS-slogan字体样式
+	clSloganTextFontFamily ?: string
+	// iOS-slogan字体大小
+	clSloganTextFontSize ?: number
+	// iOS-slogan字体颜色
+	clSloganTextColor ?: string
+	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
+	clSlogaTextAlignment ?: number
+	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
+	clSloganTextHidden ?: number
+	/******************************************  闪验SLOGAN相关 ******************************************/
+
+	// iOS-slogan字体样式
+	clShanYanSloganTextFontFamily ?: string
+	// iOS-slogan字体大小
+	clShanYanSloganTextFontSize ?: number
+	// iOS-slogan字体颜色
+	clShanYanSloganTextColor ?: string
+	// iOS-slogan字体对齐方式，具体为原生iOS枚举数字
+	clShanYanSlogaTextAlignment ?: number
+	// iOS-slogan是否隐藏（0，,1），默认0，不隐藏
+	clShanYanSloganTextHidden ?: number
+
+
 	/****************************************** Loading相关 ******************************************/
 
 	//iOS-loading大小
@@ -559,25 +579,44 @@ export type AuthIOSUIConfigure = {
 	// iOS-默认方向，对应原生枚举类型
 	preferredInterfaceOrientationForPresentation ?: number
 
+
+	widgetsConfig ?: Array<object>
+
 	/****************************************** 窗口模式 ******************************************/
+	// ps：窗口模式下可以通过CLLayoutUIItem，来设置大小、位置
+
 	// iOS-窗口模式是否以此显示（0，,1），默认0
 	clAuthTypeUseWindow ?: number
 	// iOS-窗口模式圆角
 	clAuthWindowCornerRadius ?: number
 	// iOS-窗口模式clAuthWindowModalTransitionStyle系统自带的弹出方式 仅支持以下三种
-	// - UIModalTransitionStyleCoverVertical 底部弹出
-	// - UIModalTransitionStyleCrossDissolve 淡入
-	// - UIModalTransitionStyleFlipHorizontal 翻转显示
+	// - UIModalTransitionStyleCoverVertical  0 底部弹出
+	// - UIModalTransitionStyleFlipHorizontal 1 翻转显示
+	// - UIModalTransitionStyleCrossDissolve  2 淡入
 	clAuthWindowModalTransitionStyle ?: number
 
 	// iOS-窗口模式，若使用窗口模式，请设置为UIModalPresentationOverFullScreen 或不设置
 	//  *iOS13强制全屏，请设置为UIModalPresentationFullScreen
 	//  *UIModalPresentationAutomatic API_AVAILABLE(ios(13.0)) = -2
 	//  *默认UIModalPresentationFullScreen
-	//  *eg. @(UIModalPresentationOverFullScreen)
+	// 原生枚举对应的数字
+	// UIModalPresentationFullScreen = 0,
+	// UIModalPresentationPageSheet API_AVAILABLE(ios(3.2)) API_UNAVAILABLE(tvos),
+	// UIModalPresentationFormSheet API_AVAILABLE(ios(3.2)) API_UNAVAILABLE(tvos),
+	// UIModalPresentationCurrentContext API_AVAILABLE(ios(3.2)),
+	// UIModalPresentationCustom API_AVAILABLE(ios(7.0)),
+	// UIModalPresentationOverFullScreen API_AVAILABLE(ios(8.0)),
+	// UIModalPresentationOverCurrentContext API_AVAILABLE(ios(8.0)),
+	// UIModalPresentationPopover API_AVAILABLE(ios(8.0)) API_UNAVAILABLE(tvos),
+	// UIModalPresentationBlurOverFullScreen API_AVAILABLE(tvos(11.0)) API_UNAVAILABLE(ios) API_UNAVAILABLE(watchos),
+	// UIModalPresentationNone API_AVAILABLE(ios(7.0)) = -1,
+	// UIModalPresentationAutomatic API_AVAILABLE(ios(13.0)) API_UNAVAILABLE(watchos) = -2,
 	clAuthWindowModalPresentationStyle ?: number
-	// iOS-窗口模式，协议页 ModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
+
+	// iOS-窗口模式，协议页 UIModalPresentationStyle （授权页使用窗口模式时，协议页强制使用模态弹出）
+	// 对应枚举类型 查看clAuthWindowModalPresentationStyle列举枚举
 	clAppPrivacyWebModalPresentationStyle ?: number
+
 	// iOS-窗口模式UIUserInterfaceStyle
 	// UIUserInterfaceStyleUnspecified - 不指定样式，跟随系统设置进行展示
 	// UIUserInterfaceStyleLight       - 明亮
@@ -594,7 +633,6 @@ export type AuthIOSUIConfigure = {
 	clOrientationLayOutPortrait ?: CLLayoutUIItem
 	// 横屏布局
 	clOrientationLayOutLandscape ?: CLLayoutUIItem
-
 }
 
 export type TUIConfigure = {
@@ -638,7 +676,7 @@ export type CLLayoutUIItem = {
 	clSloganLayout ?: CLLayoutItem
 	clShanSloganLayout ?: CLLayoutItem
 	/* ***************************************窗口模式下布局***************************************/
-
+	// ps:非窗口模式下无须设置
 	// 窗口中心：CGPoint X Y
 	clAuthWindowOrientationCenter ?: CLSizeItem
 	// 窗口左上角：frame.origin：CGPoint X Y

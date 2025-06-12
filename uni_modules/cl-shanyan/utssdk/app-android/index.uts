@@ -19,6 +19,7 @@ import Button from "android.widget.Button";
 import GradientDrawable from 'android.graphics.drawable.GradientDrawable';
 import Toast from "android.widget.Toast";
 export class ShanYanSDKModule {
+	setCallEventUIBlock(callback : CLResultCallBack) { };
 	isDebugEnable : boolean = false;
 	/**
 	 * 将颜色字符串转换为颜色值

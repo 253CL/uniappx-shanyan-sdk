@@ -1,4 +1,3 @@
-优化这个类，将uiConfig的赋值提出来：
 <template>
 	<view class="container">
 		<scroll-view class="log-box" scroll-y :scroll-top="scrollTop" scroll-with-animation>
