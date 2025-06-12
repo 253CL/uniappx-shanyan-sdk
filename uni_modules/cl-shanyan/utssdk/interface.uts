@@ -90,9 +90,9 @@ export type NavBarItem = {
 	navReturnImgHidden ?: boolean
 	//Android - 设置授权页自定义导航栏返回键图片名称，带图片格式后缀，如："abc.png"。
 	navReturnImgPath ?: string
-	//Android - 设置授权页自定义导航栏返回键宽度
+	//Android - 设置授权页自定义导航栏返回键宽度，默认25dp
 	returnBtnWidth ?: number
-	//Android - 设置授权页自定义导航栏返回键高度
+	//Android - 设置授权页自定义导航栏返回键高度，默认25dp
 	returnBtnHeight ?: number
 	//Android - 设置授权页自定义导航栏返回键距离屏幕左侧边界的X偏移量
 	navReturnBtnOffsetX ?: number
@@ -199,7 +199,7 @@ export type PrivacyItem = {
 	//Android - 设置授权页隐私协议栏字体大小
 	privacyTextSize ?: number
 	//Android - 设置授权页协议复选框未勾选时的图片名称，带图片格式后缀，如："abc.png"。
-	uncheckedImgPath ?: number
+	uncheckedImgPath ?: string
 	//Android - 设置授权页协议复选框勾选时的图片名称，带图片格式后缀，如："abc.png"。
 	checkedImgPath ?: string
 	//Android - 设置授权页复选框是否隐藏。true：隐藏；false：不隐藏；默认：false。
@@ -340,9 +340,9 @@ export type BaseUIConfig = {
 }
 // 自定义控件类型
 export type WidgetItem = {
-	//Android -  是否自动大写
-	isAllCaps ?: boolean;
-	//Android - 圆角半径（dp）
+	//图片填充方式
+	scaleType ?: number;
+	//Android - 圆角半径
 	cornerRadius ?: number;
 	//Android - 设置自定义控件ID
 	widgetId ?: string

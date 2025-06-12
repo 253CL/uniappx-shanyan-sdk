@@ -5,7 +5,7 @@
 		<!-- **********************移动授权页activity************************** -->
 		<activity android:name="com.chuanglan.shanyan_sdk.view.ShanYanOneKeyActivity"
 			android:configChanges="keyboardHidden|orientation|screenSize" android:exported="false"
-			android:launchMode="singleTop" android:theme="@style/dialogStyle">
+			android:screenOrientation="fullUser" android:launchMode="singleTop" android:theme="@style/dialogStyle">
 			<intent-filter>
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
@@ -13,7 +13,8 @@
 		<!-- **********************协议页activity************************** -->
 		<activity android:name="com.chuanglan.shanyan_sdk.view.CTCCPrivacyProtocolActivity"
 			android:configChanges="keyboardHidden|orientation|screenSize" android:exported="false"
-			android:launchMode="singleTop" android:screenOrientation="behind" android:theme="@style/dialogStyle">
+			android:screenOrientation="fullUser" android:launchMode="singleTop" android:screenOrientation="behind"
+			android:theme="@style/dialogStyle">
 			<intent-filter>
 				<category android:name="android.intent.category.DEFAULT" />
 			</intent-filter>
