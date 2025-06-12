@@ -1,29 +1,36 @@
 import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate, CLUIConfigure, CLOrientationLayOut } from 'CL_ShanYanSDK'
 import { CLResultResponse, CLResultCallBack, ResultData, AuthIOSUIConfigure, ShanYanUIConfigure, CLLayoutItem, CLLayoutUIItem, WidgetItem, CLResultCallBlock } from "../interface.uts"
-import { Int } from 'Swift';
+import { Int , Double } from 'Swift';
 import { UIView, UIImage, UIFont, UIEdgeInsets, UIColor, NSLayoutConstraint, UITapGestureRecognizer , UIButton, UIGestureRecognizer, UIControl, UILabel } from 'UIKit';
 import { NSAttributedString, NSMutableAttributedString, NSValue, NSDictionary } from 'Foundation';
 import { setCustomUI } from './customView.uts';
 import { DispatchQueue } from 'Dispatch';
 import { CGSize, CGFloat } from 'CoreFoundation';
 import { Selector } from 'ObjectiveC';
+import { Widget , View } from 'SwiftUI';
 
 
 export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 	uiConfigure : UTSJSONObject = {}
-
+	// 自定义控件回调
 	callEventBlock ?: (tag: number) => void
-	// actionListenerBlock?:CLActionListenerBlock
+	// 自定义控件
+	widgetItemArray:Map<number,WidgetItem> = new Map()
 	
 	@UTSJS.keepAlive
 	setCallEventUIBlock(callback:(tag:number)=>void){
 		this.callEventBlock = callback
 	}
 	
+	// 是否开启log
+	setDebug(isDebug:boolean){
+		CLShanYanSDKManager.printConsoleEnable(isDebug)
+	}
+	
 	// 初始化
 	initWithAppId(appId : string, options : CLResultCallBack) {
-		CLShanYanSDKManager.printConsoleEnable(true)
+		
 		this.setShanYanDelegate()
 		CLShanYanSDKManager.initWithAppId(appId, complete = (result : CLCompleteResult) => {
 			if (result != null) {
@@ -152,9 +159,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 	private transformConfigure(tmpConfigure : AuthIOSUIConfigure) : CLUIConfigure {
 		let config = CLUIConfigure.clDefault()
-		let defaultImage = new UIImage()
-		config.clAppPrivacyWebBackBtnImage = defaultImage
-
 
 		config.customAreaView = (customAreaView : UIView) => {
 
@@ -178,8 +182,11 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 							backgroundColor: dictionary['backgroundColor'],
 							backgroundImgPath: dictionary['backgroundImgPath'],
 							isFinish: dictionary['isFinish'],
+							cornerRadius:dictionary['cornerRadius'],
 							tag: dictionary['tag']
 						}
+						
+						if (wid.tag !=null){this.widgetItemArray.set(wid.tag!,wid)}
 						this.setCustomUIView(customAreaView,wid)
 					})
 				}
@@ -191,13 +198,15 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		/* ********************* 授权页 ********************* */
 		// 设置授权页背景图片
-		let backImageString = tmpConfigure.clBackgroundImg ?? ""
-		let backimage = new UIImage(named = backImageString)
-		config.clBackgroundImg = backimage ?? defaultImage
-
+		if (tmpConfigure.clBackgroundImg != null){
+			config.clBackgroundImg = getImage(tmpConfigure.clBackgroundImg!)
+			
+		}
+		
+		
 		// 设置授权页背景颜色		
 		if (tmpConfigure.clBackgroundColor != null) {
-			config.clBackgroundColor = UTSiOS.colorWithString(tmpConfigure.clBackgroundColor!)
+			config.clBackgroundColor = getColor(tmpConfigure.clBackgroundColor!)
 		}
 
 		if (tmpConfigure.clManualDismiss != null) {
@@ -231,9 +240,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 
 		if (tmpConfigure.clNavigationBackBtnImage != null) {
-			let navBackImageString = tmpConfigure.clNavigationBackBtnImage ?? ""
-			let navBackImage = new UIImage(named = navBackImageString)
-			config.clNavigationBackBtnImage = navBackImage ?? defaultImage
+			config.clNavigationBackBtnImage = getImage(tmpConfigure.clNavigationBackBtnImage!)
 		}
 		if (tmpConfigure.clNavigationBackBtnHidden != null) {
 			config.clNavigationBackBtnHidden = tmpConfigure.clNavigationBackBtnHidden!
@@ -248,19 +255,19 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 
 		if (tmpConfigure.clNavigationShadowImage != null) {
-			config.clNavigationShadowImage = new UIImage(named = tmpConfigure.clNavigationShadowImage!) ?? defaultImage
+			config.clNavigationShadowImage = getImage(tmpConfigure.clNavigationShadowImage!)
 		}
 
 		if (tmpConfigure.clNavigationTintColor != null) {
-			config.clNavigationTintColor = UTSiOS.colorWithString(tmpConfigure.clNavigationTintColor!)
+			config.clNavigationTintColor = getColor(tmpConfigure.clNavigationTintColor!)
 		}
 
 		if (tmpConfigure.clNavigationBarTintColor != null) {
-			config.clNavigationBarTintColor = UTSiOS.colorWithString(tmpConfigure.clNavigationBarTintColor!)
+			config.clNavigationBarTintColor = getColor(tmpConfigure.clNavigationBarTintColor!)
 		}
 
 		if (tmpConfigure.clNavigationBackgroundImage != null) {
-			config.clNavigationBackgroundImage = new UIImage(named = tmpConfigure.clNavigationBackgroundImage!) ?? defaultImage
+			config.clNavigationBackgroundImage = getImage(tmpConfigure.clNavigationBackgroundImage!)
 		}
 
 		if (tmpConfigure.clNavigationBarMetrics != null) {
@@ -268,33 +275,23 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 
 		/* *********************logo********************* */
-
 		if (tmpConfigure.clLogoImage != null) {
-			config.clLogoImage = new UIImage(named = tmpConfigure.clLogoImage!) ?? defaultImage
+			config.clLogoImage = getImage(tmpConfigure.clLogoImage!)
 		}
-
 		if (tmpConfigure.clLogoCornerRadius != null) {
 			config.clLogoCornerRadius = tmpConfigure.clLogoCornerRadius!
 		}
-
 		if (tmpConfigure.clLogoHiden != null) {
 			config.clLogoHiden = tmpConfigure.clLogoHiden!
 		}
 
-
 		/* ********************* 手机号 ********************* */
-
 		if (tmpConfigure.clPhoneNumberColor != null) {
-			config.clPhoneNumberColor = UTSiOS.colorWithString(tmpConfigure.clPhoneNumberColor!)
+			config.clPhoneNumberColor = getColor(tmpConfigure.clPhoneNumberColor!)
 		}
-
 		if (tmpConfigure.clPhoneNumberFontSize != null) {
-			if (tmpConfigure.clPhoneNumberFontFamily != null) {
-				config.clPhoneNumberFont = new UIFont(name = tmpConfigure.clPhoneNumberFontFamily!, size = tmpConfigure.clPhoneNumberFontSize!.toFloat() as CGFloat)!
-			}
-			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clPhoneNumberFontSize!.toFloat() as CGFloat)
+			config.clPhoneNumberFont = getFont(tmpConfigure.clPhoneNumberFontSize!,tmpConfigure.clPhoneNumberFontFamily)
 		}
-
 		if (tmpConfigure.clPhoneNumberTextAlignment != null) {
 			config.clPhoneNumberTextAlignment = tmpConfigure.clPhoneNumberTextAlignment!
 		}
@@ -306,42 +303,32 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		// iOS-一键登录按钮文本颜色，16进制颜色值，如："#0ff000"
 		if (tmpConfigure.clLoginBtnTextColor != null) {
-			config.clLoginBtnTextColor = UTSiOS.colorWithString(tmpConfigure.clLoginBtnTextColor!)
+			config.clLoginBtnTextColor = getColor(tmpConfigure.clLoginBtnTextColor!)
 		}
 		// iOS-一键登录按钮背景颜色，16进制颜色值，如："#0ff000"
-		if (tmpConfigure.clNavigationShadowImage != null) {
-			config.clNavigationShadowImage = new UIImage(named = tmpConfigure.clNavigationShadowImage!) ?? defaultImage
+		if (tmpConfigure.clLoginBtnBgColor != null){
+			config.clLoginBtnBgColor = getColor(tmpConfigure.clLoginBtnBgColor!)
 		}
-
 		// iOS-一键登录按钮字体样式及大小
 		if (tmpConfigure.clLoginBtnTextFontSize != null) {
-			if (tmpConfigure.clLoginBtnTextFontFamily != null) {
-				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clLoginBtnTextFontFamily!, size = tmpConfigure.clLoginBtnTextFontSize!.toFloat() as CGFloat)!
-			}
-			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clLoginBtnTextFontSize!.toFloat() as CGFloat)
-		}
-
-		// iOS-一键登录按钮state Normal背景图片
-		if (tmpConfigure.clLoginBtnNormalBgImage != null) {
-			config.clLoginBtnNormalBgImage = new UIImage(named = tmpConfigure.clLoginBtnNormalBgImage!) ?? defaultImage
+			config.clLoginBtnTextFont = getFont(tmpConfigure.clLoginBtnTextFontSize!,tmpConfigure.clLoginBtnTextFontFamily)
 		}
 		// iOS-一键登录按钮state Normal背景图片
 		if (tmpConfigure.clLoginBtnNormalBgImage != null) {
-			config.clLoginBtnNormalBgImage = new UIImage(named = tmpConfigure.clLoginBtnNormalBgImage!) ?? defaultImage
+			config.clLoginBtnNormalBgImage = getImage(tmpConfigure.clLoginBtnNormalBgImage!)
 		}
 		// iOS-一键登录按钮state高亮图片
 		if (tmpConfigure.clLoginBtnHightLightBgImage != null) {
-			config.clLoginBtnHightLightBgImage = new UIImage(named = tmpConfigure.clLoginBtnHightLightBgImage!) ?? defaultImage
+			config.clLoginBtnHightLightBgImage = getImage(tmpConfigure.clLoginBtnHightLightBgImage!)
 		}
 		// iOS-一键登录按钮state不可用图片
 		if (tmpConfigure.clLoginBtnDisabledBgImage != null) {
-			config.clLoginBtnDisabledBgImage = new UIImage(named = tmpConfigure.clLoginBtnDisabledBgImage!) ?? defaultImage
+			config.clLoginBtnDisabledBgImage = getImage(tmpConfigure.clLoginBtnDisabledBgImage!)
 		}
 		// iOS-一键登录按钮边框颜色，16进制颜色值，如："#0ff000"
 		if (tmpConfigure.clLoginBtnBorderColor != null) {
-			config.clLoginBtnBorderColor = UTSiOS.colorWithString(tmpConfigure.clLoginBtnBorderColor!)
+			config.clLoginBtnBorderColor = getColor(tmpConfigure.clLoginBtnBorderColor!)
 		}
-
 		// iOS-一键登录按钮圆角大小
 		if (tmpConfigure.clLoginBtnCornerRadius != null) {
 			config.clLoginBtnCornerRadius = tmpConfigure.clLoginBtnCornerRadius!
@@ -350,7 +337,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		if (tmpConfigure.clLoginBtnBorderWidth != null) {
 			config.clLoginBtnBorderWidth = tmpConfigure.clLoginBtnBorderWidth!
 		}
-
 		/* ********************* 隐私协议 ********************* */
 
 		// iOS- 隐私协议数组
@@ -360,14 +346,15 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		// iOS- 隐私协议颜色数组
 		if (tmpConfigure.clAppPrivacyTextColor != null) {
-			console.log(tmpConfigure.clAppPrivacyTextColor!)
 			let tmp = new Array<UIColor>()
 			tmpConfigure.clAppPrivacyTextColor!.forEach((colorString : string) => {
-				tmp.add(UTSiOS.colorWithString(colorString))
+				tmp.add(getColor(colorString))
 			})
 			config.clAppPrivacyColor = tmp
 		}
-
+		if (tmpConfigure.clAppPrivacyPunctuationMarks !=null){
+			config.clAppPrivacyPunctuationMarks = tmpConfigure.clAppPrivacyPunctuationMarks!
+		}
 		if (tmpConfigure.clPrivacyShowUnderline != null) {
 			config.clPrivacyShowUnderline = tmpConfigure.clPrivacyShowUnderline!
 		}
@@ -377,30 +364,27 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 
 		if (tmpConfigure.clAppPrivacyTextFontSize != null) {
-			if (tmpConfigure.clAppPrivacyTextFontFamily != null) {
-				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clAppPrivacyTextFontFamily!, size = tmpConfigure.clAppPrivacyTextFontSize!.toFloat() as CGFloat)!
-			}
-			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clAppPrivacyTextFontSize!.toFloat() as CGFloat)
+			config.clLoginBtnTextFont = getFont(tmpConfigure.clAppPrivacyTextFontSize!,tmpConfigure.clAppPrivacyTextFontFamily)
 		}
 
 		if (tmpConfigure.clAppPrivacyWebBackBtnImage != null) {
-			config.clAppPrivacyWebBackBtnImage = new UIImage(named = tmpConfigure.clAppPrivacyWebBackBtnImage!) ?? defaultImage
+			config.clAppPrivacyWebBackBtnImage = getImage(tmpConfigure.clAppPrivacyWebBackBtnImage!)
 		}
 		// iOS- 协议UINavigationTintColor
 		if (tmpConfigure.clAppPrivacyWebNavigationTintColor != null) {
-			config.clAppPrivacyWebNavigationTintColor = UTSiOS.colorWithString(tmpConfigure.clAppPrivacyWebBackBtnImage!)
+			config.clAppPrivacyWebNavigationTintColor = getColor(tmpConfigure.clAppPrivacyWebNavigationTintColor!)
 		}
 		// iOS- 协议UINavigationBarTintColor
 		if (tmpConfigure.clAppPrivacyWebNavigationBarTintColor != null) {
-			config.clAppPrivacyWebNavigationBarTintColor = UTSiOS.colorWithString(tmpConfigure.clAppPrivacyWebNavigationBarTintColor!)
+			config.clAppPrivacyWebNavigationBarTintColor = getColor(tmpConfigure.clAppPrivacyWebNavigationBarTintColor!)
 		}
 		// iOS- 协议UINavigationBackgroundImage
 		if (tmpConfigure.clAppPrivacyWebNavigationBackgroundImage != null) {
-			config.clAppPrivacyWebNavigationBackgroundImage = new UIImage(named = tmpConfigure.clAppPrivacyWebNavigationBackgroundImage!) ?? defaultImage
+			config.clAppPrivacyWebNavigationBackgroundImage = getImage(tmpConfigure.clAppPrivacyWebNavigationBackgroundImage!)
 		}
 
 		if (tmpConfigure.clAppPrivacyWebNavigationShadowImage != null) {
-			config.clAppPrivacyWebNavigationShadowImage = new UIImage(named = tmpConfigure.clAppPrivacyWebNavigationShadowImage!) ?? defaultImage
+			config.clAppPrivacyWebNavigationShadowImage = getImage(tmpConfigure.clAppPrivacyWebNavigationShadowImage!)
 		}
 
 		if (tmpConfigure.clAppPrivacyWebNavigationBarMetrics != null) {
@@ -427,14 +411,11 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		// iOS- 运营商SLOGAN 字体样式及大小
 		if (tmpConfigure.clSloganTextFontSize != null) {
-			if (tmpConfigure.clSloganTextFontFamily != null) {
-				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clSloganTextFontFamily!, size = tmpConfigure.clSloganTextFontSize!.toFloat() as CGFloat)!
-			}
-			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clSloganTextFontSize!.toFloat() as CGFloat)
+			config.clSloganTextFont = getFont(tmpConfigure.clSloganTextFontSize!,tmpConfigure.clSloganTextFontFamily)
 		}
 		// iOS- 运营商SLOGAN 字体颜色
 		if (tmpConfigure.clSloganTextColor != null) {
-			config.clSloganTextColor = UTSiOS.colorWithString(tmpConfigure.clSloganTextColor!)
+			config.clSloganTextColor = getColor(tmpConfigure.clSloganTextColor!)
 		}
 		// iOS- 运营商SLOGAN 对齐方式
 		if (tmpConfigure.clSlogaTextAlignment != null) {
@@ -448,14 +429,11 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		/* ********************* 闪验SLOGAN相关 ********************* */
 		// iOS- 闪验SLOGAN 字体样式大小设置
 		if (tmpConfigure.clShanYanSloganTextFontSize != null) {
-			if (tmpConfigure.clShanYanSloganTextFontFamily != null) {
-				config.clLoginBtnTextFont = new UIFont(name = tmpConfigure.clShanYanSloganTextFontFamily!, size = tmpConfigure.clShanYanSloganTextFontSize!.toFloat() as CGFloat)!
-			}
-			config.clPhoneNumberFont = UIFont.systemFont(ofSize = tmpConfigure.clShanYanSloganTextFontSize!.toFloat() as CGFloat)
+			config.clShanYanSloganTextFont = getFont(tmpConfigure.clShanYanSloganTextFontSize!,tmpConfigure.clShanYanSloganTextFontFamily)
 		}
 		// iOS- 闪验SLOGAN 字体颜色设置
 		if (tmpConfigure.clShanYanSloganTextColor != null) {
-			config.clShanYanSloganTextColor = UTSiOS.colorWithString(tmpConfigure.clShanYanSloganTextColor!)
+			config.clShanYanSloganTextColor = getColor(tmpConfigure.clShanYanSloganTextColor!)
 		}
 		// iOS- 闪验SLOGAN对齐方式
 		if (tmpConfigure.clShanYanSlogaTextAlignment != null) {
@@ -478,7 +456,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		// iOS- checkBox 大小
 		if (tmpConfigure.clCheckBoxSize != null) {
-			config.clCheckBoxSize = new NSValue(cgSize = new CGSize(width = tmpConfigure.clCheckBoxSize!.width.toDouble(), height = tmpConfigure.clCheckBoxSize!.height.toDouble()))
+			config.clCheckBoxSize = new NSValue(cgSize = new CGSize(width = new Double(tmpConfigure.clCheckBoxSize!.width), height = new Double(tmpConfigure.clCheckBoxSize!.height)))
 		}
 		// iOS- checkBox 内边距
 		if (tmpConfigure.clCheckBoxImageEdgeInsets != null) {
@@ -503,11 +481,11 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		// iOS- checkBox 未选中图片
 		if (tmpConfigure.clCheckBoxUncheckedImage != null) {
-			config.clCheckBoxUncheckedImage = new UIImage(named = tmpConfigure.clCheckBoxUncheckedImage!) ?? defaultImage
+			config.clCheckBoxUncheckedImage = getImage(tmpConfigure.clCheckBoxUncheckedImage!)
 		}
 		// iOS- checkBox 选中的图片
 		if (tmpConfigure.clCheckBoxCheckedImage != null) {
-			config.clCheckBoxCheckedImage = new UIImage(named = tmpConfigure.clCheckBoxCheckedImage!) ?? defaultImage
+			config.clCheckBoxCheckedImage = getImage(tmpConfigure.clCheckBoxCheckedImage!)
 		}
 		// iOS- checkBox 提示信息
 		if (tmpConfigure.clCheckBoxTipMsg != null) {
@@ -522,8 +500,8 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		// iOS- loading大小
 		if (tmpConfigure.clLoadingSize != null) {
-			let w = tmpConfigure.clLoadingSize!.width.toDouble()
-			let h = tmpConfigure.clLoadingSize!.height.toDouble()
+			let w = new Double(tmpConfigure.clLoadingSize!.width)
+			let h = new Double(tmpConfigure.clLoadingSize!.height)
 			config.clLoadingSize = new NSValue(cgSize = new CGSize(width = w, height = h))
 		}
 		// iOS- loading圆角
@@ -532,7 +510,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		// iOS- loading颜色
 		if (tmpConfigure.clLoadingBackgroundColor != null) {
-			config.clLoadingBackgroundColor = UTSiOS.colorWithString(tmpConfigure.clLoadingBackgroundColor!)
+			config.clLoadingBackgroundColor = getColor(tmpConfigure.clLoadingBackgroundColor!)
 		}
 		// iOS- 样式
 		if (tmpConfigure.clLoadingIndicatorStyle != null) {
@@ -540,7 +518,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		// iOS- 颜色
 		if (tmpConfigure.clLoadingTintColor != null) {
-			config.clLoadingTintColor = UTSiOS.colorWithString(tmpConfigure.clLoadingTintColor!)
+			config.clLoadingTintColor = getColor(tmpConfigure.clLoadingTintColor!)
 		}
 
 		/* ********************* 横竖屏设置 ********************* */
@@ -706,15 +684,15 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		if (inputTmpLayout.clAuthWindowOrientationCenter != null) {
 			layOutPortrait.clAuthWindowOrientationCenter = new NSValue(cgSize = new CGSize(
-				width = inputTmpLayout.clAuthWindowOrientationCenter!.width.toDouble(),
-				height = inputTmpLayout.clAuthWindowOrientationCenter!.height.toDouble())
+				width = new Double(inputTmpLayout.clAuthWindowOrientationCenter!.width),
+				height = new Double(inputTmpLayout.clAuthWindowOrientationCenter!.height))
 			)
 		}
 
 		if (inputTmpLayout.clAuthWindowOrientationOrigin != null) {
 			layOutPortrait.clAuthWindowOrientationOrigin = new NSValue(cgSize = new CGSize(
-				width = inputTmpLayout.clAuthWindowOrientationOrigin!.width.toDouble(),
-				height = inputTmpLayout.clAuthWindowOrientationOrigin!.height.toDouble()))
+				width = new Double(inputTmpLayout.clAuthWindowOrientationOrigin!.width),
+				height = new Double(inputTmpLayout.clAuthWindowOrientationOrigin!.height)))
 		}
 
 		if (inputTmpLayout.clAuthWindowOrientationWidth != null) {
@@ -733,14 +711,12 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			
 			let label = new UILabel()
 			label.text = wid.textContent?? ""
-			console.log("看看tag")
-			console.log(wid.tag)
 			label.isUserInteractionEnabled = true
 			view.addSubview(label)
 			if (wid.tag != null) {label.tag = wid.tag!.toInt()}
-			if (wid.textFont != null){label.font = UIFont.systemFont(ofSize = wid.textFont!.toFloat() as CGFloat)}
-			if (wid.textColor != null){label.textColor = UTSiOS.colorWithString(wid.textColor!)}
-			if (wid.backgroundColor != null){label.backgroundColor = UTSiOS.colorWithString(wid.backgroundColor!)}
+			if (wid.textFont != null){label.font = getFont(wid.textFont!)}
+			if (wid.textColor != null){label.textColor = getColor(wid.textColor!)}
+			if (wid.backgroundColor != null){label.backgroundColor = getColor(wid.backgroundColor!)}
 			
 			// 添加点击事件
 			const labelMethod = new Selector("labelClickEvent:")
@@ -753,16 +729,16 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			btn.setTitle(wid.textContent??"点击", for = UIControl.State.normal)
 			if (wid.tag != null){btn.tag = wid.tag!.toInt()}
 			if (wid.backgroundColor != null){
-				btn.backgroundColor = UTSiOS.colorWithString(wid.backgroundColor!)
+				btn.backgroundColor = getColor(wid.backgroundColor!)
 			}
 			if (wid.backgroundImgPath!=null){
-				btn.setBackgroundImage(new UIImage(named = wid.backgroundImgPath?? ""),for = UIControl.State.normal)
+				btn.setBackgroundImage(getImage(wid.backgroundImgPath!),for = UIControl.State.normal)
 			}
 			if (wid.textColor !=null){
-				btn.setTitleColor(UTSiOS.colorWithString(wid.textColor?? "#FF3434"), for =UIControl.State.normal)
+				btn.setTitleColor(getColor(wid.textColor!), for =UIControl.State.normal)
 			}
 			if (wid.textFont !=null && btn.titleLabel !=null){
-				btn.titleLabel!.font = UIFont.systemFont(ofSize = wid.textFont!.toFloat() as CGFloat)
+				btn.titleLabel!.font = UIFont.systemFont(ofSize = new CGFloat(wid.textFont!))
 			}
 			const method = new Selector("btnClickEvent:")
 			btn.addTarget(this, action = method, for = UIControl.Event.touchUpInside)
@@ -771,32 +747,50 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}else if(wid.type == 'ImageView'){
 			let imageView = new UIImageView()
 			
-			imageView.backgroundColor = UTSiOS.colorWithString(wid.textColor??'#FF4545') ?? UIColor.clear
+			imageView.backgroundColor = getColor(wid.textColor!)
 			if (wid.tag != null){imageView.tag = wid.tag!.toInt()}
 			if (wid.backgroundImgPath !=null){
-				imageView.image = new UIImage(named = wid.backgroundImgPath!) ?? new UIImage()
+				imageView.image = getImage(wid.backgroundImgPath!)
 			}
 			view.addSubview(imageView)
 			this.setCustomAutoLayout(imageView, view, wid)
 		}
 	}
 	@objc labelClickEvent(sender: UITapGestureRecognizer) {
+		let view:UIView = sender.view!
+		const tag = Number.from(view.tag)
+		let wid = this.widgetItemArray.get(tag)
+		if (wid?.isFinish == true){
+			this.finishAuthControllerAnimated()
+		}
+		console.log(wid)
 		if (this.callEventBlock != null) {
-			let view:UIView = sender.view!
-			this.callEventBlock!(Number.from(view.tag))
+			this.callEventBlock!(tag)
 		}
 	}
 	
 	@objc btnClickEvent(sender : UIButton){
+		const tag = Number.from(sender.tag)
+		let wid = this.widgetItemArray.get(tag)
+		if (wid?.isFinish == true){
+			this.finishAuthControllerAnimated()
+		}
+		
 		if (this.callEventBlock != null) {
-			this.callEventBlock!(Number.from(sender.tag))
+			this.callEventBlock!(tag)
 		}
 	}
 	
 	@objc imageViewClickEvent(sender: UITapGestureRecognizer){
+		let view:UIView = sender.view!
+		const tag = Number.from(view.tag)
+		let wid = this.widgetItemArray.get(tag)
+		if (wid?.isFinish == true){
+			this.finishAuthControllerAnimated()
+		}
+		
 		if (this.callEventBlock != null) {
-			let view:UIView = sender.view!
-			this.callEventBlock!(Number.from(view.tag))
+			this.callEventBlock!(tag)
 		}
 	}
 
@@ -829,11 +823,17 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		NSLayoutConstraint.activate(layoutArray)
 		
+		if (widgetItem.cornerRadius != null){
+			customView.layer.cornerRadius = new CGFloat(widgetItem.cornerRadius!)
+		}
 		
 		
 	}
+	
+	
 
 
+	// 初始默认UI布局
 	private defaultOrientationLayOut() : CLOrientationLayOut {
 
 		let layOutPortrait = new CLOrientationLayOut()
@@ -842,13 +842,13 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		layOutPortrait.clLayoutLogoWidth = 120
 		layOutPortrait.clLayoutLogoHeight = 80
 
-		layOutPortrait.clLayoutLoginBtnCenterX = 0
-		layOutPortrait.clLayoutLoginBtnWidth = 120
+		layOutPortrait.clLayoutLoginBtnLeft = 50
 		layOutPortrait.clLayoutLoginBtnCenterY = 0
-		layOutPortrait.clLayoutLoginBtnHeight = 45
+		layOutPortrait.clLayoutLoginBtnRight = -50
+		layOutPortrait.clLayoutLoginBtnHeight = 50
 
 		layOutPortrait.clLayoutPhoneCenterX = 0
-		layOutPortrait.clLayoutPhoneCenterY = layOutPortrait.clLayoutLoginBtnCenterY - 80
+		layOutPortrait.clLayoutPhoneTop = 240
 		layOutPortrait.clLayoutPhoneWidth = 120
 		layOutPortrait.clLayoutPhoneHeight = 40
 
@@ -880,3 +880,21 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		return layOutPortrait
 	}
 }
+
+function getColor(colorString:string):UIColor{
+		return UTSiOS.colorWithString(colorString)??UIColor.clear
+}
+	
+function getFont(fontSize:number,family?:string):UIFont{
+		let font = UIFont.systemFont(ofSize = new CGFloat(fontSize))
+		if (family != null) {
+			font = new UIFont(name = family!, size = new CGFloat(fontSize))?? font
+		}
+		return font
+	}
+
+function getImage(imageString:string):UIImage{
+		let defaultImage = new UIImage()
+		let image = new UIImage(named = imageString)
+		return image ?? defaultImage
+	}
