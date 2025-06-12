@@ -398,7 +398,13 @@ export type AuthIOSUIConfigure ={
     clNavigationBackgroundClear?:number
     // iOS-导航栏标题
     clNavigationTitleText?:string
-    // iOS-导航栏左侧返回按钮图片,如"xxx.png"。图片路径为nativeResources/ios
+	// iOS-导航栏标题字体大小
+	clNavigationTitleTextFontSize?:number
+	// iOS-导航栏标题字体样式
+	clNavigationTitleTextFontFamily?:string
+	// iOS-导航栏 字体颜色
+	clNavigationTitleTextColor?:string
+	// iOS-导航栏左侧返回按钮图片,如"xxx.png"。图片路径为nativeResources/ios
     clNavigationBackBtnImage?:string
     // iOS-导航栏返回按钮是否隐藏(0，1)，默认1
     clNavigationBackBtnHidden?:number
@@ -519,7 +525,8 @@ export type AuthIOSUIConfigure ={
 	clAppPrivacyWebNavigationShadowImage?:string
 	// iOS- 协议 UINavigationBarStyle
 	clAppPrivacyWebNavigationBarStyle?:number
-	
+	// iOS- 协议 运营商协议是否添加《》，默认（0，,1）0，
+	clAppPrivacyPunctuationMarks? :number
 	// iOS- 协议 开头描述文本，默认为: “同意”
 	clAppPrivacyNormalDesTextFirst?:string
     // iOS- 协议 末尾描述文本，默认为: 并授权<#appName#>获得本机号码
