@@ -373,12 +373,8 @@ export type WidgetItem = {
 	//Android - 设置点击自定义控件，是否自动销毁授权页。true：自动销毁；false：不自动消耗，默认false
 	isFinish ?: boolean
 	callback ?: WidgetCallBack
-
 	tag ?: number
 }
-
-
-
 export type AuthIOSUIConfigure = {
 
 	/****************************************** 授权页 ******************************************/
@@ -492,7 +488,7 @@ export type AuthIOSUIConfigure = {
 	clCheckBoxTipDisable ?: number
 
 	/****************************************** 隐私协议 ******************************************/
-	// iOS-协议数组 
+	// iOS-协议数组
 	/*
 	decollator:string      //隐私协议拼接内容，如"、"
 	lastDecollator:string  //拼接内容是否放隐私条款后（“YES"，“NO”），如"YES"，拼接隐私条款后面
