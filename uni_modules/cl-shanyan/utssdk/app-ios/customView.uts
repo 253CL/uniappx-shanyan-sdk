@@ -1,6 +1,6 @@
-import { UIView, UIColor, UIImage, UIImageView, UIButton, UIControl } from 'UIKit'
+import { UIView, UIColor, UIImage, UIImageView, UIButton, UIControl, UILabel , NSTextAlignment } from 'UIKit'
 import { CGRect } from 'CoreFoundation';
-import { DispatchQueue } from 'Dispatch';
+import { DispatchQueue.main } from 'Dispatch';
 import { Selector } from 'ObjectiveC';
 
 
@@ -45,5 +45,34 @@ class customView {
 	@objc static clickEvent() {
 		// 回调
 		console.log("调用了---")
+	}
+}
+
+export class CLToast {
+	static getContentView():UIView{
+		let keyWindow = UTSiOS.getKeyWindow()
+		let contentView = new UIView()
+		contentView.tag = 1100
+		contentView.center = keyWindow.center
+		contentView.backgroundColor = UTSiOS.colorWithString('#FFFFFF')
+		contentView.bounds = new CGRect(x = 0, y=0,width = 300, height = 200)
+		contentView.layer.cornerRadius = 15;
+		keyWindow.addSubview(contentView)
+		return contentView
+	}
+	
+	static makeToast(message: string){
+		let contentView = CLToast.getContentView()
+		let label = new UILabel()
+		label.text = "自定义view"
+		label.textColor = UIColor.red
+		label.textAlignment = NSTextAlignment.center
+		label.frame = new CGRect(x = 0, y = 0, width = 300, height = 200)
+		contentView.addSubview(label)
+		
+		// DispatchQueue.main.asyncAfter(deadline = Date.now() + 2.0) {
+		//     contentView.removeFromSuperview()
+		// }
+		
 	}
 }

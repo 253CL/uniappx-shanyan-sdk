@@ -1,31 +1,51 @@
 import { CLShanYanSDKManager, CLCompleteResult, CLShanYanSDKManagerDelegate, CLUIConfigure, CLOrientationLayOut } from 'CL_ShanYanSDK'
 import { CLResultResponse, CLResultCallBack, ResultData, AuthIOSUIConfigure, ShanYanUIConfigure, CLLayoutItem, CLLayoutUIItem, WidgetItem, CLResultCallBlock } from "../interface.uts"
 import { Int , Double } from 'Swift';
-import { UIView, UIImage, UIFont, UIEdgeInsets, UIColor, NSLayoutConstraint, UITapGestureRecognizer , UIButton, UIGestureRecognizer, UIControl, UILabel } from 'UIKit';
+import { UIView, UIImage, UIFont, UIEdgeInsets, UIColor, NSLayoutConstraint, UITapGestureRecognizer , UIButton, UIGestureRecognizer, UIControl, UILabel, UIImageView } from 'UIKit';
 import { NSAttributedString, NSMutableAttributedString, NSValue, NSDictionary } from 'Foundation';
-import { setCustomUI } from './customView.uts';
+import { setCustomUI} from './customView.uts';
 import { DispatchQueue } from 'Dispatch';
 import { CGSize, CGFloat } from 'CoreFoundation';
 import { Selector } from 'ObjectiveC';
-import { Widget , View } from 'SwiftUI';
 
 
 export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 	uiConfigure : UTSJSONObject = {}
 	// 自定义控件回调
-	callEventBlock ?: (tag: number) => void
+	callEventBlock ?: (widgetId: number) => void
 	// 自定义控件
 	widgetItemArray:Map<number,WidgetItem> = new Map()
 	
 	@UTSJS.keepAlive
-	setCallEventUIBlock(callback:(tag:number)=>void){
+	setCallEventUIBlock(callback:(widgetId:number)=>void){
 		this.callEventBlock = callback
+	}
+	
+	showShanYanNativeToast(message : string) {
+
 	}
 	
 	// 是否开启log
 	setDebug(isDebug:boolean){
 		CLShanYanSDKManager.printConsoleEnable(isDebug)
+	}
+	
+	// 设置超时时间
+	setTimeOutForPreLogin(time : number) {
+		try {
+			CLShanYanSDKManager.setPreGetPhonenumberTimeOut(new Double(time))
+		} catch (e) {
+			console.log(`setTimeOutForPreLogin：Exception=${e}`);
+		}
+	}
+	// 清除预取号缓存
+	clearScripCache(){
+		try {
+			CLShanYanSDKManager.clearScripCache()
+		} catch (e) {
+			console.log(`clearScripCache：Exception=${e}`);
+		}
 	}
 	
 	// 初始化
@@ -42,11 +62,9 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: null,
 				}
-				console.log(response)
 				options(response)
 			} else {
-				options({
-					code: -1,
+				options({code: -1,
 					message: "初始化失败",
 					innerCode: -1,
 					innerDesc: "初始化失败",
@@ -66,7 +84,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					protocolName: result.data?.["protocolName"],
 					protocolUrl: result.data?.["protocolUrl"],
 					telecom: result.data?.["telecom"],
-					number: result.data?.["number"],
 					slogan: result.data?.["slogan"],
 				}
 
@@ -108,8 +125,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		const openLoginAuthListener = (result : CLCompleteResult) => {
 			if (result != null) {
-
-				console.log(result)
 				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
@@ -124,14 +139,15 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 		const oneKeyLoginListener = (result : CLCompleteResult) => {
 			if (result != null) {
-
-				console.log(result)
+				let data : ResultData = {
+					token: result.data?.["token"],
+				}
 				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
 					innerCode: result.innerCode,
 					innerDesc: result.innerDesc,
-					data: null,
+					data: data,
 				}
 				console.log(response)
 				oneKeyLoginCallback(response)
@@ -144,6 +160,37 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		CLShanYanSDKManager.finishAuthControllerCompletion(() => {
 		})
 	}
+	
+	startAuthentication(callback : CLResultCallBack) {
+		CLShanYanSDKManager.mobileCheck(localPhoneNumberComplete = (result : CLCompleteResult) =>{
+			if (result != null) {
+			
+				let data : ResultData = {
+					token: result.data?.["token"],
+				}
+			
+				let response : CLResultResponse = {
+					code: result.code == 2000?1000:result.code,
+					message: result.message,
+					innerCode: result.innerCode== 2000?1000:result.code,
+					innerDesc: result.innerDesc,
+					data: data,
+				}
+				console.log(response)
+				callback(response)
+			} else {
+				callback({
+					code: -1,
+					message: "获取token失败",
+					innerCode: -1,
+					innerDesc: "获取token失败",
+					data: null,
+				})
+			}
+		})
+	}
+	
+	
 
 	//代理方法
 	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad") authPageView : UIView | null, @argumentLabel("currentTelecom") telecom : string | null) {
@@ -183,10 +230,15 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 							backgroundImgPath: dictionary['backgroundImgPath'],
 							isFinish: dictionary['isFinish'],
 							cornerRadius:dictionary['cornerRadius'],
-							tag: dictionary['tag']
+							scaleType:dictionary['scaleType'],
+							borderColor:dictionary['borderColor'],
+							borderWidth:dictionary['borderWidth'],
+							centerX:dictionary['centerX'],
+							centerY:dictionary['centerY']
+
 						}
 						
-						if (wid.tag !=null){this.widgetItemArray.set(wid.tag!,wid)}
+						if (wid.widgetId !=null){this.widgetItemArray.set(wid.widgetId!,wid)}
 						this.setCustomUIView(customAreaView,wid)
 					})
 				}
@@ -233,9 +285,14 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			//TODO: warning --
 			let titleString = tmpConfigure.clNavigationTitleText ?? '闪验'
 			let att = new NSMutableAttributedString(string = titleString)
-			// let range = Foundation._NSRange(location = 0,length = att.length)
-			// att.addAttribute(NSAttributedString.Key.font, value = UIFont.systemFont(ofSize = 20), range = range)
-			// att.addAttribute(NSAttributedString.Key.foregroundColor, value = UIColor.blue, range =range)
+
+			let range = Foundation._NSRange(location = 0,length = att.length)
+			if (tmpConfigure.clNavigationTitleTextFontSize != null){
+				att.addAttribute(NSAttributedString.Key.font, value = getFont(tmpConfigure.clNavigationTitleTextFontSize!,tmpConfigure.clNavigationTitleTextFontFamily), range = range)
+			}
+			if (tmpConfigure.clNavigationTitleTextColor != null){
+				att.addAttribute(NSAttributedString.Key.foregroundColor, value = getColor(tmpConfigure.clNavigationTitleTextColor!), range =range)
+			}
 			config.clNavigationAttributesTitleText = att
 		}
 
@@ -364,7 +421,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 
 		if (tmpConfigure.clAppPrivacyTextFontSize != null) {
-			config.clLoginBtnTextFont = getFont(tmpConfigure.clAppPrivacyTextFontSize!,tmpConfigure.clAppPrivacyTextFontFamily)
+			config.clAppPrivacyTextFont = getFont(tmpConfigure.clAppPrivacyTextFontSize!,tmpConfigure.clAppPrivacyTextFontFamily)
 		}
 
 		if (tmpConfigure.clAppPrivacyWebBackBtnImage != null) {
@@ -586,7 +643,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		/* ********************* 横屏布局 ********************* */
 		if (tmpConfigure.clOrientationLayOutLandscape != null) {
 			let inputTmpLayout = tmpConfigure.clOrientationLayOutLandscape!
-			config.clOrientationLayOutPortrait = this.setUpUILayout(inputTmpLayout)
+			config.clOrientationLayOutLandscape = this.setUpUILayout(inputTmpLayout)
 		}
 		return config
 	}
@@ -713,8 +770,8 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			label.text = wid.textContent?? ""
 			label.isUserInteractionEnabled = true
 			view.addSubview(label)
-			if (wid.tag != null) {label.tag = wid.tag!.toInt()}
-			if (wid.textFont != null){label.font = getFont(wid.textFont!)}
+			if (wid.widgetId != null) {label.tag = new Int(wid.widgetId!)}
+			if (wid.textFont != null){label.font = getFont(wid.textFont!,null)}
 			if (wid.textColor != null){label.textColor = getColor(wid.textColor!)}
 			if (wid.backgroundColor != null){label.backgroundColor = getColor(wid.backgroundColor!)}
 			
@@ -727,7 +784,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			let btn = new UIButton(type = UIButton.ButtonType.custom)
 			
 			btn.setTitle(wid.textContent??"点击", for = UIControl.State.normal)
-			if (wid.tag != null){btn.tag = wid.tag!.toInt()}
+			if (wid.widgetId != null){btn.tag = wid.widgetId!.toInt()}
 			if (wid.backgroundColor != null){
 				btn.backgroundColor = getColor(wid.backgroundColor!)
 			}
@@ -746,13 +803,16 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			this.setCustomAutoLayout(btn, view, wid)
 		}else if(wid.type == 'ImageView'){
 			let imageView = new UIImageView()
-			
-			imageView.backgroundColor = getColor(wid.textColor!)
-			if (wid.tag != null){imageView.tag = wid.tag!.toInt()}
-			if (wid.backgroundImgPath !=null){
-				imageView.image = getImage(wid.backgroundImgPath!)
-			}
+			if (wid.backgroundColor !=null){imageView.backgroundColor = getColor(wid.backgroundColor!)}
+			if (wid.widgetId != null){imageView.tag = wid.widgetId!.toInt()}
+			if (wid.backgroundImgPath !=null){imageView.image = getImage(wid.backgroundImgPath!)}
+			if (wid.scaleType != null){imageView.contentMode = UIView.ContentMode(rawValue = wid.scaleType!.toInt())?? UIView.ContentMode.scaleToFill}
 			view.addSubview(imageView)
+			
+			// 添加点击事件
+			const imageMethod = new Selector("imageViewClickEvent:")
+			let tapGes = new UITapGestureRecognizer(target = this, action = imageMethod)
+			imageView.addGestureRecognizer(tapGes)			
 			this.setCustomAutoLayout(imageView, view, wid)
 		}
 	}
@@ -795,6 +855,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 	}
 
 	private setCustomAutoLayout(customView : UIView, parentView : UIView, widgetItem : WidgetItem) {
+		customView.isUserInteractionEnabled = true
 		customView.translatesAutoresizingMaskIntoConstraints = false
 		let layoutArray = new Array<UIKit.NSLayoutConstraint>()
 		// 布局-上
@@ -821,10 +882,27 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		if (widgetItem.height != null) {
 			layoutArray.add(customView.heightAnchor.constraint(equalToConstant =  new CGFloat(widgetItem.height!)))
 		}
+		
+		if (widgetItem.centerX != null) {
+			layoutArray.add(customView.centerXAnchor.constraint(equalTo = parentView.centerXAnchor,constant =  new CGFloat(widgetItem.centerX!)))
+		}
+		
+		if (widgetItem.centerY != null) {
+			layoutArray.add(customView.centerYAnchor.constraint(equalTo = parentView.centerYAnchor,constant =  new CGFloat(widgetItem.centerY!)))
+		}
+		
+		
 		NSLayoutConstraint.activate(layoutArray)
 		
 		if (widgetItem.cornerRadius != null){
 			customView.layer.cornerRadius = new CGFloat(widgetItem.cornerRadius!)
+		}
+		
+		if (widgetItem.borderColor != null){
+			customView.layer.borderColor = getColor(widgetItem.borderColor!).cgColor
+		}
+		if (widgetItem.borderWidth != null){
+			customView.layer.borderWidth = new CGFloat(widgetItem.borderWidth!)
 		}
 		
 		
@@ -837,45 +915,45 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 	private defaultOrientationLayOut() : CLOrientationLayOut {
 
 		let layOutPortrait = new CLOrientationLayOut()
-		layOutPortrait.clLayoutLogoCenterX = 0;
-		layOutPortrait.clLayoutLogoTop = 150
-		layOutPortrait.clLayoutLogoWidth = 120
-		layOutPortrait.clLayoutLogoHeight = 80
+		// layOutPortrait.clLayoutLogoCenterX = 0;
+		// layOutPortrait.clLayoutLogoTop = 150
+		// layOutPortrait.clLayoutLogoWidth = 120
+		// layOutPortrait.clLayoutLogoHeight = 80
 
-		layOutPortrait.clLayoutLoginBtnLeft = 50
-		layOutPortrait.clLayoutLoginBtnCenterY = 0
-		layOutPortrait.clLayoutLoginBtnRight = -50
-		layOutPortrait.clLayoutLoginBtnHeight = 50
+		// layOutPortrait.clLayoutLoginBtnLeft = 50
+		// layOutPortrait.clLayoutLoginBtnCenterY = 0
+		// layOutPortrait.clLayoutLoginBtnRight = -50
+		// layOutPortrait.clLayoutLoginBtnHeight = 50
 
-		layOutPortrait.clLayoutPhoneCenterX = 0
-		layOutPortrait.clLayoutPhoneTop = 240
-		layOutPortrait.clLayoutPhoneWidth = 120
-		layOutPortrait.clLayoutPhoneHeight = 40
+		// layOutPortrait.clLayoutPhoneCenterX = 0
+		// layOutPortrait.clLayoutPhoneTop = 240
+		// layOutPortrait.clLayoutPhoneWidth = 120
+		// layOutPortrait.clLayoutPhoneHeight = 40
 
-		layOutPortrait.clLayoutAppPrivacyLeft = 50
-		layOutPortrait.clLayoutAppPrivacyRight = -50
-		layOutPortrait.clLayoutAppPrivacyBottom = -60
-		layOutPortrait.clLayoutAppPrivacyHeight = 50
+		// layOutPortrait.clLayoutAppPrivacyLeft = 50
+		// layOutPortrait.clLayoutAppPrivacyRight = -50
+		// layOutPortrait.clLayoutAppPrivacyBottom = -60
+		// layOutPortrait.clLayoutAppPrivacyHeight = 50
 
-		layOutPortrait.clLayoutShanYanSloganBottom = -20
-		layOutPortrait.clLayoutShanYanSloganLeft = 0
-		layOutPortrait.clLayoutShanYanSloganRight = 0
-		layOutPortrait.clLayoutPhoneHeight = 40
+		// layOutPortrait.clLayoutShanYanSloganBottom = -20
+		// layOutPortrait.clLayoutShanYanSloganLeft = 0
+		// layOutPortrait.clLayoutShanYanSloganRight = 0
+		// layOutPortrait.clLayoutPhoneHeight = 40
 
-		layOutPortrait.clLayoutAppPrivacyLeft = 50
-		layOutPortrait.clLayoutAppPrivacyRight = -50
-		layOutPortrait.clLayoutAppPrivacyBottom = -60
-		layOutPortrait.clLayoutAppPrivacyHeight = 50
+		// layOutPortrait.clLayoutAppPrivacyLeft = 50
+		// layOutPortrait.clLayoutAppPrivacyRight = -50
+		// layOutPortrait.clLayoutAppPrivacyBottom = -60
+		// layOutPortrait.clLayoutAppPrivacyHeight = 50
 
-		layOutPortrait.clLayoutShanYanSloganBottom = -20
-		layOutPortrait.clLayoutShanYanSloganLeft = 0
-		layOutPortrait.clLayoutShanYanSloganRight = 0
-		layOutPortrait.clLayoutShanYanSloganHeight = 20
+		// layOutPortrait.clLayoutShanYanSloganBottom = -20
+		// layOutPortrait.clLayoutShanYanSloganLeft = 0
+		// layOutPortrait.clLayoutShanYanSloganRight = 0
+		// layOutPortrait.clLayoutShanYanSloganHeight = 20
 
-		layOutPortrait.clLayoutSloganBottom = -40
-		layOutPortrait.clLayoutSloganLeft = 0
-		layOutPortrait.clLayoutSloganRight = 0
-		layOutPortrait.clLayoutSloganHeight = 20
+		// layOutPortrait.clLayoutSloganBottom = -40
+		// layOutPortrait.clLayoutSloganLeft = 0
+		// layOutPortrait.clLayoutSloganRight = 0
+		// layOutPortrait.clLayoutSloganHeight = 20
 
 		return layOutPortrait
 	}

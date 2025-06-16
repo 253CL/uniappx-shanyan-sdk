@@ -338,42 +338,50 @@ export type BaseUIConfig = {
 	//授权页弹窗样式属性
 	dialogThemeConfig ?: DialogThemeItem
 }
-// 自定义控件类型
+// 自定义控件类型ios && Android
 export type WidgetItem = {
-	//图片填充方式
+	//Android && iOS-图片填充方式
 	scaleType ?: number;
-	//Android - 圆角半径
+	//Android && iOS- 圆角半径
 	cornerRadius ?: number;
-	//Android - 设置自定义控件ID
-	widgetId ?: string
-	//Android - 设置自定义控件类型，包括"TextView"、"Button"、"ImageView"。
+	//Android && iOS- 设置自定义控件ID
+	widgetId ?: number
+	//Android && iOS- 设置自定义控件类型，包括"TextView"、"Button"、"ImageView"。
 	type : string
-	//Android - 设置自定义控件宽度
+	//Android && iOS- 设置自定义控件宽度
 	width ?: number
-	//Android - 设置自定义控件高度
+	//Android && iOS- 设置自定义控件高度
 	height ?: number
-	//Android - 设置自定义控件从屏幕左侧边界向右的X偏移量
+	//Android && iOS- 设置自定义控件从屏幕左侧边界向右的X偏移量
 	leftOffsetX ?: number
-	//Android - 设置自定义控件从导航栏向下的Y偏移量
+	//Android && iOS- 设置自定义控件从导航栏向下的Y偏移量
 	topOffsetY ?: number
-	//Android - 设置自定义控件从屏幕右侧边界向左的X偏移量
+	//Android && iOS- 设置自定义控件从屏幕右侧边界向左的X偏移量
 	rightOffsetX ?: number
-	//Android - 设置自定义控件从屏幕底部向上的Y偏移量
+	//Android && iOS- 设置自定义控件从屏幕底部向上的Y偏移量
 	bottomOffsetY ?: number
-	//Android - 设置自定义控件文本内容
+	//Android && iOS- 设置自定义控件文本内容
 	textContent ?: string
-	//Android - 设置自定义控件文本字体大小
+	//Android && iOS- 设置自定义控件文本字体大小
 	textFont ?: number
-	//Android - 设置自定义控件文本字体颜色，16进制颜色值，如："#0ff000"。
+	//Android && iOS- 设置自定义控件文本字体颜色，16进制颜色值，如："#0ff000"。
 	textColor ?: string
-	//Android - 设置自定义控件容器背景色，16进制颜色值，如："#0ff000"。
+	//Android && iOS- 设置自定义控件容器背景色，16进制颜色值，如："#0ff000"。
 	backgroundColor ?: string
-	//Android - 设置自定义控件容器背景图片名称，带图片格式后缀，如："abc.png"。
+	//Android && iOS- 设置自定义控件容器背景图片名称，带图片格式后缀，如："abc.png"。
 	backgroundImgPath ?: string
-	//Android - 设置点击自定义控件，是否自动销毁授权页。true：自动销毁；false：不自动消耗，默认false
+	//Android && iOS- 设置点击自定义控件，是否自动销毁授权页。true：自动销毁；false：不自动消耗，默认false
 	isFinish ?: boolean
+	// Android - 自定义控件点击事件回调。iOS不在此回调，需要在setCallEventUIBlock获取点击事件
 	callback ?: WidgetCallBack
-	tag ?: number
+	//iOS - 设置自定义控件边框颜色，16进制颜色值，如："#0ff000"
+	borderColor?:string
+	//iOS - 设置自定义控件边框宽度
+	borderWidth?:number
+	//iOS - 设置自定义控件相对中心偏移量x
+	centerX?:number
+	//iOS - 设置自定义控件相对中心偏移量y
+	centerY?:number
 }
 export type AuthIOSUIConfigure = {
 
