@@ -17,6 +17,8 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 	// 自定义控件
 	widgetItemArray:Map<number,WidgetItem> = new Map()
 	
+	printLog:boolean = false
+	
 	@UTSJS.keepAlive
 	setCallEventUIBlock(callback:(widgetId:number)=>void){
 		this.callEventBlock = callback
@@ -25,10 +27,12 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 	showShanYanNativeToast(message : string) {
 
 	}
+
 	
 	// 是否开启log
 	setDebug(isDebug:boolean){
 		CLShanYanSDKManager.printConsoleEnable(isDebug)
+		this.printLog = isDebug
 	}
 	
 	// 设置超时时间
@@ -54,7 +58,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		this.setShanYanDelegate()
 		CLShanYanSDKManager.initWithAppId(appId, complete = (result : CLCompleteResult) => {
 			if (result != null) {
-				console.log(result.data)
 				let response : CLResultResponse = {
 					code: result.code,
 					message: result.message,
@@ -62,8 +65,10 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: null,
 				}
+				if (this.printLog){console.log(`🍀初始化：${JSON.stringify(response)}`)}
 				options(response)
 			} else {
+				if (this.printLog){console.log("🍀初始化异常")}
 				options({code: -1,
 					message: "初始化失败",
 					innerCode: -1,
@@ -84,7 +89,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					protocolName: result.data?.["protocolName"],
 					protocolUrl: result.data?.["protocolUrl"],
 					telecom: result.data?.["telecom"],
-					slogan: result.data?.["slogan"],
+					// slogan: result.data?.["slogan"],
 				}
 
 				let response : CLResultResponse = {
@@ -94,9 +99,10 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: data,
 				}
-				console.log(response)
+				if (this.printLog){console.log(`🍀预取号：${JSON.stringify(response)}`)}
 				options(response)
 			} else {
+				if (this.printLog){console.log("🍀预取号异常")}
 				options({
 					code: -1,
 					message: "预取号失败",
@@ -132,8 +138,10 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: null,
 				}
-				console.log(response)
+				if (this.printLog){console.log(`🍀拉起授权页：${JSON.stringify(response)}`)}
 				openLoginAuthCallback(response)
+			}else{
+				if (this.printLog){console.log("🍀拉起授权页异常")}
 			}
 		}
 
@@ -149,8 +157,10 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: data,
 				}
-				console.log(response)
+				if (this.printLog){console.log(`🍀点击一键登录：${JSON.stringify(response)}`)}
 				oneKeyLoginCallback(response)
+			}else{
+				if (this.printLog){console.log("🍀一键登录异常")}
 			}
 		}
 		CLShanYanSDKManager.quickAuthLogin(with = config, openLoginAuthListener = openLoginAuthListener, oneKeyLoginListener = oneKeyLoginListener)
@@ -176,9 +186,10 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 					innerDesc: result.innerDesc,
 					data: data,
 				}
-				console.log(response)
+				if (this.printLog){console.log(`🍀本机号校验：${JSON.stringify(response)}`)}
 				callback(response)
 			} else {
+				if (this.printLog){console.log("🍀本机号校验：获取token异常")}
 				callback({
 					code: -1,
 					message: "获取token失败",
@@ -194,12 +205,12 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 	//代理方法
 	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad") authPageView : UIView | null, @argumentLabel("currentTelecom") telecom : string | null) {
-		console.log('有结果啦啦啦啦啦111')
+		// console.log('有结果啦啦啦啦啦111')
 	}
 
 	clShanYanActionListener(type : Int | null, code : Int | null, message : string | null) {
 		// this.actionListenerBlock?.(Number.from(type),Number.from(code),message)
-		console.log('有结果啦啦啦啦啦2222')
+		// console.log('有结果啦啦啦啦啦2222')
 	}
 
 
