@@ -1,19 +1,23 @@
 <template>
-	<view class="container">
-		<scroll-view class="log-box" scroll-y :scroll-top="scrollTop" scroll-with-animation>
-			<text class="log-text">{{logText}}</text>
-		</scroll-view>
-		<button class="button" @click="onInitClick">初始化</button>
-		<button class="button" @click="onPreGetNumberClick">预取号</button>
-		<button class="button" @click="onFullScreenClick">全屏模式</button>
-		<button class="button" @click="onDialogClick">弹窗模式</button>
-		<button class="button" @click="onAuthExperienceClick">号码认证体验</button>
-	</view>
+	<scroll-view style="flex: 1;">
+		<view class="container">
+			<view class="log-box">
+				<scroll-view style="flex: 1;">
+					<text class="log-text">{{logText}}</text>
+				</scroll-view>
+			</view>
+			<button class="button" @click="onInitClick">初始化</button>
+			<button class="button" @click="onPreGetNumberClick">预取号</button>
+			<button class="button" @click="onFullScreenClick">全屏模式</button>
+			<button class="button" @click="onDialogClick">弹窗模式</button>
+			<button class="button" @click="onAuthExperienceClick">号码认证体验</button>
+		</view>
+	</scroll-view>
 </template>
 
 <script lang="ts">
 	import { PrivacyListItem, AuthAndroidUIConfigure, AuthIOSUIConfigure, BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
-	import { WidgetItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, PrivacyList, DialogThemeItem, CLLayoutUIItem, ConfigItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
+	import { WidgetItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, PrivacyList, DialogThemeItem, CLLayoutUIItem, ConfigItem, CLEdgeInsetsItem, CLSizeItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
 	const shanYanSDKModule = new ShanYanSDKModule();
 	let isDebug = true;
 	//设置闪验SDK内部日志开关是否开启。true：开启；false：关闭；默认：false。
@@ -43,8 +47,11 @@
 				const systemInfo = uni.getSystemInfoSync();
 				// 获取屏幕宽度
 				const screenWidth = systemInfo.screenWidth;
+				// 获取屏幕高度
+				const screenHeight = systemInfo.screenHeight;
+				//授权页UI配置，具体可配置项详见授权页配置说明文档
 				const androidUIConfig : AuthAndroidUIConfigure = {
-					//授权页竖屏配置
+					//授权页竖屏配置，如果没有竖屏场景，不需要配置此项。
 					verticalConfig: {
 						baseUIConfig: {
 							authBGImgPath: 'shanyan_ver_bg',
@@ -65,7 +72,6 @@
 							},
 							logoConfig: {
 								logoImgPath: "shanyan_logo",
-								//logoOffsetX: 50,
 								logoOffsetY: 60,
 								logoWidth: 100,
 								logoHeight: 70
@@ -97,36 +103,20 @@
 										name: "闪验用户协议1",
 										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
 										content: "、",
-										color: "#ff00ff",
+										color: "#ff00ff"
 									},
 									{
 										name: "闪验用户协议2",
 										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
-										content: "、",
-										//color: "#f00f0f",
+										content: "、"
 									},
 									{
 										name: "闪验用户协议3",
 										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
 										content: "",
-										color: "#f00f0f",
+										color: "#f00f0f"
 									}]
-							},
-							dialogThemeConfig: {
-								isDialogTheme: false,
-								isDialogBottom: true,
-								//Android - 设置弹窗授权页遮盖层灰度（0-1）
-								dialogDimAmount: 0.5,
-								//Android - 设置弹窗授权页宽度
-								dialogWidth: 300,
-								//Android - 设置弹窗授权页高度
-								dialogHeight: 500,
-								//Android - 设置弹窗授权页从屏幕左侧边界向右的X偏移量
-								//dialogOffsetX: 10,
-								//Android - 设置弹窗授权页从屏幕顶部向下的Y偏移量
-								//dialogOffsetY: 20
-							},
-
+							}
 						},
 						widgetsConfig: [
 							{
@@ -134,10 +124,7 @@
 								width: screenWidth - 94,
 								height: 46,
 								textColor: "#ffffff",
-								//leftOffsetX: 10,
 								topOffsetY: 310,
-								//cornerRadius: 10,
-								//backgroundColor: "#ffffff",
 								backgroundImgPath: "shanyan_login_btn_bg",
 								textContent: "切换其ButTon他登录方式 >",
 								isFinish: true,
@@ -163,7 +150,6 @@
 								type: "ImageView",
 								width: 35,
 								height: 35,
-								//leftOffsetX: 30,
 								bottomOffsetY: 130,
 								backgroundImgPath: "shanyan_weixin",
 								textContent: "测试ImageView类型自定义控件",
@@ -192,7 +178,6 @@
 								leftOffsetX: 50,
 								bottomOffsetY: 100,
 								textColor: "#aa00cc",
-								//backgroundColor: "#ffffff",
 								textContent: "qq",
 								callback: () => {
 									this.addLog(`测试TextView类型自定义控件点击事件监听`);
@@ -203,10 +188,8 @@
 								type: "TextView",
 								width: 80,
 								height: 40,
-								//leftOffsetX: 10,
 								bottomOffsetY: 100,
 								textColor: "#aa00cc",
-								//backgroundColor: "#ffffff",
 								textContent: "微信",
 								callback: () => {
 									this.addLog(`测试TextView类型自定义控件点击事件监听`);
@@ -220,7 +203,6 @@
 								rightOffsetX: 50,
 								bottomOffsetY: 100,
 								textColor: "#aa00cc",
-								//backgroundColor: "#ffffff",
 								textContent: "微博",
 								callback: () => {
 									this.addLog(`测试TextView类型自定义控件点击事件监听`);
@@ -228,9 +210,125 @@
 								}
 							},]
 					} as ConfigItem,
-					// //授权页横屏配置
-					// horizontalConfig: {
-					// }
+					//授权页横屏配置，如果没有横屏场景，不需要配置此项。
+					horizontalConfig: {
+						baseUIConfig: {
+							authBGImgPath: 'shanyan_hor_bg',
+							isFitsSystemWindows: false,
+							statusBarConfig: {
+								isStatusBarHidden: true
+							},
+							systemNavBarConfig: {
+								isBackPressedAvailable: true,
+							},
+							navBarConfig: {
+								navReturnImgPath: "shanyan_dialog_close",
+								returnBtnWidth: 35,
+								returnBtnHeight: 35,
+							},
+							logoConfig: {
+								logoImgPath: "shanyan_logo",
+								logoOffsetY: -20,
+								logoWidth: 100,
+								logoHeight: 70
+							},
+							numberConfig: {
+								numberColor: "#ffffff",
+								isNumberBold: true,
+								numFieldOffsetY: 40
+							},
+							sloganConfig: {
+								sloganHidden: true,
+							},
+							loginButtonConfig: {
+								logBtnText: "一键登录登录",
+								logBtnOffsetY: 80,
+								logBtnWidth: screenHeight - 400
+							},
+							privacyConfig: {
+								privacyTextSize: 12,
+								privacyOffsetBottomY: 2,
+								privacyWidth: screenHeight,
+								privacyOffsetX: 120,
+								privacyBaseColor: "#ffffff",
+								privacyNameColor: "#ff00ff",
+								privacyText: {
+									privacyTextHead: "已知晓且同意",
+									privacyTextFirst: "和",
+									privacyTextEnd: "并授权本应用获取手机号"
+								},
+								morePrivacy: [
+									{
+										name: "闪验用户协议1",
+										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+										content: "、"
+									},
+									{
+										name: "闪验用户协议2",
+										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+										content: "、"
+									},
+									{
+										name: "闪验用户协议3",
+										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+										content: ""
+									}]
+							}
+						},
+						widgetsConfig: [
+							{
+								type: "Button",
+								width: screenHeight - 400,
+								height: 46,
+								textColor: "#ffffff",
+								topOffsetY: 140,
+								backgroundImgPath: "shanyan_login_btn_bg",
+								textContent: "切换其ButTon他登录方式 >",
+								isFinish: false,
+								callback: () => {
+									this.addLog(`测试Button类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试Button类型自定义控件点击事件监听')
+								}
+							},
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								leftOffsetX: screenHeight / 2 - 200,
+								bottomOffsetY: 60,
+								backgroundImgPath: "shanyan_qq",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								},
+							},
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								bottomOffsetY: 60,
+								backgroundImgPath: "shanyan_weixin",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								},
+							},
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								leftOffsetX: screenHeight / 2 + 160,
+								bottomOffsetY: 60,
+								backgroundImgPath: "shanyan_weibo",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								}
+							}]
+					} as ConfigItem
 
 				}
 				return androidUIConfig;
@@ -238,61 +336,61 @@
 			getIOSUIConfig() : AuthIOSUIConfigure {
 				// 引入原生模块
 				const systemInfo = uni.getSystemInfoSync();
-				const screenWidth = systemInfo.screenWidth;
+				//获取屏幕高度
 				const screenHeight = systemInfo.screenHeight;
 				const iOSUIConfig : AuthIOSUIConfigure = {
 					clNavigationTitleText: '闪验demo',
 					clBackgroundImg: 'bb4bf6b9301170c7fa0a766b1024d2d3.jpg',
 					clNavigationBackBtnImage: 'back-7.png',
-					clAppPrivacyWebBackBtnImage:'shanyan_dialog_close.png',
-					
+					clAppPrivacyWebBackBtnImage: 'shanyan_dialog_close.png',
+
 					// logo
 					clLogoImage: 'shanyan_logo.png',
-					
+
 					// phone
-					clPhoneNumberColor:'#FFFFFF',
-					clPhoneNumberFontFamily:'PingFangSC-Semibold',
-					clPhoneNumberFontSize:18,
-					
+					clPhoneNumberColor: '#FFFFFF',
+					clPhoneNumberFontFamily: 'PingFangSC-Semibold',
+					clPhoneNumberFontSize: 18,
+
 					// loginbtn
-					clLoginBtnBgColor:'#000093',
-					clLoginBtnCornerRadius:30,
-					clLoginBtnTextColor:'#ffffff',
-					clLoginBtnTextFontSize:16,
-					
-					clShanYanSloganTextHidden:0,
-					clShanYanSloganTextColor:'#FFFF45',
-					
+					clLoginBtnBgColor: '#000093',
+					clLoginBtnCornerRadius: 30,
+					clLoginBtnTextColor: '#ffffff',
+					clLoginBtnTextFontSize: 16,
+
+					clShanYanSloganTextHidden: 0,
+					clShanYanSloganTextColor: '#FFFF45',
+
 					// checkBox
-					clCheckBoxCheckedImage:'shanyan_checkbox_check.png',
-					clCheckBoxUncheckedImage:'shanyan_checkbox_uncheck.png',
-					clCheckBoxSize:{width:40,height:40},
-					clCheckBoxImageEdgeInsets:{top:10,left:15,bottom:10,right:5},
-					clCheckBoxVerticalAlignmentToAppPrivacyTop:1,
-					shouldAutorotate:1,
-					supportedInterfaceOrientations:30,
+					clCheckBoxCheckedImage: 'shanyan_checkbox_check.png',
+					clCheckBoxUncheckedImage: 'shanyan_checkbox_uncheck.png',
+					clCheckBoxSize: { width: 40, height: 40 } as CLSizeItem,
+					clCheckBoxImageEdgeInsets: { top: 10, left: 15, bottom: 10, right: 5 } as CLEdgeInsetsItem,
+					clCheckBoxVerticalAlignmentToAppPrivacyTop: 1,
+					shouldAutorotate: 1,
+					supportedInterfaceOrientations: 30,
 					// 竖屏布局
 					clOrientationLayOutPortrait: {
-						clLogonLayout:{top:150,centerX:0,width:120,height:80},
-						clLoginBtnLayout:{left:50,right:-50,centerY:0,height:60},
-						clPhoneLayout:{centerX:0,width:120,height:40,centerY:-90},
-						clPrivacyLayout:{left:50,right:-50,bottom:-60,height:50},
-						clSloganLayout:{bottom:-40,left:0,right:0,height:20},
-						clShanSloganLayout:{bottom:-20,left:0,right:0,height:20}
+						clLogonLayout: { top: 150, centerX: 0, width: 120, height: 80 },
+						clLoginBtnLayout: { left: 50, right: -50, centerY: 0, height: 60 },
+						clPhoneLayout: { centerX: 0, width: 120, height: 40, centerY: -90 },
+						clPrivacyLayout: { left: 50, right: -50, bottom: -60, height: 50 },
+						clSloganLayout: { bottom: -40, left: 0, right: 0, height: 20 },
+						clShanSloganLayout: { bottom: -20, left: 0, right: 0, height: 20 }
 					} as CLLayoutUIItem,
 					// 横屏布局
-					clOrientationLayOutLandscape:{
-						clLogonLayout:{top:50,centerX:0,width:120,height:80},
-						clLoginBtnLayout:{left:50,right:-50,centerY:10,height:60},
-						clPhoneLayout:{centerX:0,width:120,height:40,centerY:-60},
-						clPrivacyLayout:{centerX:0,bottom:-40,height:30},
-						clSloganLayout:{bottom:-20,centerX:0,width:200,height:20},
-						clShanSloganLayout:{bottom:-20,left:0,right:0,height:20}
+					clOrientationLayOutLandscape: {
+						clLogonLayout: { top: 50, centerX: 0, width: 120, height: 80 },
+						clLoginBtnLayout: { left: 50, right: -50, centerY: 10, height: 60 },
+						clPhoneLayout: { centerX: 0, width: 120, height: 40, centerY: -60 },
+						clPrivacyLayout: { centerX: 0, bottom: -40, height: 30 },
+						clSloganLayout: { bottom: -20, centerX: 0, width: 200, height: 20 },
+						clShanSloganLayout: { bottom: -20, left: 0, right: 0, height: 20 }
 					} as CLLayoutUIItem,
-					
+
 					// 隐私协议
 					clAppPrivacyTextFontSize: 13,
-					clAppPrivacyPunctuationMarks:1,
+					clAppPrivacyPunctuationMarks: 1,
 					clAppMorePrivacyArray: [{
 						decollator: '、',
 						lastDecollator: 'NO',
@@ -305,53 +403,49 @@
 						privacyURL: 'https://www.baidu.com'
 					}],
 					clAppPrivacyTextColor: ['#FF4455', '#FE3545'],
-					
-					widgetsConfig:[
+
+					widgetsConfig: [
 						{
-							tag:100,
 							type: "Button",
-							leftOffsetX:50,
-							rightOffsetX:-50,
+							leftOffsetX: 50,
+							rightOffsetX: -50,
 							height: 60,
 							textColor: "#ffffff",
-							cornerRadius:30,
-							topOffsetY: screenHeight/2 + 70,
+							cornerRadius: 30,
+							topOffsetY: screenHeight / 2 + 70,
 							backgroundColor: "#AE0000",
 							backgroundImgPath: "shanyan_login_btn_bg.png",
 							textContent: "切换其ButTon他登录方式 >",
 							isFinish: true,
-						} as WidgetItem,{
-							tag:101,
-								type: "ImageView",
-								width: 50,
-								height: 50,
-								centerX: -100,
-								bottomOffsetY: -110,
-								// backgroundColor:'#F4EE65',
-								backgroundImgPath:'shanyan_qq.png',
-								textContent: "测试ImageView类型自定义控件",
-							} as WidgetItem,{
-								tag:102,
-								type: "ImageView",
-								width: 50,
-								height: 50,
-								centerX: 0,
-								// backgroundColor:'#F4EE65',
-								bottomOffsetY: -110,
-								backgroundImgPath:'shanyan_weixin.png',
-								textContent: "测试ImageView类型自定义控件",
-							} as WidgetItem,{
-								tag:103,
-								type: "ImageView",
-								width: 50,
-								height: 50,
-								centerX: 100,
-								bottomOffsetY: -110,
-								// backgroundColor:'#F4EE65',
-								backgroundImgPath: "shanyan_weibo.png",
-								textContent: "测试ImageView类型自定义控件",
-							} as WidgetItem],
-					
+						} as WidgetItem, {
+							type: "ImageView",
+							width: 50,
+							height: 50,
+							centerX: -100,
+							bottomOffsetY: -110,
+							// backgroundColor:'#F4EE65',
+							backgroundImgPath: 'shanyan_qq.png',
+							textContent: "测试ImageView类型自定义控件",
+						} as WidgetItem, {
+							type: "ImageView",
+							width: 50,
+							height: 50,
+							centerX: 0,
+							// backgroundColor:'#F4EE65',
+							bottomOffsetY: -110,
+							backgroundImgPath: 'shanyan_weixin.png',
+							textContent: "测试ImageView类型自定义控件",
+						} as WidgetItem, {
+							type: "ImageView",
+							width: 50,
+							height: 50,
+							centerX: 100,
+							bottomOffsetY: -110,
+							// backgroundColor:'#F4EE65',
+							backgroundImgPath: "shanyan_weibo.png",
+							textContent: "测试ImageView类型自定义控件",
+						} as WidgetItem],
+
 				}
 				return iOSUIConfig;
 			},
@@ -360,41 +454,43 @@
 				const androidConfig = this.getAndroidUIConfig();
 				const iOSConfig = this.getIOSUIConfig();
 				const uiConfigure : ShanYanUIConfigure = {
+					//Android授权页UI配置，如果没有Android终端场景，可以不配置此项
 					androidConfig,
+					//iOS授权页UI配置，如果没有iOS终端场景，可以不配置此项
 					iOSConfig
 				};
 				return uiConfigure;
 
 			},
-			
-			getIOSDialogUIConfig():AuthIOSUIConfigure{
+
+			getIOSDialogUIConfig() : AuthIOSUIConfigure {
 				const systemInfo = uni.getSystemInfoSync();
 				const screenWidth = systemInfo.screenWidth;
 				const screenHeight = systemInfo.screenHeight;
-				
+
 				const iOSConfig = this.getIOSUIConfig();
 				iOSConfig.clAuthTypeUseWindow = 1;
 				iOSConfig.clNavigationBackgroundClear = 1;
 				iOSConfig.clNavBackBtnAlimentRight = 1;
 				iOSConfig.clBackgroundColor = '#FFFFFF';
 				iOSConfig.clOrientationLayOutPortrait = {
-					clLogonLayout:{centerY:-90,centerX:0,width:60,height:40},
-					clLoginBtnLayout:{left:50,right:-50,centerY:30,height:60},
-					clPhoneLayout:{centerX:0,width:120,height:40,centerY:-40},
-					clPrivacyLayout:{left:40,right:-40,bottom:-40,height:50},
-					clSloganLayout:{bottom:-20,left:0,right:0,height:20},
-					clShanSloganLayout:{bottom:-5,left:0,right:0,height:15},
-					clAuthWindowOrientationCenter:{width:screenWidth/2, height:screenHeight/2},
-					clAuthWindowOrientationWidth:screenWidth/4 *3,
-					clAuthWindowOrientationHeight:screenWidth/4 *3 +10,
-				}
+					clLogonLayout: { centerY: -90, centerX: 0, width: 60, height: 40 },
+					clLoginBtnLayout: { left: 50, right: -50, centerY: 30, height: 60 },
+					clPhoneLayout: { centerX: 0, width: 120, height: 40, centerY: -40 },
+					clPrivacyLayout: { left: 40, right: -40, bottom: -40, height: 50 },
+					clSloganLayout: { bottom: -20, left: 0, right: 0, height: 20 },
+					clShanSloganLayout: { bottom: -5, left: 0, right: 0, height: 15 },
+					clAuthWindowOrientationCenter: { width: screenWidth / 2, height: screenHeight / 2 },
+					clAuthWindowOrientationWidth: screenWidth / 4 * 3,
+					clAuthWindowOrientationHeight: screenWidth / 4 * 3 + 10,
+				} as CLLayoutUIItem
 				iOSConfig.widgetsConfig = []
 				iOSConfig.clAuthWindowCornerRadius = 15
-				
+
 				return iOSConfig;
 			},
-			
-			
+
+
 			getAndroidDialogUIConfig() : AuthAndroidUIConfigure {
 				// 引入原生模块
 				const systemInfo = uni.getSystemInfoSync();
@@ -402,8 +498,9 @@
 				const screenWidth = systemInfo.screenWidth;
 				//获取屏幕高度
 				const screenHeight = systemInfo.screenHeight;
+				//授权页UI配置，具体可配置项详见授权页配置说明文档
 				const androidUIConfig : AuthAndroidUIConfigure = {
-					//授权页竖屏配置
+					//授权页竖屏配置，如果没有竖屏场景，不需要配置此项。
 					verticalConfig: {
 						baseUIConfig: {
 							authBGImgPath: 'shanyan_dialog_bg',
@@ -422,7 +519,6 @@
 							},
 							logoConfig: {
 								logoImgPath: "shanyan_logo",
-								//logoOffsetX: 50,
 								logoOffsetY: -10,
 								logoWidth: 100,
 								logoHeight: 70,
@@ -463,17 +559,9 @@
 							},
 							dialogThemeConfig: {
 								isDialogTheme: true,
-								//isDialogBottom: true,
-								//Android - 设置弹窗授权页遮盖层灰度（0-1）
 								dialogDimAmount: 0.5,
-								//Android - 设置弹窗授权页宽度
 								dialogWidth: screenWidth - 50,
-								//Android - 设置弹窗授权页高度
-								dialogHeight: screenHeight - 400,
-								//Android - 设置弹窗授权页从屏幕左侧边界向右的X偏移量
-								//dialogOffsetX: 10,
-								//Android - 设置弹窗授权页从屏幕顶部向下的Y偏移量
-								//dialogOffsetY: 20
+								dialogHeight: screenHeight - 400
 							},
 
 						},
@@ -483,11 +571,7 @@
 								width: screenWidth - 94 - 50,
 								height: 46,
 								textColor: "#ffffff",
-								//leftOffsetX: 10,
 								topOffsetY: 170,
-								//cornerRadius: 10,
-								//backgroundColor: "#ffffff",
-
 								backgroundImgPath: "shanyan_login_btn_bg",
 								textContent: "切换其ButTon他登录方式 >",
 								isFinish: true,
@@ -513,7 +597,6 @@
 								type: "ImageView",
 								width: 35,
 								height: 35,
-								//leftOffsetX: 30,
 								bottomOffsetY: 70,
 								backgroundImgPath: "shanyan_weixin",
 								textContent: "测试ImageView类型自定义控件",
@@ -536,10 +619,110 @@
 								}
 							}]
 					} as ConfigItem,
-					// //授权页横屏配置
-					// horizontalConfig: {
-					// }
+					//授权页横屏配置，如果没有横屏场景，不需要配置此项。
+					horizontalConfig: {
+						baseUIConfig: {
+							authBGImgPath: 'shanyan_dialog_bg',
+							statusBarConfig: {
+								isStatusBarHidden: true
+							},
+							systemNavBarConfig: {
+								isBackPressedAvailable: true,
+							},
+							navBarConfig: {
+								navReturnImgPath: "shanyan_dialog_close",
+								returnBtnWidth: 25,
+								returnBtnHeight: 25,
+								navReturnBtnOffsetRightX: 20
+							},
+							logoConfig: {
+								logoImgPath: "shanyan_logo",
+								logoOffsetY: -10,
+								logoWidth: 100,
+								logoHeight: 70,
+							},
+							numberConfig: {
+								numberColor: "#0000ff",
+								isNumberBold: true,
+								numFieldOffsetY: 65
+							},
+							sloganConfig: {
+								sloganHidden: true,
+							},
+							loginButtonConfig: {
+								logBtnText: "一键登录登录测试",
+								logBtnOffsetY: 105
+							},
+							privacyConfig: {
+								privacyTextSize: 10,
+								operatorPrivacyAtLast: true,
+								checkboxMarginRigth: 3,
+								privacyOffsetGravityLeft: true,
+								privacyOffsetBottomY: 5,
+								checkboxHeight: 20,
+								checkboxWidth: 20,
+								checkedImgPath: "shanyan_checkbox_check",
+								uncheckedImgPath: "shanyan_checkbox_uncheck",
+								privacyText: {
+									privacyTextHead: "同意",
+									privacyTextEnd: "并授权获取手机号"
+								},
+								morePrivacy: [
+									{
+										name: "闪验用户协议",
+										url: "https://api.253.com/api_doc/yin-si-zheng-ce/wei-hu-wang-luo-an-quan-sheng-ming.html",
+										content: "和",
+										color: "#ff00ff",
+									}]
+							},
+							dialogThemeConfig: {
+								isDialogTheme: true,
+								dialogDimAmount: 0.5,
+								dialogWidth: screenWidth,
+								dialogHeight: screenWidth - 40
+							},
 
+						},
+						widgetsConfig: [
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								leftOffsetX: 70,
+								bottomOffsetY: 70,
+								backgroundImgPath: "shanyan_qq",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								},
+							},
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								bottomOffsetY: 70,
+								backgroundImgPath: "shanyan_weixin",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								},
+							},
+							{
+								type: "ImageView",
+								width: 35,
+								height: 35,
+								rightOffsetX: 70,
+								bottomOffsetY: 70,
+								backgroundImgPath: "shanyan_weibo",
+								textContent: "测试ImageView类型自定义控件",
+								callback: () => {
+									this.addLog(`测试ImageView类型自定义控件点击事件监听`);
+									shanYanSDKModule.showShanYanNativeToast('测试ImageView类型自定义控件点击事件监听')
+								}
+							}]
+					} as ConfigItem
 				}
 				return androidUIConfig;
 			},
@@ -554,16 +737,15 @@
 
 			},
 			startLoginAuth(uiConfig : ShanYanUIConfigure) {
-				
-				shanYanSDKModule.setCallEventUIBlock((tag)=>{
-					
+
+				shanYanSDKModule.setCallEventUIBlock((tag) => {
 					uni.showToast({
 						title: '再按一次退出应用',
 						position: 'bottom',
-					});					
+					});
 					console.log("点击了" + JSON.stringify(tag))
 				})
-				
+
 				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfig, (response) => {
 					try {
 						// 拉起授权页结果回调函数
@@ -571,31 +753,19 @@
 						let message = response.message;
 						const logMessage = `拉起授权页结果：\ncode=${code}\nmessage=${message}`;
 						this.addLog(logMessage);
-						uni.showToast({
-							title: '拉起授权页结果：' + message
-						});
 					} catch (error) {
 						this.addLog('拉授权页处理失败:' + error);
-						uni.showToast({
-							title: '拉起授权页结果：' + error
-						});
 					}
 				}, (response) => {
 					try {
 						// 授权结果回调函数
 						let code = response.code;
 						let message = response.message;
-						let token = response.data?.token?? "";
+						let token = response.data?.token ?? "";
 						const logMessage = `授权结果：\ncode=${code}\nmessage=${message}\ntoken=${token}`;
 						this.addLog(logMessage);
-						uni.showToast({
-							title: '授权结果：' + message
-						});
 					} catch (error) {
 						this.addLog('授权结果处理失败:' + error);
-						uni.showToast({
-							title: '授权结果：' + error
-						});
 					}
 				});
 
@@ -635,9 +805,6 @@
 							let message = response.message;
 							const logMessage = `初始化结果：\ncode=${code}\nmessage=${message}`;
 							this.addLog(logMessage);
-							uni.showToast({
-								title: '初始化结果：' + message
-							});
 						} catch (error) {
 							this.addLog('初始化处理失败:' + error);
 						}
@@ -656,9 +823,6 @@
 						let protocolUrl = response.data?.protocolUrl;
 						const logMessage = `预取号结果：\ncode=${code}\nmessage=${message}\ntelecom=${telecom}\nprotocolName=${protocolName}\nprotocolUrl=${protocolUrl}`;
 						this.addLog(logMessage);
-						uni.showToast({
-							title: '预取号结果：' + message
-						});
 					} catch (error) {
 						this.addLog('预取号处理失败:' + error);
 					}
@@ -685,14 +849,8 @@
 						let token = response.data?.token;
 						const logMessage = `本机校验结果：\ncode=${code}\nmessage=${message}\ntoken=${token}`;
 						this.addLog(logMessage);
-						uni.showToast({
-							title: '本机校验结果：' + message
-						});
 					} catch (error) {
 						this.addLog('本机校验结果处理失败:' + error);
-						uni.showToast({
-							title: '本机校验结果：' + error
-						});
 					}
 				});
 			},
@@ -705,6 +863,7 @@
 		display: flex;
 		flex-direction: column;
 		padding: 3px;
+		margin-top: 40px;
 	}
 
 	.button {
@@ -730,6 +889,7 @@
 	.log-text {
 		color: white;
 		display: flex;
+		padding: 10px;
 		width: 100%;
 		font-size: 13px;
 		font-family: monospace;

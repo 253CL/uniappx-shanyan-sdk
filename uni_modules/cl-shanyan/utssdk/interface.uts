@@ -187,6 +187,8 @@ export type LoginButtonItem = {
 	logBtnOffsetBottomY ?: number
 	//Android - 设置授权页登录按钮从屏幕左侧边界向右的X偏移量
 	logBtnOffsetX ?: number
+	//Android - 设置点击登录按钮后，是否自动关闭授权页。true：关闭；false：不关闭；默认：true。
+	isFinishLoginPage ?: boolean
 }
 /**
  * 授权页协议栏属性
@@ -375,13 +377,13 @@ export type WidgetItem = {
 	// Android - 自定义控件点击事件回调。iOS不在此回调，需要在setCallEventUIBlock获取点击事件
 	callback ?: WidgetCallBack
 	//iOS - 设置自定义控件边框颜色，16进制颜色值，如："#0ff000"
-	borderColor?:string
+	borderColor ?: string
 	//iOS - 设置自定义控件边框宽度
-	borderWidth?:number
+	borderWidth ?: number
 	//iOS - 设置自定义控件相对中心偏移量x
-	centerX?:number
+	centerX ?: number
 	//iOS - 设置自定义控件相对中心偏移量y
-	centerY?:number
+	centerY ?: number
 }
 export type AuthIOSUIConfigure = {
 

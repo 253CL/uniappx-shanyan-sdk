@@ -807,8 +807,14 @@ export class ShanYanSDKModule {
 				}
 				oneKeyLoginCallback(response);
 			};
+			let isFinish = true
+			if (verticalLoginButtonConfig != null) {
+				isFinish = verticalLoginButtonConfig.isFinishLoginPage ?? true
+			} else if (horizontalLoginButtonConfig != null) {
+				isFinish = horizontalLoginButtonConfig.isFinishLoginPage ?? true
+			}
 			OneKeyLoginManager.getInstance().setAuthThemeConfig(verticalUiConfig, horizontalUiConfig);
-			OneKeyLoginManager.getInstance().openLoginAuth(true, openLoginAuthListener, oneKeyLoginListener);
+			OneKeyLoginManager.getInstance().openLoginAuth(isFinish, openLoginAuthListener, oneKeyLoginListener);
 		} catch (e : Exception) {
 			console.log(`quickAuthLoginWithConfigure：Exception=${e}`);
 		}
