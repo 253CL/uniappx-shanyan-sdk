@@ -641,6 +641,203 @@ export type AuthIOSUIConfigure = {
 	clOrientationLayOutLandscape ?: CLLayoutUIItem
 }
 
+
+//==============================harmony======================================
+
+export interface CLHarmonyWidgetItem {
+	// 控件id
+	widgetId:number
+	// 设置自定义控件类型，包括"TextView"、"Button"、"ImageView"。
+	type:string
+	
+	width:string | number
+	height:string | number
+	// 设置自定义控件 - 比例
+	scaleType : number
+	// 设置自定义控件 - 圆角
+	cornerRadius: number
+	// 设置自定义控件 - 内容
+	textContent : string
+	// 设置自定义控件文本字体大小
+	textFont: number
+	// 设置自定义控件文本字体颜色，16进制颜色值，如："#0ff000"。
+	textColor : string
+	// 设置自定义控件容器背景色，16进制颜色值，如："#0ff000"。
+	backgroundColor : string
+	// 设置自定义控件容器背景图片名称，带图片格式后缀，如："abc.png"。
+	backgroundImgPath : string
+	// 设置自定义控件边框颜色，16进制颜色值，如："#0ff000"
+	borderColor : string
+	// 设置自定义控件边框宽度
+	borderWidth : number
+	margin:CLHarmonyPadding
+	alignRule:CLHarmonyAlignRuleOption
+}
+
+
+export type CLHarmonyPadding  = {
+	top? : number | string
+	left? : number  | string
+	bottom? : number  | string
+	right? : number  | string
+}
+
+export type CLHarmonyMargin = CLHarmonyPadding
+
+interface CLHarmonyAnchorOption  {
+	anchor?: string
+	align: CLHorizontalAlign | CLVerticalAlign 
+}
+
+export interface CLHarmonyPrivacyEntity  {
+	text: string 
+	fontSize: number 
+	fontWeight: number 
+	isProtocol: boolean
+	fontColor: string
+	url: string
+}
+
+
+export interface CLHarmonyAlignRuleOption  {
+	// 水平方向
+    left?:CLHarmonyAnchorOption 
+    right?:CLHarmonyAnchorOption
+    middle?:CLHarmonyAnchorOption
+	
+	// 垂直方向
+    top?:CLHarmonyAnchorOption
+    bottom?:CLHarmonyAnchorOption
+    center?:CLHarmonyAnchorOption
+ 
+    bias?: CLHarmonyBias
+}
+
+export enum CLFontWeight{
+	Lighter = 0,
+	Normal,
+	Regular,
+	Medium,
+	Bold,
+	Bolder
+}
+export enum CLHorizontalAlign {
+    Start ,
+    Center,
+    End
+}
+
+export enum CLVerticalAlign {
+    Top ,
+    Center,
+    Bottom
+}
+
+export type CLHarmonyBias = {
+    horizontal : number | undefined
+    vertical: number | undefined
+}
+
+export type AuthHarmonyUIConfigure = {
+	
+	// harmony - SystemBarProperties属性设置
+	statusBarColor: string | undefined
+	isStatusBarLightIcon: boolean | undefined
+	statusBarContentColor: string | undefined
+	navigationBarColor: string | undefined
+	isNavigationBarLightIcon: boolean | undefined
+	navigationBarContentColor: string | undefined
+	enableStatusBarAnimation: boolean | undefined
+	enableNavigationBarAnimation: boolean | undefined
+		
+	// harmony - 设置服务条款标题字体大小
+	navTextSize :number | undefined
+	// harmony - 设置服务条款标题字体颜色
+	navTextColor : string | undefined
+	// harmony - 设置服务条款标题颜色
+	navColor : string | undefined
+	// harmony - 设置授权页灰度值，范围0-1
+	loginPageGrayScale :number | undefined
+	
+	// harmony - 设置号码栏字体大小
+	numberSize: number | undefined
+	// harmony - 设置号码栏字体字体粗细
+	numberIsBold: boolean | undefined
+	// harmony - 设置手机号码字体颜色
+    numberColor: string | undefined
+	// harmony - 号码偏移量 示例{left:1,right:1,top:1,bottom:1}
+	numberMargin?:CLHarmonyPadding
+	// harmony - 号码号码栏相对布局规则
+	numberAlignRuleOption?:CLHarmonyAlignRuleOption 
+	
+	
+	// harmony -设置登录按钮宽度
+	loginBtnWidth: number | undefined
+	// harmony -设置登录按钮高度
+	loginBtnHeight: number | undefined
+	// harmony -设置登录按钮文本内容
+	loginBtnText: string  | undefined
+	// harmony -设置授权登录文本字体大小
+	loginBtnTextSize: number | undefined
+	// harmony -设置授权登录按钮字体颜色
+	loginBtnTextColor: string | undefined
+	// harmony -设置登录按钮边缘边距
+	loginBtnMargin?: CLHarmonyPadding
+	// harmony -设置登录按钮相对布局偏移规则
+	loginBtnAlignRuleOption?: CLHarmonyAlignRuleOption
+	// harmony -设置登录按钮背景图片
+	loginBtnImgPath: string | undefined
+	// harmony -设置登录按钮背景颜色
+	loginBtnColor: string | undefined
+	// harmony -设置登录按钮是否显示按压效果
+	loginBtnStateEffect: boolean | undefined
+	// harmony -设置登录按钮圆角 
+	loginBtnBorderRadius: number | undefined
+	
+	// harmony -设置隐私条款的协议文本，自定义条款，自定义条款链接、字体颜色
+	clauses?: CLHarmonyPrivacyEntity[]
+	// harmony -设置隐私条款偏移边距
+	clauseMargin?: CLHarmonyPadding
+	// harmony -设置隐私条款相对布局偏移规则
+	clauseAlignRuleOption?: CLHarmonyAlignRuleOption
+	// harmony -设置隐私条款勾选框宽度
+	checkBoxWidth: number | undefined
+	// harmony -设置隐私条款勾选框高度
+	checkBoxHeight: number | undefined
+	// harmony -设置隐私条款勾选框勾选状态
+	clauseState: boolean | undefined
+	// harmony -设置隐私条款勾选框偏移边距
+	checkBoxMargin?: CLHarmonyPadding
+	// harmony -设置勾选框类型(圆形0/圆角矩形1)
+	checkBoxShape: number | undefined
+	// harmony -设置隐私条款勾选框相对布局偏移规则
+	checkBoxAlignRuleOption?: CLHarmonyAlignRuleOption
+	// harmony -设置 checkbox 勾选和未勾选图片(需同时设置checkedImage、unCheckedImage)
+	checkedImage: string | undefined
+	// harmony -设置 checkbox 勾选和未勾选图片(需同时设置checkedImage、unCheckedImage)
+	unCheckedImage: string | undefined
+	// harmony -设置未勾选提示的自定义提示文案。不设置则无提示。
+	checkTipText: string | undefined
+	// harmony -设置勾选颜色
+	checkedColor: string | undefined
+	// harmony -设置协议页标题栏margin.top，范围为 0-99
+	clauseNavMarginTop: number | undefined
+	
+	widgetItems?:CLHarmonyWidgetItem[]
+		
+	// harmony -设置默认元素语言，0.中文简体 1.中文繁体 2.英文
+	appLanguageType: number | undefined
+	
+	// harmony -设置窗口模式，默认false
+	windowMode:boolean | undefined
+	// harmony -设置窗口模式，宽
+	windowWidth: number | undefined
+	// harmony -设置窗口模式，高
+	windowHeight: number | undefined
+}
+
+
+
 export type TUIConfigure = {
 	clNavigationBackBtnImage ?: string
 	clNavigationBarHidden ?: number
@@ -713,4 +910,6 @@ export type AuthAndroidUIConfigure = {
 export type ShanYanUIConfigure = {
 	androidConfig ?: AuthAndroidUIConfigure
 	iOSConfig ?: AuthIOSUIConfigure
+	harmonyConfig ?: AuthHarmonyUIConfigure
 }
+

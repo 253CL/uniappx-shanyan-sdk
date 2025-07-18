@@ -16,8 +16,8 @@
 </template>
 
 <script lang="ts">
-	import { PrivacyListItem, AuthAndroidUIConfigure, AuthIOSUIConfigure, BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
-	import { WidgetItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, PrivacyList, DialogThemeItem, CLLayoutUIItem, ConfigItem, CLEdgeInsetsItem, CLSizeItem } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
+	import { PrivacyListItem, AuthAndroidUIConfigure, AuthIOSUIConfigure, AuthHarmonyUIConfigure, BaseUIConfig, ShanYanUIConfigure, WidgetsConfig, ShanYanSDKModule } from "../../uni_modules/cl-shanyan"
+	import { WidgetItem, StatusBarItem, SystemNavBarItem, NavBarItem, LogoItem, NumberItem, SLoganItem, LoginButtonItem, PrivacyItem, PrivacyList, DialogThemeItem, CLLayoutUIItem, ConfigItem, CLEdgeInsetsItem, CLSizeItem, CLVerticalAlign, CLHorizontalAlign, CLHarmonyWidgetItem, CLHarmonyPrivacyEntity, CLHarmonyBias } from "../../uni_modules/cl-shanyan/utssdk/interface.uts"
 	const shanYanSDKModule = new ShanYanSDKModule();
 	let isDebug = true;
 	//设置闪验SDK内部日志开关是否开启。true：开启；false：关闭；默认：false。
@@ -450,14 +450,136 @@
 				return iOSUIConfig;
 			},
 
+			getHarmonyUIConfig() {
+				const harmonyConfig : AuthHarmonyUIConfigure = {
+					windowMode: true,
+					clauses: [{
+						text: '同意',
+						isProtocol: false,
+						fontColor: '#000000',
+						fontSize: 16,
+						fontWeight: 1,
+					},
+					{
+						text: '《**CLAUSE**》',
+						isProtocol: true,
+						fontColor: '#FF0000',
+						fontSize: 16,
+						fontWeight: 1,
+					},
+					{
+						text: '、',
+						isProtocol: false,
+						fontColor: '#000000',
+						fontSize: 16,
+						fontWeight: 1
+					},
+					{
+						text: '自定义协议1',
+						isProtocol: true,
+						fontColor: '#FF0000',
+						fontSize: 16,
+						fontWeight: 1,
+						url: 'https://www.baidu.com/'
+					},
+					{
+						text: '、',
+						isProtocol: false,
+						fontColor: '#000000',
+						fontSize: 16,
+						fontWeight: 1
+					},
+					{
+						text: '自定义协议2',
+						isProtocol: true,
+						fontColor: '#FF0000',
+						fontSize: 16,
+						fontWeight: 1,
+						url: 'https://www.sina.com/'
+					},
+					{
+						text: '并使用本机号码校验',
+						isProtocol: false,
+						fontColor: '#000000',
+						fontSize: 16,
+						fontWeight: 1
+					}] as CLHarmonyPrivacyEntity[],
+					numberMargin:{top: 0, left: 0, right: 0, bottom: 120},
+					numberAlignRuleOption:{
+						center: { anchor: '__container__', align: CLVerticalAlign.Center },
+						middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
+						
+					},
+					loginBtnMargin: { top: 0, left: 0, right: 0, bottom: 0 },
+					loginBtnAlignRuleOption: {
+						center: { anchor: '__container__', align: CLVerticalAlign.Center },
+						middle: { anchor: '__container__', align: CLHorizontalAlign.Center },
+					},
+					loginBtnText: '一键登录',
+					clauseState:false,
+					checkTipText:'未勾选协议',
+					clauseNavMarginTop:44,
+					widgetItems: [{
+						widgetId: 12,
+						type: "Button",
+						textContent: "测试",
+						width:50,
+						height:50,
+						margin: {
+							top: 130, right: '20%'
+						},
+						alignRule: {
+							center: { anchor: '__container__', align: CLVerticalAlign.Center },
+							right: { anchor: '__container__', align: CLHorizontalAlign.End }
+						}
+					} as CLHarmonyWidgetItem,
+					{
+						widgetId: 13,
+						type: "ImageView",
+						textContent: "测试一下下",
+						cornerRadius:25,
+						backgroundImgPath:'startIcon',
+						width:'50',
+						height:'50',
+						margin: {
+							top: 130, left: '20%'
+						},
+						alignRule: {
+							center: { anchor: '__container__', align: CLVerticalAlign.Center },
+							left: { anchor: '__container__', align: CLHorizontalAlign.Start }
+						}
+					} as CLHarmonyWidgetItem,
+					{
+						widgetId: 14,
+						type: "ImageView",
+						cornerRadius:25,
+						backgroundImgPath:'shanyan',
+						width:'140',
+						height:'60',
+						margin: {
+							bottom: 180
+						},
+						alignRule: {
+							bottom: { anchor: '__container__', align: CLVerticalAlign.Center },
+							middle: { anchor: '__container__', align: CLHorizontalAlign.Center },
+						}
+					} as CLHarmonyWidgetItem
+					]
+				}
+
+				return harmonyConfig
+			},
+
 			getUIConfig() : ShanYanUIConfigure {
 				const androidConfig = this.getAndroidUIConfig();
 				const iOSConfig = this.getIOSUIConfig();
+				const harmonyConfig = this.getHarmonyUIConfig()
 				const uiConfigure : ShanYanUIConfigure = {
 					//Android授权页UI配置，如果没有Android终端场景，可以不配置此项
 					androidConfig,
 					//iOS授权页UI配置，如果没有iOS终端场景，可以不配置此项
-					iOSConfig
+					iOSConfig,
+					harmonyConfig
 				};
 				return uiConfigure;
 

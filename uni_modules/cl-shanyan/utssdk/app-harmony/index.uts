@@ -1,0 +1,428 @@
+import { CLAuthLoginCallBack, CLResult, CLSDKManager, CLUIConfigure, PrivacyEntity } from 'shanyansdk'
+import { CLResultResponse, CLResultCallBack, ResultData, AuthHarmonyUIConfigure, ShanYanUIConfigure, CLResultCallBlock, CLHorizontalAlign, CLVerticalAlign, CLHarmonyAlignRuleOption, CLHarmonyWidgetItem, CLHarmonyMargin, CLHarmonyPadding, CLHarmonyPrivacyEntity } from "../interface.uts"
+import { Font, UIContext, window, BuilderNode, promptAction, ShowDialogOptions } from '@kit.ArkUI'
+
+
+export class ShanYanSDKModule {
+
+	printLog : boolean = false
+
+	callEventBlock ?: (widgetId : number) => void
+	authLoginBlock ?: () => boolean
+
+	setCallEventUIBlock(callback : (widgetId : number) => void) {
+		this.callEventBlock = callback
+	}
+
+	showShanYanNativeToast(message : string) {
+
+	}
+
+	// log日志开关
+	setDebug(isDebug : boolean) {
+		CLSDKManager.printConsoleEnable(false)
+		this.printLog = isDebug
+	}
+
+	// 设置预取号超时时间
+	setTimeOutForPreLogin(time : number) {
+		try {
+			CLSDKManager.setInitTimeOut(time)
+		} catch (e) {
+			console.log(`setTimeOutForPreLogin：Exception=${e}`);
+		}
+	}
+
+	// 清除预取号缓存
+	async clearScripCache() {
+		try {
+			await CLSDKManager.clearScripCache()
+		} catch (e) {
+			console.log(`clearScripCache：Exception=${e}`);
+		}
+	}
+
+	// SDK初始化
+	async initWithAppId(appId : string, options : CLResultCallBack) {
+		CLSDKManager.printConsoleEnable(true)
+		const result : CLResult = await CLSDKManager.init(getContext(this), "Bjl4A8j0")
+		if (result != null) {
+			let response : CLResultResponse = {
+				code: result.code,
+				message: result.message,
+				innerCode: result.innerCode,
+				innerDesc: result.innerDesc,
+				data: null,
+			}
+			if (this.printLog) { console.log(`🍀初始化：${JSON.stringify(response)}`) }
+			options(response)
+		} else {
+			if (this.printLog) { console.log(`🍀初始化异常`) }
+			options({ code: -1, message: "初始化异常", innerCode: -1, innerDesc: "初始化异常", data: null })
+		}
+		console.log(result)
+	}
+
+
+	// 预取号
+	async getPhoneInfo(options : CLResultCallBack) {
+		const result : CLResult = await CLSDKManager.preGetPhoneNumber()
+		if (result != null) {
+			let data = {} as ResultData
+			result.data.forEach((value, key) => {
+				if (key == 'protocolName') { data.protocolName = value ?? '' }
+				if (key == 'protocolUrl') { data.protocolUrl = value ?? '' }
+				if (key == 'telecom') { data.telecom = value ?? '' }
+			})
+
+			let response : CLResultResponse = {
+				code: result.code,
+				message: result.message,
+				innerCode: result.innerCode,
+				innerDesc: result.innerDesc,
+				data: data as ResultData
+			}
+			if (this.printLog) { console.log(`🍀预取号：${JSON.stringify(response)}`) }
+			options(response)
+		} else {
+			if (this.printLog) { console.log("🍀预取号异常") }
+			options({ code: -1, message: "预取号失败", innerCode: -1, innerDesc: "预取号失败", data: null, })
+		}
+	}
+
+	// 拉起授权页
+	async quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
+
+		let config = await this.transformConfig(configure)
+
+		let pgResult : CLResult = await CLSDKManager.quickAuthLoginWithConfigure(config, async (result : CLResult) => {
+			if (result != null) {
+				let data = {
+					token: result.data?.get('token'),
+				} as ResultData
+				let response : CLResultResponse = {
+					code: result.code,
+					message: result.message,
+					innerCode: result.innerCode,
+					innerDesc: result.innerDesc,
+					data: data,
+				}
+				if (this.printLog) { console.log(`🍀点击一键登录：${JSON.stringify(response)}`) }
+				CLSDKManager.closeAuthLoginPage()
+				oneKeyLoginCallback(response)
+			} else {
+				if (this.printLog) { console.log("🍀一键登录异常") }
+			}
+		})
+		console.log(pgResult)
+	}
+
+	finishAuthControllerAnimated() {
+		CLSDKManager.closeAuthLoginPage()
+	}
+
+	// 本机号校验
+	async startAuthentication(callback : CLResultCallBack) {
+		let result : CLResult = await CLSDKManager.mobileCheckWithLocalPhoneNumberComplete()
+		console.log(JSON.stringify(result))
+		if (result != null) {
+			let data = { token: result.data?.get('token') ?? '' } as ResultData
+			let response : CLResultResponse = {
+				code: result.code == 2000 ? 1000 : result.code,
+				message: result.message,
+				innerCode: result.innerCode == 2000 ? 1000 : result.code,
+				innerDesc: result.innerDesc,
+				data: data,
+			}
+			if (this.printLog) { console.log(`🍀本机号校验：${JSON.stringify(response)}`) }
+			callback(response)
+		} else {
+			if (this.printLog) { console.log("🍀本机号校验：获取token异常") }
+			callback({ code: -1, message: "获取token失败", innerCode: -1, innerDesc: "获取token失败", data: null, })
+		}
+	}
+
+	async transformConfig(configure : ShanYanUIConfigure) : Promise<CLUIConfigure> {
+		let harmonyConfig = configure.harmonyConfig!
+		let config = new CLUIConfigure()
+		let systemBarProperties : window.SystemBarProperties = {
+			statusBarColor: harmonyConfig.statusBarColor
+			isStatusBarLightIcon: harmonyConfig.isStatusBarLightIcon
+			statusBarContentColor: harmonyConfig.statusBarContentColor
+			navigationBarColor: harmonyConfig.navigationBarColor
+			isNavigationBarLightIcon: harmonyConfig.isNavigationBarLightIcon
+			navigationBarContentColor: harmonyConfig.navigationBarContentColor
+			enableStatusBarAnimation: harmonyConfig.enableStatusBarAnimation
+			enableNavigationBarAnimation: harmonyConfig.enableNavigationBarAnimation
+		}
+		config.systemBarProperties = systemBarProperties
+		// 设置服务条款标题字体大小
+		config.navTextSize = harmonyConfig.navTextSize
+		// 设置服务条款标题字体颜色
+		config.navTextColor = harmonyConfig.navTextColor
+		// 设置服务条款标题颜色
+		config.navColor = harmonyConfig.navColor
+		// 设置授权页灰度值，范围0-1
+		config.loginPageGrayScale = harmonyConfig.loginPageGrayScale
+		// 设置号码栏字体大小
+		config.numberSize = harmonyConfig.numberSize
+		// 设置号码栏字体字体粗细
+		config.numberIsBold = harmonyConfig.numberIsBold
+		// 设置手机号码字体颜色
+		config.numberColor = harmonyConfig.numberColor
+
+		// 设置号码栏偏移
+		if (harmonyConfig.numberMargin != null) {
+			config.numberMargin = convertMargin(harmonyConfig.numberMargin!)
+		}
+
+
+		// 设置号码栏相对布局偏移规则
+		let numberAlign = harmonyConfig.numberAlignRuleOption
+		if (numberAlign != null) {
+			config.numberAlignRuleOption = convertAlignRuleOption(harmonyConfig.numberAlignRuleOption!)
+		}
+
+		// 设置登录按钮宽度
+		config.loginBtnWidth = harmonyConfig.loginBtnWidth
+		// 设置登录按钮高度
+		config.loginBtnHeight = harmonyConfig.loginBtnHeight
+		// 设置登录按钮文本内容
+		config.loginBtnText = harmonyConfig.loginBtnText
+		// 设置授权登录文本字体大小
+		config.loginBtnTextSize = harmonyConfig.loginBtnTextSize
+		// 设置授权登录按钮字体颜色
+		config.loginBtnTextColor = harmonyConfig.loginBtnTextColor
+
+		// 设置登录按钮边缘边距
+		if (harmonyConfig.loginBtnMargin != null) {
+			config.loginBtnMargin = convertMargin(harmonyConfig.loginBtnMargin!)
+		}
+
+
+		// 设置登录按钮相对布局偏移规则
+		let loginBtnAlign = harmonyConfig.loginBtnAlignRuleOption
+		if (loginBtnAlign != null) {
+			config.loginBtnAlignRuleOption = convertAlignRuleOption(loginBtnAlign!)
+		}
+
+		// 设置登录按钮背景图片
+		config.loginBtnImgPath = harmonyConfig.loginBtnImgPath
+		// 设置登录按钮背景颜色
+		config.loginBtnColor = harmonyConfig.loginBtnColor
+		// 设置登录按钮是否显示按压效果
+		config.loginBtnStateEffect = harmonyConfig.loginBtnStateEffect
+		// 设置登录按钮圆角
+		config.loginBtnBorderRadius = harmonyConfig.loginBtnBorderRadius
+
+
+		// 设置隐私条款偏移边距
+		if (harmonyConfig.clauseMargin != null) {
+			config.clauseMargin = convertMargin(harmonyConfig.clauseMargin!)
+		}
+
+		// 设置隐私条款相对布局偏移规则
+		let clauseAlign = harmonyConfig.clauseAlignRuleOption
+		if (clauseAlign != null) {
+			config.clauseAlignRuleOption = convertAlignRuleOption(clauseAlign!)
+		}
+
+		// 设置隐私条款勾选框宽度
+		config.checkBoxWidth = harmonyConfig.checkBoxWidth
+		// 设置隐私条款勾选框高度
+		config.checkBoxHeight = harmonyConfig.checkBoxHeight
+		// 设置隐私条款勾选框勾选状态
+		config.clauseState = harmonyConfig.clauseState
+
+		// 设置隐私条款的协议文本，自定义条款，自定义条款链接、字体颜色
+		let privacys : PrivacyEntity[] = []
+		harmonyConfig.clauses?.forEach((privacy) => {
+			privacys.push(convertPrivacyEntity(privacy))
+		})
+		config.clauses = privacys
+
+		// 设置隐私条款勾选框偏移边距
+		if (harmonyConfig.checkBoxMargin != null) {
+			config.checkBoxMargin = convertMargin(harmonyConfig.checkBoxMargin!)
+		}
+
+
+		let wids : any[] = []
+		harmonyConfig.widgetItems?.forEach((widget) => {
+			let widgetItem = {
+				widgetId: widget.widgetId,
+				width: widget.width,
+				height: widget.height,
+				type: widget.type,
+				scaleType: widget.scaleType,
+				cornerRadius: widget.cornerRadius,
+				textContent: widget.textContent,
+				textFont: widget.textFont,
+				textColor: widget.textColor,
+				backgroundColor: widget.backgroundColor,
+				backgroundImgPath: widget.backgroundImgPath,
+				borderColor: widget.borderColor,
+				borderWidth: widget.borderWidth,
+				margin: convertMargin(widget.margin),
+				alignRule: convertAlignRuleOption(widget.alignRule)
+			}
+			wids.push(widgetItem)
+		})
+
+		let jsonStr = JSON.stringify(wids)
+		config.customComponent = jsonStr
+
+		config.customListener = ({
+			onAuthCustomListener(id : string) {
+
+				if (this.callEventBlock != null) {
+					this.callEventBlock!(Number(id))
+				}
+			}
+		})
+
+
+		if (!harmonyConfig.checkTipText || harmonyConfig.checkTipText.length <= 0) {
+			config.authLoginListener = ({
+				onAuthLoginListener(context : UIContext, callBack : CLAuthLoginCallBack) {
+				}
+			})
+		}
+
+
+		// 设置勾选框类型(圆角矩形/圆形)
+		config.checkBoxShape = harmonyConfig.checkBoxShape
+
+		// 设置隐私条款勾选框相对布局偏移规则
+		let checkAlign = harmonyConfig.checkBoxAlignRuleOption
+		if (checkAlign != null) {
+			config.checkBoxAlignRuleOption = convertAlignRuleOption(checkAlign!)
+		}
+
+		// 设置 checkbox 勾选和未勾选图片(需同时设置checkedImage、unCheckedImage)
+		config.checkedImage = harmonyConfig.checkedImage
+		// 设置 checkbox 勾选和未勾选图片(需同时设置checkedImage、unCheckedImage)
+		config.unCheckedImage = harmonyConfig.unCheckedImage
+		// 设置未勾选提示的自定义提示文案。不设置则无提示。
+		config.checkTipText = harmonyConfig.checkTipText
+		// 设置勾选颜色
+		config.checkedColor = harmonyConfig.checkedColor
+		// 设置协议页标题栏margin.top，范围为 0-99
+		config.clauseNavMarginTop = harmonyConfig.clauseNavMarginTop
+		// 设置默认元素语言，0.中文简体 1.中文繁体 2.英文
+		config.appLanguageType = harmonyConfig.appLanguageType
+
+		// 设置窗口模式，默认false
+		// config.windowMode = true
+		// // 窗口模式下必传
+		//   // dialogViewController	  
+		// let dialogViewController = new CustomDialogController({
+		//               builder:()=>{},
+		//               maskColor:Color.Transparent,
+		//               width:'100%',
+		//               height:'60%',
+		//               offset: { dx:0,dy:'5%' },
+		//               customStyle:false,
+		//               alignment:DialogAlignment.Bottom,
+		//             } as CustomDialogControllerOptions)
+		// config.dialogViewController = dialogViewController
+		config.uiContext = getContext(this) as unknown as UIContext
+
+
+
+		return config
+	}
+
+}
+function convertPrivacyEntity(privacy : CLHarmonyPrivacyEntity) : PrivacyEntity {
+	let privacyModel = new PrivacyEntity()
+	privacyModel.text = privacy.text
+	privacyModel.fontSize = privacy.fontSize
+	privacyModel.fontColor = privacy.fontColor
+	privacyModel.isProtocol = privacy.isProtocol
+	privacyModel.url = privacy.url
+	privacyModel.fontWeight = convertFontWeight(privacy.fontWeight)
+	return privacyModel
+}
+
+
+
+// 鸿蒙字体转换
+function convertFontWeight(num : number) : FontWeight {
+	const fontArray : FontWeight[] = [
+		FontWeight.Lighter,
+		FontWeight.Normal,
+		FontWeight.Regular,
+		FontWeight.Medium,
+		FontWeight.Bold,
+		FontWeight.Bolder
+	]
+	if (num < 0 || num > 5) {
+		return FontWeight.Regular
+	} else {
+		return fontArray.indexOf(num)
+	}
+}
+
+// 鸿蒙margin or Padding转换
+function convertMargin(margin : CLHarmonyMargin | CLHarmonyPadding) : Margin {
+	return {
+		left: margin.left as Length | undefined,
+		right: margin.right as Length | undefined,
+		bottom: margin.bottom as Length | undefined,
+		top: margin.top as Length | undefined
+	}
+}
+
+
+function convertAlignRuleOption(clOpt : CLHarmonyAlignRuleOption) : AlignRuleOption {
+	let map : AlignRuleOption = {}
+	if (clOpt.left?.anchor != null) {
+		map.left = { 'anchor': '__container__', align: convertHorizontalAlignEnum(clOpt.left?.align) }
+	}
+	if (clOpt.right?.anchor != null) {
+		map.right = { 'anchor': '__container__', align: convertHorizontalAlignEnum(clOpt.right?.align) }
+	}
+	if (clOpt.middle?.anchor != null) {
+		map.middle = { 'anchor': '__container__', align: convertHorizontalAlignEnum(clOpt.middle?.align) }
+	}
+	if (clOpt.top?.anchor != null) {
+		map.top = { 'anchor': '__container__', align: convertVerticalAlignEnum(clOpt.top?.align) }
+	}
+	if (clOpt.bottom?.anchor != null) {
+		map.bottom = { 'anchor': '__container__', align: convertVerticalAlignEnum(clOpt.bottom?.align) }
+	}
+	if (clOpt.center?.anchor != null) {
+		map.center = { 'anchor': '__container__', align: convertVerticalAlignEnum(clOpt.center?.align) }
+	}
+
+	if (clOpt.bias != null) {
+		map.bias = {
+			horizontal: 0.5,
+			vertical: 0.2
+		}
+	}
+
+	return map
+}
+
+// 枚举转换函数
+function convertHorizontalAlignEnum(value : CLHorizontalAlign | CLVerticalAlign | undefined) : HorizontalAlign {
+	switch (value) {
+		case CLHorizontalAlign.Center: return HorizontalAlign.Center
+		case CLHorizontalAlign.Start: return HorizontalAlign.Start
+		case CLHorizontalAlign.End: return HorizontalAlign.End
+		default: return HorizontalAlign.Start
+	}
+}
+
+function convertVerticalAlignEnum(value : CLHorizontalAlign | CLVerticalAlign | undefined) : VerticalAlign {
+	switch (value) {
+		case CLVerticalAlign.Top: return VerticalAlign.Top
+		case CLVerticalAlign.Center: return VerticalAlign.Center
+		case CLVerticalAlign.Bottom: return VerticalAlign.Bottom
+		default: return VerticalAlign.Top
+	}
+}
+
+}
