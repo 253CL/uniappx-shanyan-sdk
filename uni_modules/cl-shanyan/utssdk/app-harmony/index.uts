@@ -2,16 +2,27 @@ import { CLAuthLoginCallBack, CLResult, CLSDKManager, CLUIConfigure, PrivacyEnti
 import { CLResultResponse, CLResultCallBack, ResultData, AuthHarmonyUIConfigure, ShanYanUIConfigure, CLResultCallBlock, CLHorizontalAlign, CLVerticalAlign, CLHarmonyAlignRuleOption, CLHarmonyWidgetItem, CLHarmonyMargin, CLHarmonyPadding, CLHarmonyPrivacyEntity } from "../interface.uts"
 import { Font, UIContext, window, BuilderNode, promptAction, ShowDialogOptions } from '@kit.ArkUI'
 
-
 export class ShanYanSDKModule {
 
 	printLog : boolean = false
+    cluiconfigure?:CLUIConfigure
 
-	callEventBlock ?: (widgetId : number) => void
+    static callEventBlock? : (widgetId:number)=>void
 	authLoginBlock ?: () => boolean
-
-	setCallEventUIBlock(callback : (widgetId : number) => void) {
-		this.callEventBlock = callback
+	
+	
+	
+	
+	setCallEventUIBlock(callback:(widgetId:number)=>void){
+		ShanYanSDKModule.callEventBlock = callback
+	}
+	
+	
+	setCallEventUIBlock1(callback:(widgetId:number)=>void){
+		console.log('ttttttttttt')
+		
+		ShanYanSDKModule.callEventBlock = callback
+		console.log(ShanYanSDKModule.callEventBlock)
 	}
 
 	showShanYanNativeToast(message : string) {
@@ -94,7 +105,7 @@ export class ShanYanSDKModule {
 	async quickAuthLoginWithConfigure(configure : ShanYanUIConfigure, openLoginAuthCallback : CLResultCallBack, oneKeyLoginCallback : CLResultCallBack) {
 
 		let config = await this.transformConfig(configure)
-
+		this.cluiconfigure = config
 		let pgResult : CLResult = await CLSDKManager.quickAuthLoginWithConfigure(config, async (result : CLResult) => {
 			if (result != null) {
 				let data = {
@@ -274,9 +285,8 @@ export class ShanYanSDKModule {
 
 		config.customListener = ({
 			onAuthCustomListener(id : string) {
-
-				if (this.callEventBlock != null) {
-					this.callEventBlock!(Number(id))
+				if (ShanYanSDKModule.callEventBlock) {
+					ShanYanSDKModule.callEventBlock(Number(id))
 				}
 			}
 		})

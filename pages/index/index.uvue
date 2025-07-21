@@ -890,8 +890,12 @@
 						this.addLog('授权结果处理失败:' + error);
 					}
 				});
+				
 
 			},
+			
+			
+			
 			addLog(message : string) : void {
 				this.logText = message;
 				if (isDebug) {
