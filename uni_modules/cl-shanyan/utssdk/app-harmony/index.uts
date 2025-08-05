@@ -408,8 +408,8 @@ function convertAlignRuleOption(clOpt : CLHarmonyAlignRuleOption) : AlignRuleOpt
 
 	if (clOpt.bias != null) {
 		map.bias = {
-			horizontal: 0.5,
-			vertical: 0.2
+			horizontal: clOpt.bias.horizontal,
+			vertical: clOpt.bias.vertical
 		}
 	}
 

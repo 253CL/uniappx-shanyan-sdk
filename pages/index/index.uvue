@@ -449,7 +449,7 @@
 				}
 				return iOSUIConfig;
 			},
-
+			 // #ifdef APP-HARMONY
 			getHarmonyUIConfig() {
 				const harmonyConfig : AuthHarmonyUIConfigure = {
 					windowMode: true,
@@ -519,11 +519,34 @@
 					clauseState:false,
 					checkTipText:'未勾选协议',
 					clauseNavMarginTop:44,
-					widgetItems: [{
-						widgetId: 12,
-						type: "Button",
+					widgetItems: [
+						{
+							widgetId: 12,
+							type: "TextView",
+							textContent: "天翼账号提供认证服务",
+							textColor:'#ff0000',
+							backgroundColor:'#F3E534',
+							cornerRadius:15,
+							textFont:7,
+							// width:50,
+							height:50,
+							margin: {
+								bottom: 140,
+							},
+							alignRule: {
+								center: { anchor: '__container__', align: CLVerticalAlign.Center },
+								middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
+							}
+						} as CLHarmonyWidgetItem,
+					{
+						widgetId: 19,
+						type: "TextView",
 						textContent: "测试",
-						width:50,
+						textColor:'#ff0000',
+						backgroundColor:'#F3E534',
+						cornerRadius:15,
+						textFont:7,
+						// width:50,
 						height:50,
 						margin: {
 							top: 130, right: '20%'
@@ -569,17 +592,23 @@
 
 				return harmonyConfig
 			},
+			// #endif
 
 			getUIConfig() : ShanYanUIConfigure {
 				const androidConfig = this.getAndroidUIConfig();
 				const iOSConfig = this.getIOSUIConfig();
+				
+				// #ifdef APP-HARMONY
 				const harmonyConfig = this.getHarmonyUIConfig()
+				// #endif
 				const uiConfigure : ShanYanUIConfigure = {
 					//Android授权页UI配置，如果没有Android终端场景，可以不配置此项
 					androidConfig,
 					//iOS授权页UI配置，如果没有iOS终端场景，可以不配置此项
 					iOSConfig,
+					// #ifdef APP-HARMONY
 					harmonyConfig
+					// #endif
 				};
 				return uiConfigure;
 
