@@ -343,6 +343,8 @@
 					clBackgroundImg: 'bb4bf6b9301170c7fa0a766b1024d2d3.jpg',
 					clNavigationBackBtnImage: 'back-7.png',
 					clAppPrivacyWebBackBtnImage: 'shanyan_dialog_close.png',
+					
+					clManualDismiss:1,
 
 					// logo
 					clLogoImage: 'shanyan_logo.png',
@@ -449,7 +451,7 @@
 				}
 				return iOSUIConfig;
 			},
-			 // #ifdef APP-HARMONY
+			// #ifdef APP-HARMONY
 			getHarmonyUIConfig() {
 				const harmonyConfig : AuthHarmonyUIConfigure = {
 					windowMode: true,
@@ -504,11 +506,11 @@
 						fontSize: 16,
 						fontWeight: 1
 					}] as CLHarmonyPrivacyEntity[],
-					numberMargin:{top: 0, left: 0, right: 0, bottom: 120},
-					numberAlignRuleOption:{
+					numberMargin: { top: 0, left: 0, right: 0, bottom: 120 },
+					numberAlignRuleOption: {
 						center: { anchor: '__container__', align: CLVerticalAlign.Center },
 						middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
-						
+
 					},
 					loginBtnMargin: { top: 0, left: 0, right: 0, bottom: 0 },
 					loginBtnAlignRuleOption: {
@@ -516,38 +518,58 @@
 						middle: { anchor: '__container__', align: CLHorizontalAlign.Center },
 					},
 					loginBtnText: '一键登录',
-					clauseState:false,
-					checkTipText:'未勾选协议',
-					clauseNavMarginTop:44,
-					widgetItems: [
-						{
-							widgetId: 12,
-							type: "TextView",
-							textContent: "天翼账号提供认证服务",
-							textColor:'#ff0000',
-							backgroundColor:'#F3E534',
-							cornerRadius:15,
-							textFont:7,
-							// width:50,
-							height:50,
-							margin: {
-								bottom: 140,
-							},
-							alignRule: {
-								center: { anchor: '__container__', align: CLVerticalAlign.Center },
-								middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
-							}
-						} as CLHarmonyWidgetItem,
+					clauseState: false,
+					checkTipText: '未勾选协议',
+					clauseNavMarginTop: 44,
+					loginBtnBorderRadius: 20,
+					loginBtnHeight:60,
+					widgetItems: [{
+						widgetId: 33,
+						type: "Button",
+						backgroundColor: "#ffffff",
+						textColor: "#e5e6eb",
+						borderColor: "#ff2323",
+						height:60,
+						borderWidth: 3,
+						cornerRadius: 20,
+						textContent: "其他登录方式",
+						width: '80%',
+						margin: {
+							top: 450, left: 0, right: 0, bottom: 0
+						},
+						alignRule: {
+							top: { anchor: '__container__', align: CLVerticalAlign.Top },
+							middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
+						}
+					} as CLHarmonyWidgetItem,
+					{
+						widgetId: 12,
+						type: "TextView",
+						textContent: "天翼账号提供认证服务",
+						textColor: '#ff0000',
+						backgroundColor: '#F3E534',
+						cornerRadius: 15,
+						textFont: 7,
+						// width:50,
+						height: 50,
+						margin: {
+							bottom: 140,
+						},
+						alignRule: {
+							center: { anchor: '__container__', align: CLVerticalAlign.Center },
+							middle: { anchor: '__container__', align: CLHorizontalAlign.Center }
+						}
+					} as CLHarmonyWidgetItem,
 					{
 						widgetId: 19,
 						type: "TextView",
 						textContent: "测试",
-						textColor:'#ff0000',
-						backgroundColor:'#F3E534',
-						cornerRadius:15,
-						textFont:7,
+						textColor: '#ff0000',
+						backgroundColor: '#F3E534',
+						cornerRadius: 15,
+						textFont: 7,
 						// width:50,
-						height:50,
+						height: 50,
 						margin: {
 							top: 130, right: '20%'
 						},
@@ -558,12 +580,12 @@
 					} as CLHarmonyWidgetItem,
 					{
 						widgetId: 13,
-						type: "ImageView",
+						type: "Button",
 						textContent: "测试一下下",
-						cornerRadius:25,
-						backgroundImgPath:'startIcon',
-						width:'50',
-						height:'50',
+						cornerRadius: 25,
+						backgroundImgPath: 'startIcon',
+						width: '50',
+						height: '50',
 						margin: {
 							top: 130, left: '20%'
 						},
@@ -575,10 +597,10 @@
 					{
 						widgetId: 14,
 						type: "ImageView",
-						cornerRadius:25,
-						backgroundImgPath:'shanyan',
-						width:'140',
-						height:'60',
+						cornerRadius: 25,
+						backgroundImgPath: 'shanyan',
+						width: '140',
+						height: '60',
 						margin: {
 							bottom: 180
 						},
@@ -597,7 +619,7 @@
 			getUIConfig() : ShanYanUIConfigure {
 				const androidConfig = this.getAndroidUIConfig();
 				const iOSConfig = this.getIOSUIConfig();
-				
+
 				// #ifdef APP-HARMONY
 				const harmonyConfig = this.getHarmonyUIConfig()
 				// #endif
@@ -915,16 +937,19 @@
 						let token = response.data?.token ?? "";
 						const logMessage = `授权结果：\ncode=${code}\nmessage=${message}\ntoken=${token}`;
 						this.addLog(logMessage);
+						
+						shanYanSDKModule.finishAuthActivity()
+						
 					} catch (error) {
 						this.addLog('授权结果处理失败:' + error);
 					}
 				});
-				
+
 
 			},
-			
-			
-			
+
+
+
 			addLog(message : string) : void {
 				this.logText = message;
 				if (isDebug) {

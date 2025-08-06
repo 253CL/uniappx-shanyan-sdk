@@ -127,6 +127,10 @@ export class ShanYanSDKModule {
 		})
 		console.log(pgResult)
 	}
+	
+	finishAuthActivity() {
+		this.finishAuthControllerAnimated()
+	}
 
 	finishAuthControllerAnimated() {
 		CLSDKManager.closeAuthLoginPage()
@@ -272,8 +276,8 @@ export class ShanYanSDKModule {
 				textColor: widget.textColor,
 				backgroundColor: widget.backgroundColor,
 				backgroundImgPath: widget.backgroundImgPath,
-				borderColor: widget.borderColor,
 				borderWidth: widget.borderWidth,
+				borderColor: widget.borderColor,
 				margin: convertMargin(widget.margin),
 				alignRule: convertAlignRuleOption(widget.alignRule)
 			}

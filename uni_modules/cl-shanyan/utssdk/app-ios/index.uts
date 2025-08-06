@@ -165,10 +165,14 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		}
 		CLShanYanSDKManager.quickAuthLogin(with = config, openLoginAuthListener = openLoginAuthListener, oneKeyLoginListener = oneKeyLoginListener)
 	}
+	
+	private finishAuthControllerAnimated(){
+		CLShanYanSDKManager.finishAuthControllerCompletion(()=>{})
+		
+	}
 
-	finishAuthControllerAnimated() {
-		CLShanYanSDKManager.finishAuthControllerCompletion(() => {
-		})
+	finishAuthActivity() {	
+		this.finishAuthControllerAnimated()
 	}
 	
 	startAuthentication(callback : CLResultCallBack) {
@@ -265,7 +269,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			config.clBackgroundImg = getImage(tmpConfigure.clBackgroundImg!)
 			
 		}
-		
 		
 		// 设置授权页背景颜色		
 		if (tmpConfigure.clBackgroundColor != null) {
@@ -420,6 +423,12 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 			})
 			config.clAppPrivacyColor = tmp
 		}
+		
+		if (tmpConfigure.clAppPrivacyTextAlignment != null){
+			config.clAppPrivacyTextAlignment = tmpConfigure.clAppPrivacyTextAlignment!
+		}
+		
+		
 		if (tmpConfigure.clAppPrivacyPunctuationMarks !=null){
 			config.clAppPrivacyPunctuationMarks = tmpConfigure.clAppPrivacyPunctuationMarks!
 		}

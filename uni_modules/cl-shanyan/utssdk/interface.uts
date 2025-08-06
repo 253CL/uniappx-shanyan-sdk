@@ -539,6 +539,8 @@ export type AuthIOSUIConfigure = {
 	clAppPrivacyNormalDesTextLast ?: string
 	// iOS- 协议 运营商协议是否后置（0，1），默认0
 	clOperatorPrivacyAtLast ?: number
+	// iOS- 协议 运营商协议文本对齐方式，默认居中，枚举类型查看iOS原生对应的类型
+	clAppPrivacyTextAlignment?: number
 	/****************************************** 运营商SLOGAN相关 ******************************************/
 	// iOS-slogan字体样式
 	clSloganTextFontFamily ?: string
@@ -643,7 +645,6 @@ export type AuthIOSUIConfigure = {
 
 
 //==============================harmony======================================
-
 export interface CLHarmonyWidgetItem {
 	// 控件id
 	widgetId:number
@@ -652,6 +653,8 @@ export interface CLHarmonyWidgetItem {
 	
 	width:string | number
 	height:string | number
+	
+	textAlign:number
 	// 设置自定义控件 - 比例
 	scaleType : number
 	// 设置自定义控件 - 圆角
@@ -690,7 +693,7 @@ interface CLHarmonyAnchorOption  {
 }
 
 export interface CLHarmonyPrivacyEntity  {
-	text: string 
+	text: string
 	fontSize: number 
 	fontWeight: number 
 	isProtocol: boolean
@@ -823,6 +826,7 @@ export type AuthHarmonyUIConfigure = {
 	// harmony -设置协议页标题栏margin.top，范围为 0-99
 	clauseNavMarginTop: number | undefined
 	
+	// 自定义控件
 	widgetItems?:CLHarmonyWidgetItem[]
 		
 	// harmony -设置默认元素语言，0.中文简体 1.中文繁体 2.英文
