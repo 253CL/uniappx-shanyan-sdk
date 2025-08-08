@@ -1,10 +1,14 @@
 {
   "id": "cl-shanyan",
-  "displayName": "cl-shanyan",
-  "version": "1.0.0",
-  "description": "cl-shanyan",
+  "displayName": "创蓝闪验SDK",
+  "version": "1.0.0.2",
+  "description": "整合三大运营商一键登录产品，利用运营商网关鉴权能力，提供一键登录、本机号码校验服务。有效降低应用注册/登录门槛，提升用户转化率，实现快捷登入和安全风控。",
   "keywords": [
-    "cl-shanyan"
+    "一键登录",
+    "免密登录",
+    "号码认证",
+    "本机检验",
+    "创蓝闪验"
 ],
   "repository": "",
   "engines": {
@@ -24,9 +28,9 @@
       "qq": ""
     },
     "declaration": {
-      "ads": "",
-      "data": "",
-      "permissions": ""
+      "ads": "无",
+      "data": "SDK 名称：创蓝闪验 SDK\nSDK 开发者：上海璟梦信息科技有限公司\nSDK 包名：com.chuanglan.shanyan_sdk\nSDK 用途：为APP 用户提供一键登录、号码验证、安全校验服务\nSDK 信息处理类型：为了实现网关取号技术，创蓝闪验SDK 需要获取本机号码、设备标识符（包括IDFV、OAID）、设备硬件信息（包括设备型号、设备硬件制造商）、操作系统信息（包括操作系统版本）、网络信息（包括网络类型、运营商名称、网络IP地址、网络状态、网络制式）、SIM卡信息（包括SIM卡状态、subId）、应用信息（包括BundleId、包名、包签名）。\n数据处理方式：通过去标识化、加密传输及其他安全方式\n隐私协议：https://doc.chuanglan.com/document/T98GE1KYCZDMJDHN",
+      "permissions": "\"android.permission.INTERNET\",\n\"android.permission.ACCESS_WIFI_STATE\",\n\"android.permission.CHANGE_NETWORK_STATE\",\n\"android.permission.CHANGE_WIFI_STATE\",\n\"android.permission.ACCESS_NETWORK_STATE\","
     },
     "npmurl": ""
   },
@@ -35,9 +39,9 @@
     "encrypt": [],
     "platforms": {
       "cloud": {
-        "tcb": "u",
-        "aliyun": "u",
-        "alipay": "u"
+        "tcb": "y",
+        "aliyun": "y",
+        "alipay": "y"
       },
       "client": {
         "Vue": {
@@ -45,9 +49,13 @@
           "vue3": "u"
         },
         "App": {
-          "app-android": "u",
-          "app-ios": "u",
-          "app-harmony": "u"
+            "app-android": {
+                "minVersion": "19"
+            },
+            "app-ios": {
+                "minVersion": "12"
+            },
+            "app-harmony": "y"
         },
         "H5-mobile": {
           "Safari": "u",
