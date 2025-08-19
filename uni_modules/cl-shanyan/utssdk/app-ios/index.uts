@@ -3,7 +3,7 @@ import { CLResultResponse, CLResultCallBack, ResultData, AuthIOSUIConfigure, Sha
 import { Int , Double } from 'Swift';
 import { UIView, UIImage, UIFont, UIEdgeInsets, UIColor, NSLayoutConstraint, UITapGestureRecognizer , UIButton, UIGestureRecognizer, UIControl, UILabel, UIImageView } from 'UIKit';
 import { NSAttributedString, NSMutableAttributedString, NSValue, NSDictionary } from 'Foundation';
-import { setCustomUI} from './customView.uts';
+// import { setCustomUI} from './customView.uts';
 import { DispatchQueue } from 'Dispatch';
 import { CGSize, CGFloat } from 'CoreFoundation';
 import { Selector } from 'ObjectiveC';
@@ -168,7 +168,6 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 	
 	private finishAuthControllerAnimated(){
 		CLShanYanSDKManager.finishAuthControllerCompletion(()=>{})
-		
 	}
 
 	finishAuthActivity() {	
@@ -225,7 +224,7 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 		config.customAreaView = (customAreaView : UIView) => {
 
 			DispatchQueue.main.async(execute = () : void => {
-				setCustomUI(customAreaView)
+				// setCustomUI(customAreaView)
 				if (tmpConfigure.widgetsConfig != null) {
 					tmpConfigure.widgetsConfig!.forEach((dic) => {
 						let dictionary = dic as NSDictionary

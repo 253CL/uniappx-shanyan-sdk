@@ -455,6 +455,7 @@
 			getHarmonyUIConfig() {
 				const harmonyConfig : AuthHarmonyUIConfigure = {
 					windowMode: true,
+					
 					clauses: [{
 						text: '同意',
 						isProtocol: false,
