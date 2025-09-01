@@ -208,11 +208,11 @@ export class ShanYanSDKModule implements CLShanYanSDKManagerDelegate {
 
 	//代理方法
 	clShanYanSDKManagerAuthPage(@argumentLabel("afterViewDidLoad") authPageView : UIView | null, @argumentLabel("currentTelecom") telecom : string | null) {
-		console.log('有结果啦啦啦啦啦111')
+		// console.log('代理方法回调，授权页打开')
 	}
 	
 	clShanYanActionListener(type: Int, @argumentLabel("") code: Int, @argumentLabel("") message: string | null): void {
-	    console.log("有结果啦啦啦啦啦5555")
+	    // console.log("代理方法回调，按钮事件")
 	}
 
 
