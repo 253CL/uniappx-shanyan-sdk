@@ -354,7 +354,7 @@ export class ShanYanSDKModule {
 		              width:harmonyConfig.windowWidth?? '70%',
 		              height:harmonyConfig.windowHeight ?? '50%',
 		              autoCancel:harmonyConfig.windowAutoCancel,
-					  offset:{dx:harmonyConfig.windowOffSetX,dy:harmonyConfig.windowOffSetY},
+					  offset:{dx:harmonyConfig.windowOffSetX??'0',dy:harmonyConfig.windowOffSetY??'0'},
 					  alignment:convertAlignment(harmonyConfig.windowAlignment),
 					  showInSubWindow:harmonyConfig.windowShowInSubWindow,
 					  isModal:harmonyConfig.windowIsModal

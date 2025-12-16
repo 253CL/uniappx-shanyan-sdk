@@ -454,7 +454,7 @@
 			// #ifdef APP-HARMONY
 			getHarmonyUIConfig() {
 				const harmonyConfig : AuthHarmonyUIConfigure = {
-					windowMode: true,
+					
 					
 					clauses: [{
 						text: '同意',
@@ -903,9 +903,12 @@
 			getDialogUIConfig() : ShanYanUIConfigure {
 				const androidConfig = this.getAndroidDialogUIConfig();
 				const iOSConfig = this.getIOSDialogUIConfig();
+				const harmonyConfig = this.getHarmonyUIConfig();
+				harmonyConfig.windowMode = true;
 				const uiConfigure : ShanYanUIConfigure = {
 					androidConfig,
-					iOSConfig
+					iOSConfig,
+					harmonyConfig
 				};
 				return uiConfigure;
 
@@ -970,7 +973,7 @@
 					appId = '7I5nJT7h';
 				} else if (platform === 'harmonyos') {
 					// harmonyos端信息-->appId：FyiH0sFV，appkey：FrUrFv6V，包名：com.harmony.shanyantest，包签名：7265454aa66fb198041e78deed7e68d93ff73dc6c5fa11274612635e05caee85,应用唯一标识:6918664681503718031
-					appId = 'FyiH0sFV';
+					appId = 'rvLuhZSw';
 				} else {
 					this.addLog('不支持的平台: ' + platform);
 					// 非 android/ios/harmonyos平台 直接返回
