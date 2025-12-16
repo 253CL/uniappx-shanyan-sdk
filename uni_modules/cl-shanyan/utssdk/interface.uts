@@ -834,10 +834,35 @@ export type AuthHarmonyUIConfigure = {
 	
 	// harmony -设置窗口模式，默认false
 	windowMode:boolean | undefined
+	
 	// harmony -设置窗口模式，宽
-	windowWidth: number | undefined
+	windowWidth: number | string | undefined
+	
 	// harmony -设置窗口模式，高
-	windowHeight: number | undefined
+	windowHeight: number | string | undefined
+
+	// harmony -设置窗口位置
+	windowAlignment:number | undefined
+	
+	// harmony -设置窗口偏移量
+	windowOffSetX:number | string |undefined
+	windowOffSetY:number | string |undefined
+	
+	// harmony -设置窗口是否在子窗口上
+	windowShowInSubWindow: boolean | undefined
+	
+	// harmony -设置窗口是否是模态
+	windowIsModal: boolean | undefined
+	
+	// harmony -设置窗口是否自动取消
+	windowAutoCancel :boolean | undefined
+	
+	// harmony -设置窗口背景蒙版颜色，可见区域
+	windowMaskColor: string | undefined
+	windowMaskRectX: number | string | undefined
+	windowMaskRectY: number | string | undefined
+	windowMaskRectWidth: number | string | undefined
+	windowMaskRectHeight: number | string | undefined
 }
 
 

@@ -1,6 +1,8 @@
-import { CLAuthLoginCallBack, CLResult, CLSDKManager, CLUIConfigure, PrivacyEntity } from 'shanyansdk'
+import { CLAuthLoginCallBack, CLResult, CLSDKManager, CLUIConfigure, PrivacyEntity,CLLoginDialogOptions } from 'shanyansdk'
 import { CLResultResponse, CLResultCallBack, ResultData, AuthHarmonyUIConfigure, ShanYanUIConfigure, CLResultCallBlock, CLHorizontalAlign, CLVerticalAlign, CLHarmonyAlignRuleOption, CLHarmonyWidgetItem, CLHarmonyMargin, CLHarmonyPadding, CLHarmonyPrivacyEntity } from "../interface.uts"
 import { Font, UIContext, window, BuilderNode, promptAction, ShowDialogOptions } from '@kit.ArkUI'
+import print from '../../../../../../../../../Applications/HBuilderX.app/Contents/HBuilderX/plugins/uts-development-harmony/uts-types/app-harmony/types/ohos/api/@ohos.print.js'
+import common from '../../../../../../../../../Applications/HBuilderX.app/Contents/HBuilderX/plugins/uts-development-harmony/uts-types/app-harmony/types/ohos/api/@ohos.app.ability.common.js'
 
 export class ShanYanSDKModule {
 
@@ -56,7 +58,7 @@ export class ShanYanSDKModule {
 	// SDK初始化
 	async initWithAppId(appId : string, options : CLResultCallBack) {
 		CLSDKManager.printConsoleEnable(true)
-		const result : CLResult = await CLSDKManager.init(getContext(this), "Bjl4A8j0")
+		const result : CLResult = await CLSDKManager.init(getContext(this), appId)
 		if (result != null) {
 			let response : CLResultResponse = {
 				code: result.code,
@@ -340,9 +342,24 @@ export class ShanYanSDKModule {
 		//               alignment:DialogAlignment.Bottom,
 		//             } as CustomDialogControllerOptions)
 		// config.dialogViewController = dialogViewController
-		config.uiContext = getContext(this) as unknown as UIContext
-
-
+		// config.uiContext = getContext(this) as unknown as common.UIAbilityContext
+		//获取到的uiContext在鸿蒙中不可用
+		// let context =  getContext(this) as common.UIAbilityContext
+		// let uiContext =  context.windowStage.getMainWindowSync().getUIContext() as UIContext
+		// config.uiContext = uiContext
+		// console.log(JSON.stringify(config.uiContext))
+		config.windowMode = harmonyConfig.windowMode
+		
+		let dialogOptions:CLLoginDialogOptions = {
+		              width:harmonyConfig.windowWidth?? '70%',
+		              height:harmonyConfig.windowHeight ?? '50%',
+		              autoCancel:harmonyConfig.windowAutoCancel,
+					  offset:{dx:harmonyConfig.windowOffSetX,dy:harmonyConfig.windowOffSetY},
+					  alignment:convertAlignment(harmonyConfig.windowAlignment),
+					  showInSubWindow:harmonyConfig.windowShowInSubWindow,
+					  isModal:harmonyConfig.windowIsModal
+		            }
+	    config.dialogOptions = dialogOptions
 
 		return config
 	}
@@ -359,7 +376,24 @@ function convertPrivacyEntity(privacy : CLHarmonyPrivacyEntity) : PrivacyEntity 
 	return privacyModel
 }
 
-
+function convertAlignment(num: number | undefined) :DialogAlignment{
+	const aliArray: DialogAlignment[] = [
+		DialogAlignment.Top,
+		DialogAlignment.Center,
+		DialogAlignment.Bottom,
+		DialogAlignment.Default,
+		DialogAlignment.TopStart,
+		DialogAlignment.TopEnd,
+		DialogAlignment.CenterStart,
+		DialogAlignment.CenterEnd,
+		DialogAlignment.BottomStart,
+		DialogAlignment.BottomEnd
+	]
+	if (num === undefined || num < 0 || num > 9){
+		return DialogAlignment.Default
+	}
+	return aliArray[num]
+}
 
 // 鸿蒙字体转换
 function convertFontWeight(num : number) : FontWeight {
