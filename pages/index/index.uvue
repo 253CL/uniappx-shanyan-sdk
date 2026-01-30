@@ -455,7 +455,6 @@
 			getHarmonyUIConfig() {
 				const harmonyConfig : AuthHarmonyUIConfigure = {
 					
-					
 					clauses: [{
 						text: '同意',
 						isProtocol: false,
@@ -524,7 +523,22 @@
 					clauseNavMarginTop: 44,
 					loginBtnBorderRadius: 20,
 					loginBtnHeight:60,
-					widgetItems: [{
+					widgetItems: [
+						{
+							widgetId: 16,
+							type: "TextView",
+							// cornerRadius: 25,
+							backgroundColor:'#ffffff',
+							backgroundImgPath: 'shan',
+							width: '100%',
+							height: '100%',
+							margin: {top:0,left:0,bottom:0,right:0},
+							alignRule: {
+								center: { anchor: '__container__', align: CLVerticalAlign.Center },
+								middle: { anchor: '__container__', align: CLHorizontalAlign.Center },
+							}
+						} as CLHarmonyWidgetItem,
+						{
 						widgetId: 33,
 						type: "Button",
 						backgroundColor: "#ffffff",
@@ -903,12 +917,19 @@
 			getDialogUIConfig() : ShanYanUIConfigure {
 				const androidConfig = this.getAndroidDialogUIConfig();
 				const iOSConfig = this.getIOSDialogUIConfig();
-				const harmonyConfig = this.getHarmonyUIConfig();
+				// #ifdef APP-HARMONY
+				const harmonyConfig = this.getHarmonyUIConfig()
 				harmonyConfig.windowMode = true;
+				// #endif
+				
+				
 				const uiConfigure : ShanYanUIConfigure = {
 					androidConfig,
 					iOSConfig,
+					// #ifdef APP-HARMONY
 					harmonyConfig
+					// #endif
+
 				};
 				return uiConfigure;
 
@@ -921,6 +942,10 @@
 						position: 'bottom',
 					});
 					console.log("点击了" + JSON.stringify(tag))
+					if (tag == 33){
+						console.log("点击了🔥🔥" + JSON.stringify(tag))
+						shanYanSDKModule.finishAuthActivity()
+					}
 				})
 
 				shanYanSDKModule.quickAuthLoginWithConfigure(uiConfig, (response) => {

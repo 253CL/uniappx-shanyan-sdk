@@ -1,6 +1,6 @@
 import { CLAuthLoginCallBack, CLResult, CLSDKManager, CLUIConfigure, PrivacyEntity,CLLoginDialogOptions } from 'shanyansdk'
 import { CLResultResponse, CLResultCallBack, ResultData, AuthHarmonyUIConfigure, ShanYanUIConfigure, CLResultCallBlock, CLHorizontalAlign, CLVerticalAlign, CLHarmonyAlignRuleOption, CLHarmonyWidgetItem, CLHarmonyMargin, CLHarmonyPadding, CLHarmonyPrivacyEntity } from "../interface.uts"
-import { Font, UIContext, window, BuilderNode, promptAction, ShowDialogOptions } from '@kit.ArkUI'
+import { Font, UIContext, window, BuilderNode, promptAction, ShowDialogOptions, LevelMode, ImmersiveMode } from '@kit.ArkUI'
 import print from '../../../../../../../../../Applications/HBuilderX.app/Contents/HBuilderX/plugins/uts-development-harmony/uts-types/app-harmony/types/ohos/api/@ohos.print.js'
 import common from '../../../../../../../../../Applications/HBuilderX.app/Contents/HBuilderX/plugins/uts-development-harmony/uts-types/app-harmony/types/ohos/api/@ohos.app.ability.common.js'
 
@@ -131,7 +131,8 @@ export class ShanYanSDKModule {
 	}
 	
 	finishAuthActivity() {
-		this.finishAuthControllerAnimated()
+		CLSDKManager.closeAuthLoginPage()
+		// this.finishAuthControllerAnimated()
 	}
 
 	finishAuthControllerAnimated() {
@@ -353,11 +354,14 @@ export class ShanYanSDKModule {
 		let dialogOptions:CLLoginDialogOptions = {
 		              width:harmonyConfig.windowWidth?? '70%',
 		              height:harmonyConfig.windowHeight ?? '50%',
-		              autoCancel:harmonyConfig.windowAutoCancel,
+		              // autoCancel:harmonyConfig.windowAutoCancel,
 					  offset:{dx:harmonyConfig.windowOffSetX??'0',dy:harmonyConfig.windowOffSetY??'0'},
 					  alignment:convertAlignment(harmonyConfig.windowAlignment),
 					  showInSubWindow:harmonyConfig.windowShowInSubWindow,
-					  isModal:harmonyConfig.windowIsModal
+					  // isModal:harmonyConfig.windowIsModal,
+					  autoCancel:false,
+					  isModal:true,
+					  maskColor:'rgba(255, 100, 255, 0.9)'
 		            }
 	    config.dialogOptions = dialogOptions
 
