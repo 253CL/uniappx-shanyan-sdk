@@ -1,6 +1,9 @@
 {
   "deploymentTarget": "12",
-  "frameworks": [
-  	"libc++.1.tbd"
+  "dependencies-pods": [
+    {
+      "name": "CL_ShanYanSDK",
+      "version": "~> 2.3.7.4"
+    }
   ]
 }
